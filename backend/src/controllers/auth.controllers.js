@@ -11,7 +11,8 @@ export async function register(req, res) {
         if (dbUser) return res.status(409).json({ message: 'Username already exists' });
 
         const _id = new mongoose.Types.ObjectId();
-        const id = await User.findOne().sort({ _id: -1 }).exec() + 1;
+        const lastUser = await User.findOne().sort({ _id: -1 }).exec();
+        const id = lastUser?.id + 1 || 1;
         const user = new User({ _id, id, username, password });
         await user.save();
 
@@ -19,7 +20,7 @@ export async function register(req, res) {
         res.json({ token });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -39,6 +40,15 @@ export async function login(req, res) {
         res.json({ token });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export async function logout(req, res) {
+    try {
+        res.json({ message: 'OK' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
     }
 };
