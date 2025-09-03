@@ -10,6 +10,7 @@ export default function () {
         { to: '/login', label: 'Login' },
         { to: '/register', label: 'Register' },
         { to: '/logout', label: 'Logout' },
+        { to: '/users', label: 'Users' },
     ] as const;
 
     return (
