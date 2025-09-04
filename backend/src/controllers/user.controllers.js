@@ -20,11 +20,6 @@ export async function updateUser(req, res) {
         const body = req.body;
         const { _id } = params;
         delete body._id;
-        const conditions = Object.entries(body).map(([key, value]) => ({ [key]: value }));
-        const dbUsers = await User.find({ $or: conditions });
-        const dataExists = dbUsers.some(user => user._id !== _id);
-        if (dataExists) return res.status(409).json({ message: 'User already exists' });
-
         const user = await User.findOneAndUpdate({ _id, is_deleted: false }, { $set: body }, {
             new: true,
             runValidators: true
@@ -59,7 +54,7 @@ export async function getActiveUsers(req, res) {
     try {
         const body = req.body;
         const users = await User.find({ body, is_deleted: false }).select('-password');
-        res.json({ users });
+        res.send(users);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -70,7 +65,7 @@ export async function getAllUsers(req, res) {
     try {
         const body = req.body;
         const users = await User.find(body).select('-password');
-        res.json({ users });
+        res.send(users);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -81,7 +76,7 @@ export async function getDeletedUsers(req, res) {
     try {
         const body = req.body;
         const users = await User.find({ body, is_deleted: true }).select('-password');
-        res.json({ users });
+        res.send(users);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });

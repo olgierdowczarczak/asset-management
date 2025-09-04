@@ -11,4 +11,9 @@
 * Add users CRUD (backend)<br>
 * Secure routes (is logged / is admin) (backend)<br>
 * Add user to req in secured routes (backend)<br>
+
+**OO-0003**<br>
+* Add users page (frontend)<br>
+* Add user create page (frontend)<br>
+* Add user page (frontend)<br>
 #
