@@ -3,11 +3,11 @@ import bcrypt from 'bcrypt';
 
 const UserSchema = new mongoose.Schema({
     _id: { type: String, required: true },
-    id: { type: Number, required: true },
-    username: { type: String, required: true, unique: true },
+    id: { type: Number, required: true, unique: true },
+    username: { type: String, required: true },
     password: { type: String },
     is_admin: { type: Boolean },
-    is_deleted: { type: Boolean, default: false }
+    is_deleted: { type: Boolean }
 }, { versionKey: false });
 
 UserSchema.methods.checkPassword = async function (password) { return bcrypt.compare(password, this.password); };
