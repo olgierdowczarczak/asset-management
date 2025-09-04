@@ -4,8 +4,8 @@ import User from '../models/user.models.js';
 export async function getUser(req, res) {
     try {
         const params = req.params;
-        const { _id } = params;
-        const user = await User.findById(_id).select('-password');
+        const { id } = params;
+        const user = await User.findOne({ id }).select('-_id -password ');
         if (!user) return res.status(404).json({ message: 'User not exists' });
         res.send(user);
     } catch (err) {
@@ -18,12 +18,13 @@ export async function updateUser(req, res) {
     try {
         const params = req.params;
         const body = req.body;
-        const { _id } = params;
+        const { id } = params;
         delete body._id;
-        const user = await User.findOneAndUpdate({ _id, is_deleted: false }, { $set: body }, {
+        delete body.id;
+        const user = await User.findOneAndUpdate({ id, is_deleted: false }, { $set: body }, {
             new: true,
             runValidators: true
-        }).select('-password');
+        }).select('-_id -password ');
 
         if (!user) return res.status(404).json({ message: 'User not exists' });
         res.send(user);
@@ -36,13 +37,14 @@ export async function updateUser(req, res) {
 export async function deleteUser(req, res) {
     try {
         const params = req.params;
-        const { _id } = params
-        const user = await User.findById(_id).select('-password');
+        const { id } = params
+        const user = await User.findOne({ id }).select('-password');
         if (!user) return res.status(404).json({ message: 'User not exists' });
         if (user.is_admin) return res.status(409).json({ message: 'User can not be deleted' });
         if (user.is_deleted) return res.status(409).json({ message: 'User already deleted' });
 
-        await user.updateOne({ is_deleted: true });
+        user.is_deleted = true;
+        await user.save();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
@@ -53,7 +55,7 @@ export async function deleteUser(req, res) {
 export async function getActiveUsers(req, res) {
     try {
         const body = req.body;
-        const users = await User.find({ body, is_deleted: false }).select('-password');
+        const users = await User.find({ $or: [{ is_deleted: false }, { is_deleted: { $exists: false } }], body }).select('-_id -password ');
         res.send(users);
     } catch (err) {
         console.error(err);
@@ -64,7 +66,7 @@ export async function getActiveUsers(req, res) {
 export async function getAllUsers(req, res) {
     try {
         const body = req.body;
-        const users = await User.find(body).select('-password');
+        const users = await User.find(body).select('-_id -password ');
         res.send(users);
     } catch (err) {
         console.error(err);
@@ -75,7 +77,7 @@ export async function getAllUsers(req, res) {
 export async function getDeletedUsers(req, res) {
     try {
         const body = req.body;
-        const users = await User.find({ body, is_deleted: true }).select('-password');
+        const users = await User.find({ body, is_deleted: true }).select('-_id -password ');
         res.send(users);
     } catch (err) {
         console.error(err);
@@ -93,12 +95,13 @@ export async function createUser(req, res) {
         if (dbUser) return res.status(409).json({ message: 'User already exists' });
 
         const _id = new mongoose.Types.ObjectId();
-        const lastUser = await User.findOne().sort({ _id: -1 }).exec();
+        const lastUser = await User.findOne().sort({ id: -1 }).exec();
         const id = lastUser?.id + 1 || 1;
         const user = new User({ _id, id, username, ...body });
         await user.save();
 
         let userObj = user.toObject();
+        delete userObj._id;
         if (userObj.password) delete userObj.password;
 
         res.status(201).send(userObj);

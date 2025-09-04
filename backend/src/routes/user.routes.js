@@ -13,7 +13,7 @@ router.route('/')
     
 router.get('/all', adminMiddleware, getAllUsers);
 router.get('/deleted', adminMiddleware, getDeletedUsers);
-router.route('/:_id')
+router.route('/:id')
     .get(getUser)
     .put(adminMiddleware, updateUser)
     .patch(adminMiddleware, updateUser)

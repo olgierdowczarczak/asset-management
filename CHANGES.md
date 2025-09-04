@@ -16,4 +16,8 @@
 * Add users page (frontend)<br>
 * Add user create page (frontend)<br>
 * Add user page (frontend)<br>
+
+**OO-0004**<br>
+* Add assets CRUD (backend)<br>
+* Change fetch data (by id) (backend)<br>
 #
