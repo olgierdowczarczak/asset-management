@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getActiveUsers } from '../api/users';
+import { getActiveAssets } from '../api/assets';
 
-type User = {
+type Asset = {
     id: number;
-    username: string;
+    name: string;
 };
 
 export default function () {
-    const [users, setUsers] = useState<User[]>([]);
+    const [assets, setAssets] = useState<Asset[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const handleSubmit = () => {
-        navigate('/users/create');
+        navigate('/assets/create');
     };
 
-    const handleClick = (userId: number) => {
-        navigate(`/users/${userId}`);
+    const handleClick = (assetId: number) => {
+        navigate(`/assets/${assetId}`);
     };
 
     useEffect(() => {
@@ -27,10 +27,10 @@ export default function () {
             setLoading(true);
 
             try {
-                const dbUsers: User[] = await getActiveUsers('');
-                setUsers(dbUsers);
+                const dbAssets: Asset[] = await getActiveAssets('');
+                setAssets(dbAssets);
             } catch (err: any) {
-                setError(err.response?.data?.message || 'Failed to fetch users');
+                setError(err.response?.data?.message || 'Failed to fetch assets');
             } finally {
                 setLoading(false);
             }
@@ -41,21 +41,21 @@ export default function () {
 
     return (
         <>
-            <h1>Users Page</h1>
+            <h1>Assets Page</h1>
             {error && <div style={{ color: 'red' }}>{error}</div>}
 
             {loading ? (
                 <div>Loading...</div>
             ) : (
                 <div>
-                    {users.map((user) => (
-                        <div key={user.id}>
-                            <button onClick={() => handleClick(user.id)}>{user.id}</button> - {user.username}
+                    {assets.map((asset) => (
+                        <div key={asset.id}>
+                            <button onClick={() => handleClick(asset.id)}>{asset.id}</button> - {asset.name}
                         </div>
                     ))}
                 </div>
             )}
-            {!loading && <button type='submit' onClick={handleSubmit}>{loading ? 'Loading...' : 'Create user'}</button>}
+            {!loading && <button type='submit' onClick={handleSubmit}>{loading ? 'Loading...' : 'Create asset'}</button>}
         </>
     );
 };

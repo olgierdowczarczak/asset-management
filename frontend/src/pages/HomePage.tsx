@@ -11,6 +11,7 @@ export default function () {
         { to: '/register', label: 'Register' },
         { to: '/logout', label: 'Logout' },
         { to: '/users', label: 'Users' },
+        { to: '/assets', label: 'Assets' },
     ] as const;
 
     return (
