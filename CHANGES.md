@@ -20,4 +20,9 @@
 **OO-0004**<br>
 * Add assets CRUD (backend)<br>
 * Change fetch data (by id) (backend)<br>
+
+**OO-0005**<br>
+* Add assets page (frontend)<br>
+* Add asset create page (frontend)<br>
+* Add asset page (frontend)<br>
 #

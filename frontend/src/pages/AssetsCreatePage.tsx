@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUser } from '../api/users';
+import { createAsset } from '../api/assets';
 
 type Input = {
     type: string;
@@ -9,14 +9,13 @@ type Input = {
 };
 
 type FormData = {
-    username: string;
-    password: string;
+    name: string;
 };
 
 export default function () {
     const [error, setError] = useState<null | string>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [formData, setFormData] = useState<FormData | any>({ username: '', password: '' });
+    const [formData, setFormData] = useState<FormData | any>({ name: '' });
     const navigate = useNavigate();
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -25,8 +24,8 @@ export default function () {
         setLoading(true);
 
         try {
-            await createUser(formData);
-            navigate('/users');
+            await createAsset(formData);
+            navigate('/assets');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Create failed');
         } finally {
@@ -40,13 +39,12 @@ export default function () {
     };
 
     const inputs: Input[] = [
-        { type: 'text', name: 'username', placeholder: 'Username' },
-        { type: 'text', name: 'password', placeholder: 'Password' },
+        { type: 'text', name: 'name', placeholder: 'Name' },
     ];
 
     return (
         <>
-            <h1>Create user Page</h1>
+            <h1>Create asset Page</h1>
             {error && <div style={{ color: 'red' }}>{error}</div>}
 
             <form onSubmit={handleFormSubmit}>
