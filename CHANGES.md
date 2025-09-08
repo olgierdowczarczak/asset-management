@@ -6,8 +6,8 @@
 * Add login (backend+frontend)<br>
 
 **OO-0002**<br>
-* Add is_admin flag to user schema (backend)<br>
-* Add is_deleted flag to user schema (backend)<br>
+* Add isAdmin flag to user schema (backend)<br>
+* Add isDeleted flag to user schema (backend)<br>
 * Add users CRUD (backend)<br>
 * Secure routes (is logged / is admin) (backend)<br>
 * Add user to req in secured routes (backend)<br>
@@ -25,4 +25,16 @@
 * Add assets page (frontend)<br>
 * Add asset create page (frontend)<br>
 * Add asset page (frontend)<br>
+
+**OO-0006**<br>
+* Add role to user schema (backend)<br>
+* Add location to user schema (backend)<br>
+* Add isRemote to user schema (backend)<br>
+* Add email to user schema (backend)<br>
+* Add first name to user schema (backend)<br>
+* Add last name to user schema (backend)<br>
+* Add middle name to user schema (backend)<br>
+* Add company to user schema (backend)<br>
+* Add department to user schema (backend)<br>
+* Remove register (backend+frontend)<br>
 #

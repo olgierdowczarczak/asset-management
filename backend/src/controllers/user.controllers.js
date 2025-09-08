@@ -21,7 +21,7 @@ export async function updateUser(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const user = await User.findOneAndUpdate({ id, is_deleted: false }, { $set: body }, {
+        const user = await User.findOneAndUpdate({ id, isDeleted: false }, { $set: body }, {
             new: true,
             runValidators: true
         }).select('-_id -password ');
@@ -41,9 +41,9 @@ export async function deleteUser(req, res) {
         const user = await User.findOne({ id }).select('-password');
         if (!user) return res.status(404).json({ message: 'User not exists' });
         if (user.is_admin) return res.status(409).json({ message: 'User can not be deleted' });
-        if (user.is_deleted) return res.status(409).json({ message: 'User already deleted' });
+        if (user.isDeleted) return res.status(409).json({ message: 'User already deleted' });
 
-        user.is_deleted = true;
+        user.isDeleted = true;
         await user.save();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
@@ -55,7 +55,7 @@ export async function deleteUser(req, res) {
 export async function getActiveUsers(req, res) {
     try {
         const body = req.body;
-        const users = await User.find({ $or: [{ is_deleted: false }, { is_deleted: { $exists: false } }], body }).select('-_id -password ');
+        const users = await User.find({ $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }], body }).select('-_id -password ');
         res.send(users);
     } catch (err) {
         console.error(err);
@@ -77,7 +77,7 @@ export async function getAllUsers(req, res) {
 export async function getDeletedUsers(req, res) {
     try {
         const body = req.body;
-        const users = await User.find({ body, is_deleted: true }).select('-_id -password ');
+        const users = await User.find({ body, isDeleted: true }).select('-_id -password ');
         res.send(users);
     } catch (err) {
         console.error(err);
@@ -88,8 +88,8 @@ export async function getDeletedUsers(req, res) {
 export async function createUser(req, res) {
     try {
         const body = req.body;
-        const { username } = body;
-        if (!username) return res.status(400).json({ message: 'Username is required' });
+        const { username, password } = body;
+        if (!username || !password) return res.status(400).json({ message: 'Username and password are required' });
 
         const dbUser = await User.findOne({ username });
         if (dbUser) return res.status(409).json({ message: 'User already exists' });
@@ -107,6 +107,6 @@ export async function createUser(req, res) {
         res.status(201).send(userObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.errors });
     }
 };

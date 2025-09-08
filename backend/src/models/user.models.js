@@ -5,9 +5,17 @@ const UserSchema = new mongoose.Schema({
     _id: { type: String, required: true },
     id: { type: Number, required: true, unique: true },
     username: { type: String, required: true },
-    password: { type: String },
-    is_admin: { type: Boolean },
-    is_deleted: { type: Boolean }
+    password: { type: String, required: true },
+    email: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    middleName: { type: String },
+    role: { type: String, default: 'user' },
+    location: { type: String },
+    company: { type: String },
+    department: { type: String },
+    isRemote: { type: Boolean },
+    isDeleted: { type: Boolean }
 }, { versionKey: false });
 
 UserSchema.methods.checkPassword = async function (password) { return bcrypt.compare(password, this.password); };
