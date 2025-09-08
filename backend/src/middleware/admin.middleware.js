@@ -1,7 +1,7 @@
 export default async function (req, res, next) {
     try {
         const user = req.user;
-        if (!user.is_admin) throw new Error('Invalid permissions');
+        if (user.role !== 'admin') throw new Error('Invalid permissions');
 
         next();
     } catch (err) {

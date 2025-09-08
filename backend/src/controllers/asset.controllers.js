@@ -1,4 +1,3 @@
-import { mongoose } from 'mongoose';
 import Asset from '../models/asset.models.js';
 
 export async function getAsset(req, res) {
@@ -87,10 +86,9 @@ export async function getDeletedAssets(req, res) {
 export async function createAsset(req, res) {
     try {
         const body = req.body;
-        const _id = new mongoose.Types.ObjectId();
         const lastAsset = await Asset.findOne().sort({ id: -1 }).exec();
         const id = lastAsset?.id + 1 || 1;
-        const asset = new Asset({ _id, id, ...body });
+        const asset = new Asset({ id, ...body });
         await asset.save();
 
         let assetObj = asset.toObject();
