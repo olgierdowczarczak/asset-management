@@ -1,4 +1,3 @@
-import { mongoose } from 'mongoose';
 import User from '../models/user.models.js';
 
 export async function getUser(req, res) {
@@ -94,10 +93,9 @@ export async function createUser(req, res) {
         const dbUser = await User.findOne({ username });
         if (dbUser) return res.status(409).json({ message: 'User already exists' });
 
-        const _id = new mongoose.Types.ObjectId();
         const lastUser = await User.findOne().sort({ id: -1 }).exec();
         const id = lastUser?.id + 1 || 1;
-        const user = new User({ _id, id, username, ...body });
+        const user = new User({ id, username, ...body });
         await user.save();
 
         let userObj = user.toObject();

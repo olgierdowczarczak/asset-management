@@ -37,4 +37,11 @@
 * Add company to user schema (backend)<br>
 * Add department to user schema (backend)<br>
 * Remove register (backend+frontend)<br>
+
+**OO-0007**<br>
+* Add locations (backend)<br>
+* Add companies (backend)<br>
+* Add departments (backend)<br>
+* Change _id from string to object (backend)<br>
+* Add connections in models (backend)<br>
 #
