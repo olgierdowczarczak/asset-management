@@ -21,7 +21,7 @@ export async function updateAsset(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const asset = await Asset.findOneAndUpdate({ id, is_deleted: false }, { $set: body }, {
+        const asset = await Asset.findOneAndUpdate({ id, isDeleted: false }, { $set: body }, {
             new: true,
             runValidators: true
         }).select('-_id');
@@ -40,9 +40,9 @@ export async function deleteAsset(req, res) {
         const { id } = params
         const asset = await Asset.findOne({ id });
         if (!asset) return res.status(404).json({ message: 'Asset not exists' });
-        if (asset.is_deleted) return res.status(409).json({ message: 'Asset already deleted' });
+        if (asset.isDeleted) return res.status(409).json({ message: 'Asset already deleted' });
 
-        asset.is_deleted = true;
+        asset.isDeleted = true;
         await asset.save();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
@@ -54,7 +54,7 @@ export async function deleteAsset(req, res) {
 export async function getActiveAssets(req, res) {
     try {
         const body = req.body;
-        const assets = await Asset.find({ $or: [{ is_deleted: false }, { is_deleted: { $exists: false } }], body }).select('-_id');
+        const assets = await Asset.find({ $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }], body }).select('-_id');
         res.send(assets);
     } catch (err) {
         console.error(err);
@@ -76,7 +76,7 @@ export async function getAllAssets(req, res) {
 export async function getDeletedAssets(req, res) {
     try {
         const body = req.body;
-        const assets = await Asset.find({ body, is_deleted: true }).select('-_id');
+        const assets = await Asset.find({ body, isDeleted: true }).select('-_id');
         res.send(assets);
     } catch (err) {
         console.error(err);
