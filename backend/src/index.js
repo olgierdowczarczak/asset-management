@@ -32,9 +32,10 @@ app.use('/api/company', authMiddleware, companyRoutes);
 app.use('/api/department', authMiddleware, departmentRoutes);
 
 // connections
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+    .connect(process.env.MONGO_URI)
     .then(() => {
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => console.log(`App is running on port ${PORT}`));
     })
-    .catch(err => console.error(err));
+    .catch((err) => console.error(err));

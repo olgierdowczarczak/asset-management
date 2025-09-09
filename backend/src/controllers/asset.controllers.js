@@ -9,9 +9,9 @@ export async function getAsset(req, res) {
         res.send(asset);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function updateAsset(req, res) {
     try {
@@ -20,23 +20,27 @@ export async function updateAsset(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const asset = await Asset.findOneAndUpdate({ id, isDeleted: false }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id');
+        const asset = await Asset.findOneAndUpdate(
+            { id, isDeleted: false },
+            { $set: body },
+            {
+                new: true,
+                runValidators: true,
+            },
+        ).select('-_id');
 
         if (!asset) return res.status(404).json({ message: 'Asset not exists' });
         res.send(asset);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function deleteAsset(req, res) {
     try {
         const params = req.params;
-        const { id } = params
+        const { id } = params;
         const asset = await Asset.findOne({ id });
         if (!asset) return res.status(404).json({ message: 'Asset not exists' });
         if (asset.isDeleted) return res.status(409).json({ message: 'Asset already deleted' });
@@ -46,20 +50,23 @@ export async function deleteAsset(req, res) {
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getActiveAssets(req, res) {
     try {
         const body = req.body;
-        const assets = await Asset.find({ $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }], body }).select('-_id');
+        const assets = await Asset.find({
+            $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+            body,
+        }).select('-_id');
         res.send(assets);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getAllAssets(req, res) {
     try {
@@ -68,9 +75,9 @@ export async function getAllAssets(req, res) {
         res.send(assets);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getDeletedAssets(req, res) {
     try {
@@ -79,9 +86,9 @@ export async function getDeletedAssets(req, res) {
         res.send(assets);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function createAsset(req, res) {
     try {
@@ -97,6 +104,26 @@ export async function createAsset(req, res) {
         res.status(201).send(assetObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ errors });
+            }
+
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}
