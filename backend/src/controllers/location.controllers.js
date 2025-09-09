@@ -9,9 +9,9 @@ export async function getLocation(req, res) {
         res.send(location);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function updateLocation(req, res) {
     try {
@@ -20,23 +20,27 @@ export async function updateLocation(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const location = await Location.findOneAndUpdate({ id }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id');
+        const location = await Location.findOneAndUpdate(
+            { id },
+            { $set: body },
+            {
+                new: true,
+                runValidators: true,
+            },
+        ).select('-_id');
 
         if (!location) return res.status(404).json({ message: 'Location not exists' });
         res.send(location);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function deleteLocation(req, res) {
     try {
         const params = req.params;
-        const { id } = params
+        const { id } = params;
         const location = await Location.findOne({ id });
         if (!location) return res.status(404).json({ message: 'Location not exists' });
 
@@ -44,9 +48,9 @@ export async function deleteLocation(req, res) {
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getLocations(req, res) {
     try {
@@ -55,9 +59,9 @@ export async function getLocations(req, res) {
         res.send(locations);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function createLocation(req, res) {
     try {
@@ -73,6 +77,26 @@ export async function createLocation(req, res) {
         res.status(201).send(locationObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ errors });
+            }
+
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}

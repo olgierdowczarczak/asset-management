@@ -9,9 +9,9 @@ export async function getLicense(req, res) {
         res.send(license);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function updateLicense(req, res) {
     try {
@@ -20,23 +20,27 @@ export async function updateLicense(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const license = await License.findOneAndUpdate({ id }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id');
+        const license = await License.findOneAndUpdate(
+            { id },
+            { $set: body },
+            {
+                new: true,
+                runValidators: true,
+            },
+        ).select('-_id');
 
         if (!license) return res.status(404).json({ message: 'License not exists' });
         res.send(license);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function deleteLicense(req, res) {
     try {
         const params = req.params;
-        const { id } = params
+        const { id } = params;
         const license = await License.findOne({ id });
         if (!license) return res.status(404).json({ message: 'License not exists' });
 
@@ -44,9 +48,9 @@ export async function deleteLicense(req, res) {
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getLicenses(req, res) {
     try {
@@ -55,9 +59,9 @@ export async function getLicenses(req, res) {
         res.send(licenses);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function createLicense(req, res) {
     try {
@@ -73,6 +77,26 @@ export async function createLicense(req, res) {
         res.status(201).send(licenseObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ errors });
+            }
+
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}

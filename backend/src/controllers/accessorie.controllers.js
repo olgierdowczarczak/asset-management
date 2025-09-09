@@ -9,9 +9,9 @@ export async function getAccessorie(req, res) {
         res.send(accessorie);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function updateAccessorie(req, res) {
     try {
@@ -20,23 +20,27 @@ export async function updateAccessorie(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const accessorie = await Accessorie.findOneAndUpdate({ id }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id');
+        const accessorie = await Accessorie.findOneAndUpdate(
+            { id },
+            { $set: body },
+            {
+                new: true,
+                runValidators: true,
+            },
+        ).select('-_id');
 
         if (!accessorie) return res.status(404).json({ message: 'Accessorie not exists' });
         res.send(accessorie);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function deleteAccessorie(req, res) {
     try {
         const params = req.params;
-        const { id } = params
+        const { id } = params;
         const accessorie = await Accessorie.findOne({ id });
         if (!accessorie) return res.status(404).json({ message: 'Accessorie not exists' });
 
@@ -44,9 +48,9 @@ export async function deleteAccessorie(req, res) {
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getAccessories(req, res) {
     try {
@@ -55,9 +59,9 @@ export async function getAccessories(req, res) {
         res.send(accessories);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function createAccessorie(req, res) {
     try {
@@ -73,6 +77,26 @@ export async function createAccessorie(req, res) {
         res.status(201).send(accessorieObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ errors });
+            }
+
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}

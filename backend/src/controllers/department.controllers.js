@@ -9,9 +9,9 @@ export async function getDepartment(req, res) {
         res.send(department);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function updateDepartment(req, res) {
     try {
@@ -20,23 +20,27 @@ export async function updateDepartment(req, res) {
         const { id } = params;
         delete body._id;
         delete body.id;
-        const department = await Department.findOneAndUpdate({ id }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id');
+        const department = await Department.findOneAndUpdate(
+            { id },
+            { $set: body },
+            {
+                new: true,
+                runValidators: true,
+            },
+        ).select('-_id');
 
         if (!department) return res.status(404).json({ message: 'Department not exists' });
         res.send(department);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function deleteDepartment(req, res) {
     try {
         const params = req.params;
-        const { id } = params
+        const { id } = params;
         const department = await Department.findOne({ id });
         if (!department) return res.status(404).json({ message: 'Department not exists' });
 
@@ -44,9 +48,9 @@ export async function deleteDepartment(req, res) {
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function getDepartments(req, res) {
     try {
@@ -55,9 +59,9 @@ export async function getDepartments(req, res) {
         res.send(departments);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 export async function createDepartment(req, res) {
     try {
@@ -73,6 +77,26 @@ export async function createDepartment(req, res) {
         res.status(201).send(assetObj);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ errors });
+            }
+
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}
