@@ -44,4 +44,8 @@
 * Add departments (backend)<br>
 * Change _id from string to object (backend)<br>
 * Add connections in models (backend)<br>
+
+**OO-0008**
+* Add licenses CRUD (backend)<br>
+* Add accessories CRUD (backend)<br>
 #
