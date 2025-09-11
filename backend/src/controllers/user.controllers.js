@@ -1,112 +1,110 @@
-import { mongoose } from 'mongoose';
 import User from '../models/user.models.js';
 
 export async function getUser(req, res) {
     try {
-        const params = req.params;
-        const { id } = params;
-        const user = await User.findOne({ id }).select('-_id -password ');
-        if (!user) return res.status(404).json({ message: 'User not exists' });
-        res.send(user);
+        const user = await User.findOne({ id: req.params.id });
+        if (!user) {
+            return res.status(404).json({ message: 'User not exists' });
+        }
+
+        res.send(user.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function updateUser(req, res) {
     try {
-        const params = req.params;
-        const body = req.body;
-        const { id } = params;
-        delete body._id;
-        delete body.id;
-        const user = await User.findOneAndUpdate({ id, is_deleted: false }, { $set: body }, {
-            new: true,
-            runValidators: true
-        }).select('-_id -password ');
+        const user = await User.findOneAndUpdate(
+            { id: req.params.id, isDeleted: false },
+            { $set: req.body },
+            { new: true, runValidators: true },
+        );
 
-        if (!user) return res.status(404).json({ message: 'User not exists' });
-        res.send(user);
+        if (!user) {
+            return res.status(404).json({ message: 'User not exists' });
+        }
+
+        res.send(user.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function deleteUser(req, res) {
     try {
-        const params = req.params;
-        const { id } = params
-        const user = await User.findOne({ id }).select('-password');
-        if (!user) return res.status(404).json({ message: 'User not exists' });
-        if (user.is_admin) return res.status(409).json({ message: 'User can not be deleted' });
-        if (user.is_deleted) return res.status(409).json({ message: 'User already deleted' });
+        const user = await User.findOne({ id: req.params.id });
+        if (!user) {
+            return res.status(404).json({ message: 'User not exists' });
+        }
 
-        user.is_deleted = true;
-        await user.save();
+        await user.softDelete();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function getActiveUsers(req, res) {
     try {
-        const body = req.body;
-        const users = await User.find({ $or: [{ is_deleted: false }, { is_deleted: { $exists: false } }], body }).select('-_id -password ');
-        res.send(users);
+        const users = await User.find({
+            isDeleted: { $ne: true },
+            ...req.body,
+        });
+        res.send(users.map((user) => user.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function getAllUsers(req, res) {
     try {
-        const body = req.body;
-        const users = await User.find(body).select('-_id -password ');
-        res.send(users);
+        const users = await User.find(req.body);
+        res.send(users.map((user) => user.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function getDeletedUsers(req, res) {
     try {
-        const body = req.body;
-        const users = await User.find({ body, is_deleted: true }).select('-_id -password ');
-        res.send(users);
+        const users = await User.find({ ...req.body, isDeleted: true });
+        res.send(users.map((user) => user.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-};
+}
 
 export async function createUser(req, res) {
     try {
-        const body = req.body;
-        const { username } = body;
-        if (!username) return res.status(400).json({ message: 'Username is required' });
-
-        const dbUser = await User.findOne({ username });
-        if (dbUser) return res.status(409).json({ message: 'User already exists' });
-
-        const _id = new mongoose.Types.ObjectId();
-        const lastUser = await User.findOne().sort({ id: -1 }).exec();
-        const id = lastUser?.id + 1 || 1;
-        const user = new User({ _id, id, username, ...body });
+        const user = new User(req.body);
         await user.save();
-
-        let userObj = user.toObject();
-        delete userObj._id;
-        if (userObj.password) delete userObj.password;
-
-        res.status(201).send(userObj);
+        res.status(201).send(user.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        switch (err.name) {
+            case 'MongoServerError': {
+                if (err.code === 11000) {
+                    return res.status(400).json({
+                        message: `Duplicate field: ${Object.keys(err.keyPattern).join(', ')}`,
+                    });
+                }
+                return res.status(400).json({ message: err.message });
+            }
+            case 'MongooseError':
+                return res.status(400).json({ message: err.message });
+            case 'ValidationError': {
+                const errors = Object.values(err.errors).map((e) => e.message);
+                return res.status(400).json({ message: errors[0] });
+            }
+            default:
+                return res.status(500).json({ message: 'Internal server error' });
+        }
     }
-};
+}

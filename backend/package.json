@@ -1,23 +1,34 @@
 {
-  "name": "asset-management-backend",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "index.js",
-  "author": "Owczarczak Olgierd",
-  "license": "MIT",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  },
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.0"
-  }
+    "name": "asset-management-backend",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "index.js",
+    "author": "Owczarczak Olgierd",
+    "license": "MIT",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js",
+        "eslint": "eslint .",
+        "eslint:fix": "eslint . --fix",
+        "format": "prettier --write ."
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.35.0",
+        "eslint": "^9.35.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-prettier": "^5.5.4",
+        "globals": "^16.4.0",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.6.2"
+    },
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.1",
+        "express": "^5.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.18.0",
+        "mongoose-sequence": "^6.0.1"
+    }
 }

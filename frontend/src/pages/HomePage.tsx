@@ -8,7 +8,6 @@ type NavLink = {
 export default function () {
     const links: NavLink[] = [
         { to: '/login', label: 'Login' },
-        { to: '/register', label: 'Register' },
         { to: '/logout', label: 'Logout' },
         { to: '/users', label: 'Users' },
         { to: '/assets', label: 'Assets' },

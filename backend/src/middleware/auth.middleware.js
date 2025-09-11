@@ -9,7 +9,7 @@ const handleAuthHeader = async (data) => {
     if (!token) throw new Error('Token missing');
 
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('_id username is_admin');
+    const user = await User.findById(decoded.id).select('_id username role');
     if (!user) throw new Error('User not found');
 
     return user;
@@ -23,4 +23,4 @@ export default async function (req, res, next) {
     } catch (err) {
         return res.status(401).json({ message: err.message });
     }
-};
+}
