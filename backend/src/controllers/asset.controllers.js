@@ -2,106 +2,90 @@ import Asset from '../models/asset.models.js';
 
 export async function getAsset(req, res) {
     try {
-        const params = req.params;
-        const { id } = params;
-        const asset = await Asset.findOne({ id }).select('-_id');
-        if (!asset) return res.status(404).json({ message: 'Asset not exists' });
-        res.send(asset);
+        const asset = await Asset.findOne({ id: req.params.id });
+        if (!asset) {
+            return res.status(404).json({ message: 'Asset not exists' });
+        }
+
+        res.send(asset.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function updateAsset(req, res) {
     try {
-        const params = req.params;
-        const body = req.body;
-        const { id } = params;
-        delete body._id;
-        delete body.id;
         const asset = await Asset.findOneAndUpdate(
-            { id, isDeleted: false },
-            { $set: body },
-            {
-                new: true,
-                runValidators: true,
-            },
-        ).select('-_id');
+            { id: req.params.id, isDeleted: false },
+            { $set: req.body },
+            { new: true, runValidators: true },
+        );
 
-        if (!asset) return res.status(404).json({ message: 'Asset not exists' });
-        res.send(asset);
+        if (!asset) {
+            return res.status(404).json({ message: 'Asset not exists' });
+        }
+
+        res.send(asset.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function deleteAsset(req, res) {
     try {
-        const params = req.params;
-        const { id } = params;
-        const asset = await Asset.findOne({ id });
-        if (!asset) return res.status(404).json({ message: 'Asset not exists' });
-        if (asset.isDeleted) return res.status(409).json({ message: 'Asset already deleted' });
+        const asset = await Asset.findOne({ id: req.params.id });
+        if (!asset) {
+            return res.status(404).json({ message: 'Asset not exists' });
+        }
 
-        asset.isDeleted = true;
-        await asset.save();
+        await asset.softDelete();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function getActiveAssets(req, res) {
     try {
-        const body = req.body;
         const assets = await Asset.find({
-            $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-            body,
-        }).select('-_id');
-        res.send(assets);
+            isDeleted: { $ne: true },
+            ...req.body,
+        });
+        res.send(assets.map((asset) => asset.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function getAllAssets(req, res) {
     try {
-        const body = req.body;
-        const assets = await Asset.find(body).select('-_id');
-        res.send(assets);
+        const assets = await Asset.find(req.body);
+        res.send(assets.map((asset) => asset.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function getDeletedAssets(req, res) {
     try {
-        const body = req.body;
-        const assets = await Asset.find({ body, isDeleted: true }).select('-_id');
-        res.send(assets);
+        const assets = await Asset.find({ ...req.body, isDeleted: true });
+        res.send(assets.map((asset) => asset.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function createAsset(req, res) {
     try {
-        const body = req.body;
-        const lastAsset = await Asset.findOne().sort({ id: -1 }).exec();
-        const id = lastAsset?.id + 1 || 1;
-        const asset = new Asset({ id, ...body });
+        const asset = new Asset(req.body);
         await asset.save();
-
-        let assetObj = asset.toObject();
-        delete assetObj._id;
-
-        res.status(201).send(assetObj);
+        res.status(201).send(asset.toPublic());
     } catch (err) {
         console.error(err);
         switch (err.name) {
@@ -113,15 +97,12 @@ export async function createAsset(req, res) {
                 }
                 return res.status(400).json({ message: err.message });
             }
-
             case 'MongooseError':
                 return res.status(400).json({ message: err.message });
-
             case 'ValidationError': {
                 const errors = Object.values(err.errors).map((e) => e.message);
-                return res.status(400).json({ errors });
+                return res.status(400).json({ message: errors[0] });
             }
-
             default:
                 return res.status(500).json({ message: 'Internal server error' });
         }

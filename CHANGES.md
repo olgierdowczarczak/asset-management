@@ -45,7 +45,19 @@
 * Change _id from string to object (backend)<br>
 * Add connections in models (backend)<br>
 
-**OO-0008**
+**OO-0008**<br>
+* Add accessories CRUD (backend)<br>
+* Add licenses CRUD (backend)<br>
+
+**OO-0009**
 * Add licenses CRUD (backend)<br>
 * Add accessories CRUD (backend)<br>
+* Add validation for users methods<br>
+* Code refactor (backend)<br>
+* Add eslint, prettier for dev-dependiecies<br>
+
+**OO-0010**
+* Add validations to server methods (backend)<br>
+* Add immutable flag for id in schemas
+* Add AutoIncrement for schemas
 #

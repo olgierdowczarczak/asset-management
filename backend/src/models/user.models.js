@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
+import mongooseSequence from 'mongoose-sequence';
 import bcrypt from 'bcrypt';
+import isAdmin from '../helpers/isAdmin.js';
 
+const AutoIncrement = mongooseSequence(mongoose);
 const UserSchema = new mongoose.Schema(
     {
         id: {
             type: Number,
             unique: [true, 'User already exists'],
+            immutable: true,
         },
         username: {
             type: String,
@@ -19,7 +23,6 @@ const UserSchema = new mongoose.Schema(
             required: [true, 'Password is required'],
             minlength: [8, 'Password is shorter than the minimum allowed length (2)'],
             maxlength: [31, 'Password is longer than the maximum allowed length (31)'],
-            select: false,
         },
         email: {
             type: String,
@@ -49,7 +52,7 @@ const UserSchema = new mongoose.Schema(
             type: String,
             enum: {
                 values: ['user', 'admin'],
-                message: 'Role must be either user or admin',
+                message: 'Role must be user or admin',
             },
             default: 'user',
         },
@@ -78,6 +81,30 @@ const UserSchema = new mongoose.Schema(
 UserSchema.methods.checkPassword = async function (password) {
     return bcrypt.compare(password, this.password);
 };
+UserSchema.methods.toPublic = function () {
+    const obj = this.toObject();
+    delete obj._id;
+    delete obj.password;
+    return obj;
+};
+UserSchema.methods.softDelete = async function () {
+    if (this.isDeleted) {
+        throw new Error('User already deleted');
+    }
+    if (isAdmin(this)) {
+        throw new Error('User cannot be deleted');
+    }
+
+    await this.updateOne({ $set: { isDeleted: true } });
+};
+UserSchema.methods.hardDelete = async function () {
+    if (isAdmin(this)) {
+        throw new Error('User cannot be deleted');
+    }
+
+    await this.deleteOne();
+};
+
 UserSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
     try {
@@ -86,5 +113,7 @@ UserSchema.pre('save', async function (next) {
         next(err);
     }
 });
+
+UserSchema.plugin(AutoIncrement, { inc_field: 'id', id: 'users_id_counter' });
 
 export default mongoose.model('users', UserSchema);

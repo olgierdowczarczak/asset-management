@@ -21,7 +21,7 @@ export async function login(req, res) {
         res.json({ token });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
@@ -49,7 +49,7 @@ export async function logout(req, res) {
             }
 
             default:
-                return res.status(500).json({ message: 'Internal server error' });
+                return res.status(500).json({ message: err.message || 'Internal server error' });
         }
     }
 }
