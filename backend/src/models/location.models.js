@@ -1,12 +1,38 @@
 import mongoose from 'mongoose';
+import mongooseSequence from 'mongoose-sequence';
 
+const AutoIncrement = mongooseSequence(mongoose);
 const LocationSchema = new mongoose.Schema(
     {
-        id: { type: Number, required: true, unique: true },
-        name: { type: String, required: true, unique: true },
-        parent: { type: mongoose.Schema.Types.ObjectId, ref: 'locations' },
+        id: {
+            type: Number,
+            unique: [true, 'Location already exists'],
+            immutable: true,
+        },
+        name: {
+            type: String,
+            required: [true, 'Name is required'],
+            unique: [true, 'Name already exists'],
+            minlength: [2, 'Name is shorter than the minimum allowed length (2)'],
+            maxlength: [31, 'Name is longer than the maximum allowed length (31)'],
+        },
+        parent: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'locations',
+        },
     },
     { versionKey: false },
 );
+
+LocationSchema.methods.toPublic = function () {
+    const obj = this.toObject();
+    delete obj._id;
+    return obj;
+};
+LocationSchema.methods.hardDelete = async function () {
+    await this.deleteOne();
+};
+
+LocationSchema.plugin(AutoIncrement, { inc_field: 'id', id: 'locations_id_counter' });
 
 export default mongoose.model('locations', LocationSchema);

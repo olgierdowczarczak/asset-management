@@ -2,79 +2,67 @@ import Location from '../models/location.models.js';
 
 export async function getLocation(req, res) {
     try {
-        const params = req.params;
-        const { id } = params;
-        const location = await Location.findOne({ id }).select('-_id');
-        if (!location) return res.status(404).json({ message: 'Location not exists' });
+        const location = await Location.findOne({ id: req.params.id });
+        if (!location) {
+            return res.status(404).json({ message: 'Location not exists' });
+        }
+
         res.send(location);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function updateLocation(req, res) {
     try {
-        const params = req.params;
-        const body = req.body;
-        const { id } = params;
-        delete body._id;
-        delete body.id;
         const location = await Location.findOneAndUpdate(
-            { id },
-            { $set: body },
-            {
-                new: true,
-                runValidators: true,
-            },
-        ).select('-_id');
+            { id: req.params.id },
+            { $set: req.body },
+            { new: true, runValidators: true },
+        );
 
-        if (!location) return res.status(404).json({ message: 'Location not exists' });
-        res.send(location);
+        if (!location) {
+            return res.status(404).json({ message: 'Location not exists' });
+        }
+
+        res.send(location.toPublic());
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function deleteLocation(req, res) {
     try {
-        const params = req.params;
-        const { id } = params;
-        const location = await Location.findOne({ id });
-        if (!location) return res.status(404).json({ message: 'Location not exists' });
+        const location = await Location.findOne({ id: req.params.id });
+        if (!location) {
+            return res.status(404).json({ message: 'Location not exists' });
+        }
 
-        await Location.deleteOne({ id });
+        await location.hardDelete();
         res.status(202).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function getLocations(req, res) {
     try {
-        const body = req.body;
-        const locations = await Location.find(body).select('-_id');
-        res.send(locations);
+        const locations = await Location.find(req.body);
+        res.send(locations.map((location) => location.toPublic()));
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }
 
 export async function createLocation(req, res) {
     try {
-        const body = req.body;
-        const lastAsset = await Location.findOne().sort({ id: -1 }).exec();
-        const id = lastAsset?.id + 1 || 1;
-        const location = new Location({ id, ...body });
+        const location = new Location(req.body);
         await location.save();
-
-        let locationObj = location.toObject();
-        delete locationObj._id;
-
-        res.status(201).send(locationObj);
+        res.status(201).send(location.toPublic());
     } catch (err) {
         console.error(err);
         switch (err.name) {
@@ -86,15 +74,12 @@ export async function createLocation(req, res) {
                 }
                 return res.status(400).json({ message: err.message });
             }
-
             case 'MongooseError':
                 return res.status(400).json({ message: err.message });
-
             case 'ValidationError': {
                 const errors = Object.values(err.errors).map((e) => e.message);
-                return res.status(400).json({ errors });
+                return res.status(400).json({ message: errors[0] });
             }
-
             default:
                 return res.status(500).json({ message: 'Internal server error' });
         }
