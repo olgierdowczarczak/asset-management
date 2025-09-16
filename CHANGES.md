@@ -54,10 +54,13 @@
 * Add accessories CRUD (backend)<br>
 * Add validation for users methods<br>
 * Code refactor (backend)<br>
-* Add eslint, prettier for dev-dependiecies<br>
+* Add eslint, prettier for dev-dependiecies (backend)<br>
 
 **OO-0010**
 * Add validations to server methods (backend)<br>
 * Add immutable flag for id in schemas
 * Add AutoIncrement for schemas
 #
+
+**OO-0011**
+* Add eslint, prettier for dev-dependiecies (frontend)<br>

@@ -50,12 +50,17 @@ export default function () {
                 <div>
                     {users.map((user) => (
                         <div key={user.id}>
-                            <button onClick={() => handleClick(user.id)}>{user.id}</button> - {user.username}
+                            <button onClick={() => handleClick(user.id)}>{user.id}</button> -{' '}
+                            {user.username}
                         </div>
                     ))}
                 </div>
             )}
-            {!loading && <button type='submit' onClick={handleSubmit}>{loading ? 'Loading...' : 'Create user'}</button>}
+            {!loading && (
+                <button type="submit" onClick={handleSubmit}>
+                    {loading ? 'Loading...' : 'Create user'}
+                </button>
+            )}
         </>
     );
-};
+}

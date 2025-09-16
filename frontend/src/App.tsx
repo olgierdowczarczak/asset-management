@@ -14,17 +14,24 @@ export default function () {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/login' element={<LoggedRoute><LoginPage /></LoggedRoute>} />
-                <Route path='/logout' element={<LogoutPage />} />
-                <Route path='/users' element={<UsersPage />} />
-                <Route path='/users/:id' element={<UserPage />} />
-                <Route path='/users/create' element={<UsersCreatePage />} />
-                <Route path='/assets' element={<AssetsPage />} />
-                <Route path='/assets/:id' element={<AssetPage />} />
-                <Route path='/assets/create' element={<AssetsCreatePage />} />
-                <Route path='*' element={<Navigate to='/' replace />} />
+                <Route path="/" element={<HomePage />} />
+                <Route
+                    path="/login"
+                    element={
+                        <LoggedRoute>
+                            <LoginPage />
+                        </LoggedRoute>
+                    }
+                />
+                <Route path="/logout" element={<LogoutPage />} />
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/users/:id" element={<UserPage />} />
+                <Route path="/users/create" element={<UsersCreatePage />} />
+                <Route path="/assets" element={<AssetsPage />} />
+                <Route path="/assets/:id" element={<AssetPage />} />
+                <Route path="/assets/create" element={<AssetsCreatePage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
-    )
-};
+    );
+}
