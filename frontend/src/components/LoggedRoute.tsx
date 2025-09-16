@@ -6,4 +6,4 @@ type Props = {
     children: JSX.Element;
 };
 
-export default ({ children }: Props) => isLogged() ? <Navigate to="/" replace /> : children;
+export default ({ children }: Props) => (isLogged() ? <Navigate to="/" replace /> : children);

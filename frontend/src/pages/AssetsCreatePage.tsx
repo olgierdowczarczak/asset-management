@@ -38,9 +38,7 @@ export default function () {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
     };
 
-    const inputs: Input[] = [
-        { type: 'text', name: 'name', placeholder: 'Name' },
-    ];
+    const inputs: Input[] = [{ type: 'text', name: 'name', placeholder: 'Name' }];
 
     return (
         <>
@@ -64,4 +62,4 @@ export default function () {
             </form>
         </>
     );
-};
+}

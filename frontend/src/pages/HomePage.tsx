@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 type NavLink = {
     to: string;
     label: string;
-}
+};
 
-export default function () {
+function HomePage() {
     const links: NavLink[] = [
         { to: '/login', label: 'Login' },
         { to: '/logout', label: 'Logout' },
@@ -24,4 +24,6 @@ export default function () {
             </ul>
         </nav>
     );
-};
+}
+
+export default HomePage;

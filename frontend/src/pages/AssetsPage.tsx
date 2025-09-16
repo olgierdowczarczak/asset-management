@@ -50,12 +50,17 @@ export default function () {
                 <div>
                     {assets.map((asset) => (
                         <div key={asset.id}>
-                            <button onClick={() => handleClick(asset.id)}>{asset.id}</button> - {asset.name}
+                            <button onClick={() => handleClick(asset.id)}>{asset.id}</button> -{' '}
+                            {asset.name}
                         </div>
                     ))}
                 </div>
             )}
-            {!loading && <button type='submit' onClick={handleSubmit}>{loading ? 'Loading...' : 'Create asset'}</button>}
+            {!loading && (
+                <button type="submit" onClick={handleSubmit}>
+                    {loading ? 'Loading...' : 'Create asset'}
+                </button>
+            )}
         </>
     );
-};
+}
