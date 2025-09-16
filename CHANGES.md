@@ -60,7 +60,10 @@
 * Add validations to server methods (backend)<br>
 * Add immutable flag for id in schemas
 * Add AutoIncrement for schemas
-#
 
 **OO-0011**
 * Add eslint, prettier for dev-dependiecies (frontend)<br>
+* Reset project (frontend)<br>
+* Add Footer (frontend)<br>
+* Add Navbar (frontend)<br>
+* Add Layout (frontend)<br>
