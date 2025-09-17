@@ -3,22 +3,32 @@ import generateToken from '../helpers/generateToken.js';
 
 export async function login(req, res) {
     try {
-        const body = req.body;
-        const { username, password } = body;
-        if (!username || !password)
+        const { username, password } = req.body;
+        if (!username || !password) {
             return res.status(400).json({ message: 'Username and password are required' });
+        }
 
         const user = await User.findOne({ username }).select('+password');
-        if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
         const isPasswordCorrect = await user.checkPassword(password);
-        if (!isPasswordCorrect) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
-        if (user.role !== 'admin') return res.status(403).json({ message: 'Invalid permissions' });
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Invalid permissions' });
+        }
 
-        const _id = user._id;
-        const token = generateToken(_id);
-        res.json({ token });
+        res.cookie('token', generateToken(user._id), {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict'
+        });
+
+        res.json({ message: 'Logged' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -27,6 +37,12 @@ export async function login(req, res) {
 
 export async function logout(req, res) {
     try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict'
+        });
+        
         res.json({ message: 'OK' });
     } catch (err) {
         console.error(err);

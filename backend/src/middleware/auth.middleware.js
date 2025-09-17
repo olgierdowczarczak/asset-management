@@ -1,11 +1,8 @@
 import jsonwebtoken from 'jsonwebtoken';
 import User from '../models/user.models.js';
 
-const handleAuthHeader = async (data) => {
-    const authHeader = data;
-    if (!authHeader) throw new Error('Authorization header missing or invalid');
-
-    const token = authHeader.split(' ')[1];
+const handleAuthHeader = async (req) => {
+    const token = req.cookies.token;
     if (!token) throw new Error('Token missing');
 
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
@@ -17,7 +14,7 @@ const handleAuthHeader = async (data) => {
 
 export default async function (req, res, next) {
     try {
-        const user = await handleAuthHeader(req.headers['authorization']);
+        const user = await handleAuthHeader(req);
         req.user = user;
         next();
     } catch (err) {

@@ -67,3 +67,8 @@
 * Add Footer (frontend)<br>
 * Add Navbar (frontend)<br>
 * Add Layout (frontend)<br>
+
+**OO-0012**
+* Code format (backend)<br>
+* Add cookie auth (backend)<br>
+#
