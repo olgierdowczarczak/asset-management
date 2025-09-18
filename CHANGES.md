@@ -71,4 +71,8 @@
 **OO-0012**
 * Code format (backend)<br>
 * Add cookie auth (backend)<br>
+
+**OO-0013**
+* Add allowed fronted url (backend)<br>
+* Add login, logout (frontend)<br>
 #

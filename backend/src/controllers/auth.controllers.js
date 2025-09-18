@@ -25,7 +25,7 @@ export async function login(req, res) {
         res.cookie('token', generateToken(user._id), {
             httpOnly: true,
             secure: false,
-            sameSite: 'strict'
+            sameSite: 'strict',
         });
 
         res.json({ message: 'Logged' });
@@ -40,9 +40,9 @@ export async function logout(req, res) {
         res.clearCookie('token', {
             httpOnly: true,
             secure: false,
-            sameSite: 'strict'
+            sameSite: 'strict',
         });
-        
+
         res.json({ message: 'OK' });
     } catch (err) {
         console.error(err);
