@@ -1,19 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout.tsx';
-import HomePage from './pages/HomePage.tsx';
-import LoginPage from './pages/LoginPage.tsx';
-import LoginOut from './pages/LogoutPage.tsx';
+
+import ROUTES from './config/routes';
+import MainLayout from './layouts/MainLayout';
+
+import { LoginPage } from './pages/Login';
+import { LogoutPage } from './pages/Logout';
+import { HomePage } from './pages/Home';
 
 export default function () {
     return (
         <Router>
-            <Layout>
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/logout" element={<LoginOut />} />
-                </Routes>
-            </Layout>
+            <Routes>
+                <Route element={<MainLayout />}>
+                <Route path={ROUTES.home} element={<HomePage />} />
+                    <Route path={ROUTES.auth.login} element={<LoginPage />} />
+                    <Route path={ROUTES.auth.logout} element={<LogoutPage />} />
+                </Route>
+            </Routes>
         </Router>
     );
 }
