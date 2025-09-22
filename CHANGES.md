@@ -75,4 +75,7 @@
 **OO-0013**
 * Add allowed fronted url (backend)<br>
 * Add login, logout (frontend)<br>
+
+**OO-0014**
+* Change frontend structure
 #
