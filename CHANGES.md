@@ -54,10 +54,31 @@
 * Add accessories CRUD (backend)<br>
 * Add validation for users methods<br>
 * Code refactor (backend)<br>
-* Add eslint, prettier for dev-dependiecies<br>
+* Add eslint, prettier for dev-dependiecies (backend)<br>
 
 **OO-0010**
 * Add validations to server methods (backend)<br>
 * Add immutable flag for id in schemas
 * Add AutoIncrement for schemas
+
+**OO-0011**
+* Add eslint, prettier for dev-dependiecies (frontend)<br>
+* Reset project (frontend)<br>
+* Add Footer (frontend)<br>
+* Add Navbar (frontend)<br>
+* Add Layout (frontend)<br>
+
+**OO-0012**
+* Code format (backend)<br>
+* Add cookie auth (backend)<br>
+
+**OO-0013**
+* Add allowed fronted url (backend)<br>
+* Add login, logout (frontend)<br>
+
+**OO-0014**
+* Change frontend structure<br>
+
+**OO-0015**
+* Add css to login page, navbar and footer(frontend)<br>
 #

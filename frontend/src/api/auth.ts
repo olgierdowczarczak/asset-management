@@ -1,15 +1,10 @@
-import { getApi } from '../lib/api.ts';
+import api from './api';
+import type { LoginRequest } from '../types/auth';
 
-export type Credentials = {
-    username: string;
-    password: string;
+export const loginUser = async (credentials: LoginRequest): Promise<void> => {
+    await api.post('/auth/login', credentials);
 };
 
-export async function login(credentials: Credentials) {
-    const res = await getApi().post('/api/auth/login', credentials);
-    return res.data['token'];
-};
-
-export async function logout() {
-    await getApi().post('/api/auth/logout');
+export const logoutUser = async (): Promise<void> => {
+    await api.post('/auth/logout');
 };

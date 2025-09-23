@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -17,8 +18,14 @@ import authMiddleware from './middleware/auth.middleware.js';
 const app = express();
 
 // middleware
-app.use(cors());
+app.use(
+    cors({
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
+    }),
+);
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use('/api/status', (req, res) => res.send('OK'));
