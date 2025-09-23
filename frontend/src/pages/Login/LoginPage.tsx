@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import ROUTES from '../../config/routes';
 import { loginUser } from '../../api/auth';
 import type { LoginRequest } from '../../types/auth';
+import style from './LoginPage.module.css';
 
 export default function LoginPage() {
     const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    
     const navigate = useNavigate();
+
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
@@ -31,11 +32,10 @@ export default function LoginPage() {
     };
 
     return (
-        <>
-            <h1>Login Page</h1>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
-
+        <div className={style.container}>
             <form onSubmit={handleLogin}>
+                {error && <div className={style.error}>{error}</div>}
+                
                 <input
                     type="text"
                     name="username"
@@ -56,6 +56,6 @@ export default function LoginPage() {
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
-        </>
+        </div>
     );
 }

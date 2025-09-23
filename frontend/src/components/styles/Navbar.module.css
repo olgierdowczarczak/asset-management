@@ -1,0 +1,23 @@
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgb(0, 0, 0);
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    padding: 1rem;
+}
+
+.links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.links a {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
