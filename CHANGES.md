@@ -77,5 +77,8 @@
 * Add login, logout (frontend)<br>
 
 **OO-0014**
-* Change frontend structure
+* Change frontend structure<br>
+
+**OO-0015**
+* Add css to login page, navbar and footer(frontend)<br>
 #

@@ -1,7 +1,7 @@
 export default {
-    home: "/",
+    home: '/',
     auth: {
-        login: "/login",
-        logout: "/logout",
-    }
+        login: '/login',
+        logout: '/logout',
+    },
 };
