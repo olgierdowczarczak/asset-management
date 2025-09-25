@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type LoginRequest from '../../types/auth';
 import ROUTES from '../../config/routes';
-import { loginUser } from '../../api/auth';
-import type { LoginRequest } from '../../types/auth';
+import { useAuth } from '../../context/AuthContext';
 import style from './LoginPage.module.css';
 
 export default function LoginPage() {
     const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [checked, isChecked] = useState<boolean>(false);
+    const { isLoggedIn, login } = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,7 +19,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await loginUser(credentials);
+            await login(credentials);
             navigate(ROUTES.home);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
@@ -31,11 +33,24 @@ export default function LoginPage() {
         setCredentials((prev: LoginRequest) => ({ ...prev, [name]: value }));
     };
 
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate(ROUTES.home);
+            return;
+        }
+
+        isChecked(true);
+    }, [navigate]);
+
+    if (!checked) {
+        return null;
+    }
+
     return (
         <div className={style.container}>
             <form onSubmit={handleLogin}>
                 {error && <div className={style.error}>{error}</div>}
-                
+
                 <input
                     type="text"
                     name="username"

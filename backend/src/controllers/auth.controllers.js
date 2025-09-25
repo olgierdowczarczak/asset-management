@@ -28,7 +28,8 @@ export async function login(req, res) {
             sameSite: 'strict',
         });
 
-        res.json({ message: 'Logged' });
+        const { id } = user;
+        res.json({ id, username });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -67,5 +68,19 @@ export async function logout(req, res) {
             default:
                 return res.status(500).json({ message: err.message || 'Internal server error' });
         }
+    }
+}
+
+export async function getMe(req, res) {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.json(null);
+        }
+        const { id, username } = user;
+        res.json({ id, username });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 }

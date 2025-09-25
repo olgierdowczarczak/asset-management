@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ROUTES from '../../config/routes';
-import { logoutUser } from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LogoutPage() {
     const navigate = useNavigate();
+    const { isLoggedIn, logout } = useAuth();
+
     useEffect(() => {
-        const logOut = async () => {
+        const redirect = async () => {
             try {
-                await logoutUser();
+                await logout();
             } catch (err) {
                 console.error('Logout failed', err);
             } finally {
@@ -16,8 +18,10 @@ export default function LogoutPage() {
             }
         };
 
-        logOut();
+        if (isLoggedIn) {
+            redirect();
+        }
     }, [navigate]);
 
-    return <p>Logging out...</p>;
+    return null;
 }
