@@ -81,4 +81,9 @@
 
 **OO-0015**
 * Add css to login page, navbar and footer(frontend)<br>
+
+**OO-0016**
+* Add auth context (frontend)<br>
+* Display diffrent links depends if user is logged (frontend)<br>
+* Add /auth/me endpoint (backend)<br>
 #
