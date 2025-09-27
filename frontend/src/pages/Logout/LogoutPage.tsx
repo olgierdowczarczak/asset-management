@@ -5,22 +5,23 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function LogoutPage() {
     const navigate = useNavigate();
-    const { isLoggedIn, isChecked, logout } = useAuth();
+    const { isLoggedIn, logout } = useAuth();
 
     useEffect(() => {
-        const redirect = async () => {
+        const doLogout = async () => {
+            if (!isLoggedIn) {
+                return null;
+            }
+
             try {
                 await logout();
-            } catch (err) {
-                console.error('Logout failed', err);
+            } finally {
+                navigate(ROUTES.auth.login, { replace: true });
             }
         };
-        
-        if (isLoggedIn) {
-            redirect();
-        }
-        navigate(ROUTES.home);
-    }, [isChecked]);
+
+        doLogout();
+    }, [isLoggedIn, logout, navigate]);
 
     return null;
 }

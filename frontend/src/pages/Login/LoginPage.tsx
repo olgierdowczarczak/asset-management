@@ -38,7 +38,6 @@ export default function LoginPage() {
             navigate(ROUTES.home);
             return;
         }
-
     }, [isChecked]);
 
     if (!isChecked) {

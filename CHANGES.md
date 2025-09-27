@@ -90,4 +90,12 @@
 **OO-0017**
 * Edit auth context (frontend)<br>
 * Fix css on login page (frontend)<br>
+
+**OO-0018**
+* Fix /auth/me route (backend)<br>
+* Fix logout page (frontend)<br>
+* Fix css issues (frontend)<br>
+* Add private route (frontend)<br>
+* Edit routes config (frontend)<br>
+* Update frontend structure (frontend)<br>
 #

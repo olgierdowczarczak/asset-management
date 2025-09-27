@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Footer from '../components/Footer';
+import { Footer } from '../components/Footer';
 import styles from './Layout.module.css';
 
 export default function MainLayout() {
