@@ -28,8 +28,8 @@ export async function login(req, res) {
             sameSite: 'strict',
         });
 
-        const { id } = user;
-        res.json({ id, username });
+        const { id, role } = user;
+        res.json({ id, username, role });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -77,8 +77,8 @@ export async function getMe(req, res) {
         if (!user) {
             return res.json(null);
         }
-        const { id, username } = user;
-        res.json({ id, username });
+        const { id, username, role } = user;
+        res.json({ id, username, role });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });

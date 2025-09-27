@@ -19,17 +19,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const fetchUser = async () => {
-            AuthApi
-                .getMe()
-                .then((user) => setUser(user))
-                .catch(() => setUser(null))
-                .finally(() => setIsChecked(true));
+            try {
+                setUser(await AuthApi.getMe());
+            } catch {
+                setUser(null);
+            } finally {
+                setIsChecked(true);
+            }
         };
-
-        if (user) {
-            setIsChecked(true);
-            return;
-        }
 
         fetchUser();
     }, []);
@@ -38,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const user: User | null = await AuthApi.loginUser(credentials);
             setUser(user);
+            setIsChecked(true);
         } catch (err) {
             console.error(err);
         }
@@ -49,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error(err);
         } finally {
             setUser(null);
+            setIsChecked(true);
         }
     };
 
