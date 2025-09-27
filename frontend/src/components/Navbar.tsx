@@ -4,21 +4,22 @@ import Logo from './Logo';
 import styles from './styles/Navbar.module.css';
 
 export default function Navbar() {
-    const { isLoggedIn } = useAuth();
+    const { user, isLoggedIn } = useAuth();
     return (
         <nav>
             <Logo />
-
             <div className={styles.links}>
                 {isLoggedIn ? (
                     <>
-                        <Link to="/accessories">Accessories</Link>
-                        <Link to="/assets">Assets</Link>
-                        <Link to="/licenses">Licenses</Link>
-                        <Link to="/logout">Logout</Link>
+                        <div className={styles['links-important']}>
+                            <Link to='/accessories'>Accessories</Link>
+                            <Link to='/assets'>Assets</Link>
+                            <Link to='/licenses'>Licenses</Link>
+                        </div>
+                        <Link to='/me'>{user?.username}</Link>
                     </>
                 ) : (
-                    <Link to="/login">Login</Link>
+                    <Link to='/login'>Login</Link>
                 )}
             </div>
         </nav>

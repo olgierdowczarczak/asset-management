@@ -21,3 +21,9 @@ nav {
 .links a:hover {
     text-decoration: underline;
 }
+
+.links-important {
+    display: flex;
+    gap: 2rem;
+    margin-right: 3rem;
+}

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function LogoutPage() {
     const navigate = useNavigate();
-    const { isLoggedIn, logout } = useAuth();
+    const { isLoggedIn, isChecked, logout } = useAuth();
 
     useEffect(() => {
         const redirect = async () => {
@@ -13,15 +13,14 @@ export default function LogoutPage() {
                 await logout();
             } catch (err) {
                 console.error('Logout failed', err);
-            } finally {
-                navigate(ROUTES.home);
             }
         };
-
+        
         if (isLoggedIn) {
             redirect();
         }
-    }, [navigate]);
+        navigate(ROUTES.home);
+    }, [isChecked]);
 
     return null;
 }

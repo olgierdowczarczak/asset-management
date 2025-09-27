@@ -86,4 +86,8 @@
 * Add auth context (frontend)<br>
 * Display diffrent links depends if user is logged (frontend)<br>
 * Add /auth/me endpoint (backend)<br>
+
+**OO-0017**
+* Edit auth context (frontend)<br>
+* Fix css on login page (frontend)<br>
 #

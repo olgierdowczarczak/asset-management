@@ -1,10 +1,7 @@
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: calc(100vh - 101px);
+    width: 100%;
+    max-width: 500px;
     box-sizing: border-box;
-    background-color: #f0f2f5;
 }
 
 form {

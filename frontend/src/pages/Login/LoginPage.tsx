@@ -9,8 +9,8 @@ export default function LoginPage() {
     const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [checked, isChecked] = useState<boolean>(false);
-    const { isLoggedIn, login } = useAuth();
+
+    const { isLoggedIn, isChecked, login } = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,10 +39,9 @@ export default function LoginPage() {
             return;
         }
 
-        isChecked(true);
-    }, [navigate]);
+    }, [isChecked]);
 
-    if (!checked) {
+    if (!isChecked) {
         return null;
     }
 
