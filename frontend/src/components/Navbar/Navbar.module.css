@@ -1,4 +1,4 @@
-nav {
+.app-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,5 +25,5 @@ nav {
 .links-important {
     display: flex;
     gap: 2rem;
-    margin-right: 3rem;
+    margin-inline: 1rem;
 }

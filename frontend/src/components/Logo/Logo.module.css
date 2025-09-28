@@ -1,8 +1,8 @@
-.logo {
+.app-logo {
     color: rgb(255, 255, 255);
     text-decoration: none;
 }
 
-.logo:hover {
+.app-logo:hover {
     text-decoration: underline;
 }

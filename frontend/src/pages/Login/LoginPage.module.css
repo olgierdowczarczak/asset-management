@@ -6,7 +6,7 @@
     align-items: center;
 }
 
-form {
+.login-page-form {
     display: flex;
     flex-direction: column;
     padding: 2rem;
@@ -18,7 +18,7 @@ form {
     background-color: #fff;
 }
 
-input {
+.login-page-input {
     margin-bottom: 1rem;
     padding: 1rem;
     font-size: 1rem;
@@ -26,8 +26,7 @@ input {
     border: 1px solid #ccc;
 }
 
-button {
-    margin-top: 1rem;
+.login-page-button {
     padding: 1rem;
     font-size: 1rem;
     font-weight: bold;
@@ -38,7 +37,7 @@ button {
     color: #fff;
 }
 
-.error {
+.login-page-error {
     background-color: rgba(255, 0, 0, 0.2);
     color: rgb(255, 0, 0);
     padding: 0.75rem 1rem;

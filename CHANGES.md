@@ -98,4 +98,9 @@
 * Add private route (frontend)<br>
 * Edit routes config (frontend)<br>
 * Update frontend structure (frontend)<br>
+
+**OO-0019**
+* Update Resource Main page (frontend)<br>
+* Update asset schema<br>
+* Update CSS (frontend)<br>
 #
