@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type LoginRequest from '../../types/auth';
 import ROUTES from '../../config/routes';
 import { useAuth } from '../../context/AuthContext';
-import style from './LoginPage.module.css';
+import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
     const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
@@ -45,11 +45,12 @@ export default function LoginPage() {
     }
 
     return (
-        <div className={style.container}>
-            <form onSubmit={handleLogin}>
-                {error && <div className={style.error}>{error}</div>}
+        <div className={styles.container}>
+            <form className={styles['login-page-form']} onSubmit={handleLogin}>
+                {error && <div className={styles['login-page-error']}>{error}</div>}
 
                 <input
+                    className={styles['login-page-input']}
                     type="text"
                     name="username"
                     value={credentials.username}
@@ -58,6 +59,7 @@ export default function LoginPage() {
                     required
                 />
                 <input
+                    className={styles['login-page-input']}
                     type="password"
                     name="password"
                     value={credentials.password}
@@ -65,7 +67,7 @@ export default function LoginPage() {
                     placeholder="password"
                     required
                 />
-                <button type="submit" disabled={loading}>
+                <button className={styles['login-page-button']} type="submit" disabled={loading}>
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>

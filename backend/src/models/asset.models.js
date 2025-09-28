@@ -22,7 +22,6 @@ const AssetSchema = new mongoose.Schema(
         },
         assigneeModel: {
             type: String,
-            required: true,
             enum: ['users', 'locations'],
         },
         assignee: {

@@ -10,7 +10,7 @@ export default function Navbar() {
         return null;
     }
     return (
-        <nav>
+        <nav className={styles['app-nav']}>
             <Logo />
             <div className={styles.links}>
                 {isLoggedIn ? (
