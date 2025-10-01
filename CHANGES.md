@@ -103,4 +103,8 @@
 * Update Resource Main page (frontend)<br>
 * Update asset schema<br>
 * Update CSS (frontend)<br>
+
+**OO-0020**
+* Adding token auto refreshing (backend)<br>
+* Format functions (backend)<br>
 #
