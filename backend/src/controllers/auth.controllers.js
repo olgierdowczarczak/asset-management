@@ -1,5 +1,5 @@
 import User from '../models/user.models.js';
-import generateToken from '../helpers/generateToken.js';
+import generateCookie from '../helpers/generateCookie.js';
 
 export async function login(req, res) {
     try {
@@ -22,11 +22,7 @@ export async function login(req, res) {
             return res.status(403).json({ message: 'Invalid permissions' });
         }
 
-        res.cookie('token', generateToken(user._id), {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'strict',
-        });
+        generateCookie(res, user._id);
 
         const { id, role } = user;
         res.json({ id, username, role });

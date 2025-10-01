@@ -24,12 +24,12 @@ const AccessorieSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-AccessorieSchema.methods.toPublic = function () {
+AccessorieSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     return obj;
 };
-AccessorieSchema.methods.hardDelete = async function () {
+AccessorieSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();
 };
 
