@@ -1,4 +1,4 @@
-nav {
+.app-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -20,4 +20,10 @@ nav {
 
 .links a:hover {
     text-decoration: underline;
+}
+
+.links-important {
+    display: flex;
+    gap: 2rem;
+    margin-inline: 1rem;
 }

@@ -81,4 +81,30 @@
 
 **OO-0015**
 * Add css to login page, navbar and footer(frontend)<br>
+
+**OO-0016**
+* Add auth context (frontend)<br>
+* Display diffrent links depends if user is logged (frontend)<br>
+* Add /auth/me endpoint (backend)<br>
+
+**OO-0017**
+* Edit auth context (frontend)<br>
+* Fix css on login page (frontend)<br>
+
+**OO-0018**
+* Fix /auth/me route (backend)<br>
+* Fix logout page (frontend)<br>
+* Fix css issues (frontend)<br>
+* Add private route (frontend)<br>
+* Edit routes config (frontend)<br>
+* Update frontend structure (frontend)<br>
+
+**OO-0019**
+* Update Resource Main page (frontend)<br>
+* Update asset schema<br>
+* Update CSS (frontend)<br>
+
+**OO-0020**
+* Adding token auto refreshing (backend)<br>
+* Format functions (backend)<br>
 #

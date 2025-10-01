@@ -24,12 +24,12 @@ const LocationSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-LocationSchema.methods.toPublic = function () {
+LocationSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     return obj;
 };
-LocationSchema.methods.hardDelete = async function () {
+LocationSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();
 };
 

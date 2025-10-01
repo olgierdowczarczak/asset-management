@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type LoginRequest from '../../types/auth';
 import ROUTES from '../../config/routes';
-import { loginUser } from '../../api/auth';
-import type { LoginRequest } from '../../types/auth';
-import style from './LoginPage.module.css';
+import { useAuth } from '../../context/AuthContext';
+import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
     const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const { isLoggedIn, isChecked, login } = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -17,7 +19,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await loginUser(credentials);
+            await login(credentials);
             navigate(ROUTES.home);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
@@ -31,12 +33,24 @@ export default function LoginPage() {
         setCredentials((prev: LoginRequest) => ({ ...prev, [name]: value }));
     };
 
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate(ROUTES.home);
+            return;
+        }
+    }, [isChecked]);
+
+    if (!isChecked) {
+        return null;
+    }
+
     return (
-        <div className={style.container}>
-            <form onSubmit={handleLogin}>
-                {error && <div className={style.error}>{error}</div>}
-                
+        <div className={styles.container}>
+            <form className={styles['login-page-form']} onSubmit={handleLogin}>
+                {error && <div className={styles['login-page-error']}>{error}</div>}
+
                 <input
+                    className={styles['login-page-input']}
                     type="text"
                     name="username"
                     value={credentials.username}
@@ -45,6 +59,7 @@ export default function LoginPage() {
                     required
                 />
                 <input
+                    className={styles['login-page-input']}
                     type="password"
                     name="password"
                     value={credentials.password}
@@ -52,7 +67,7 @@ export default function LoginPage() {
                     placeholder="password"
                     required
                 />
-                <button type="submit" disabled={loading}>
+                <button className={styles['login-page-button']} type="submit" disabled={loading}>
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>

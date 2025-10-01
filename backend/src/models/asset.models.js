@@ -22,7 +22,6 @@ const AssetSchema = new mongoose.Schema(
         },
         assigneeModel: {
             type: String,
-            required: true,
             enum: ['users', 'locations'],
         },
         assignee: {
@@ -33,19 +32,19 @@ const AssetSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-AssetSchema.methods.toPublic = function () {
+AssetSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     return obj;
 };
-AssetSchema.methods.softDelete = async function () {
+AssetSchema.methods.softDelete = async function softDelete() {
     if (this.isDeleted) {
         throw new Error('Asset already deleted');
     }
 
     await this.updateOne({ $set: { isDeleted: true } });
 };
-AssetSchema.methods.hardDelete = async function () {
+AssetSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();
 };
 

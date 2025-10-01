@@ -78,16 +78,16 @@ const UserSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-UserSchema.methods.checkPassword = async function (password) {
+UserSchema.methods.checkPassword = async function checkPassword(password) {
     return bcrypt.compare(password, this.password);
 };
-UserSchema.methods.toPublic = function () {
+UserSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     delete obj.password;
     return obj;
 };
-UserSchema.methods.softDelete = async function () {
+UserSchema.methods.softDelete = async function softDelete() {
     if (this.isDeleted) {
         throw new Error('User already deleted');
     }
@@ -97,7 +97,7 @@ UserSchema.methods.softDelete = async function () {
 
     await this.updateOne({ $set: { isDeleted: true } });
 };
-UserSchema.methods.hardDelete = async function () {
+UserSchema.methods.hardDelete = async function hardDelete() {
     if (isAdmin(this)) {
         throw new Error('User cannot be deleted');
     }
@@ -105,7 +105,7 @@ UserSchema.methods.hardDelete = async function () {
     await this.deleteOne();
 };
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function save(next) {
     if (!this.isModified('password')) return next();
     try {
         this.password = await bcrypt.hash(this.password, Number(process.env.JWT_SALT));
