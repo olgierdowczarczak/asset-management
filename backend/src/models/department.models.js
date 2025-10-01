@@ -24,12 +24,12 @@ const DepartmentSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-DepartmentSchema.methods.toPublic = function () {
+DepartmentSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     return obj;
 };
-DepartmentSchema.methods.hardDelete = async function () {
+DepartmentSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();
 };
 

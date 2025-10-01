@@ -24,12 +24,12 @@ const LicenseSchema = new mongoose.Schema(
     { versionKey: false },
 );
 
-LicenseSchema.methods.toPublic = function () {
+LicenseSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     return obj;
 };
-LicenseSchema.methods.hardDelete = async function () {
+LicenseSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();
 };
 
