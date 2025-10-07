@@ -1,9 +1,9 @@
 import api from './api';
 import type User from '../types/user';
-import type ResourceResponse from '../types/resourceResponse';
+import type GetResources from '../types/responses/getResources';
 
-export const fetchAccessories = async (): Promise<ResourceResponse<User> | null> => {
+export const fetchAccessories = async (): Promise<GetResources<User> | null> => {
     const response = await api.get('/users');
-    const responseData: ResourceResponse<User> | null = response.data;
+    const responseData: GetResources<User> | null = response.data;
     return responseData;
 };

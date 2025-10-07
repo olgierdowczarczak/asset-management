@@ -85,7 +85,10 @@ UserSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
     delete obj.password;
-    return obj;
+    delete obj.firstName;
+    delete obj.lastName;
+    delete obj.role;
+    return { id: obj.id, ...obj };
 };
 UserSchema.methods.softDelete = async function softDelete() {
     if (this.isDeleted) {

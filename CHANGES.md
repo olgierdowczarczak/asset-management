@@ -107,4 +107,10 @@
 **OO-0020**
 * Adding token auto refreshing (backend)<br>
 * Format functions (backend)<br>
+
+**OO-0021**
+* Update controllers (backend)<br>
+* Update models (backend)<br>
+* Update resouce page (frontend)<br>
+* Update resouce structure (frontend)<br>
 #

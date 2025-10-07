@@ -1,9 +1,9 @@
 import api from './api';
 import type License from '../types/license';
-import type ResourceResponse from '../types/resourceResponse';
+import type GetResources from '../types/responses/getResources';
 
-export const fetchAccessories = async (): Promise<ResourceResponse<License> | null> => {
+export const fetchAccessories = async (): Promise<GetResources<License> | null> => {
     const response = await api.get('/licenses');
-    const responseData: ResourceResponse<License> | null = response.data;
+    const responseData: GetResources<License> | null = response.data;
     return responseData;
 };

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
 import type Resource from '../../types/resource';
-import style from './ResourceMainPage.module.css';
+import type GetResources from '../../types/responses/getResources';
 
 interface ResourceMainPageProps<T> {
     resourceName: string;
@@ -8,52 +8,38 @@ interface ResourceMainPageProps<T> {
 }
 
 export default function ResourceMainPage<T>(props: ResourceMainPageProps<T>) {
-    const [resources, setResources] = useState<Array<T> | null>(null);
-    const [headers, setHeaders] = useState<Array<String> | null>(null);
+    const { data, isLoading, error } = useQuery<GetResources<T> | null>({
+        queryKey: [props.resourceName.toLowerCase()],
+        queryFn: () => props.resourceUse.get()
+    });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const fetchedData = await props.resourceUse.get();
-            setResources(fetchedData!.data);
-            setHeaders(fetchedData!.headers);
-        };
-        fetchData();
-    }, []);
-
-    if (!headers || !headers.length) {
+    if (isLoading || error || !data || !data.total) {
         return null;
     }
 
     return (
-        <div className={style.container}>
-            <div className={style.wrapper}>
-                <>
-                    <input placeholder="search" />
-                    <button>Add</button>
-                </>
-                <table>
-                    <thead>
-                        <tr>
-                            {headers.map((head) => (
-                                <th key={String(head)}>{String(head)}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    {resources && (
-                        <tbody>
-                            {resources.map((resource, idx) => (
-                                <tr key={idx}>
-                                    {headers.map((key) => (
-                                        <td key={String(key)}>
-                                            {String(resource[key as keyof T])}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
-                </table>
-            </div>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    {data.meta.columns.map((col) => (
+                        <th key={col.key}>
+                            {col.label}
+                        </th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {data.data.map((item, rowIndex) => (
+                    <tr key={rowIndex}>
+                        {data.meta.columns.map((col) => (
+                            <td key={col.key}>
+                                {/* @ts-ignore */}
+                                {item[col.key]}
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     );
 }

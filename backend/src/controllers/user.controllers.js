@@ -1,5 +1,13 @@
 import User from '../models/user.models.js';
 
+const meta = {
+    columns: [
+        { key: 'id', label: 'ID', type: 'number' },
+        { key: 'username', label: 'Username', type: 'string' },
+        { key: 'email', label: 'Email', type: 'string' }
+    ]
+};
+
 export async function getUser(req, res) {
     try {
         const user = await User.findOne({ id: req.params.id });
@@ -7,7 +15,7 @@ export async function getUser(req, res) {
             return res.status(404).json({ message: 'User not exists' });
         }
 
-        res.send(user.toPublic());
+        res.json({ meta, total: 1, data: user.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -26,7 +34,7 @@ export async function updateUser(req, res) {
             return res.status(404).json({ message: 'User not exists' });
         }
 
-        res.send(user.toPublic());
+        res.json({ meta, total: 1, data: user.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -54,7 +62,7 @@ export async function getActiveUsers(req, res) {
             isDeleted: { $ne: true },
             ...req.body,
         });
-        res.send(users.map((user) => user.toPublic()));
+        res.json({ meta, total: users.length, data: users.map((user) => user.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -64,7 +72,7 @@ export async function getActiveUsers(req, res) {
 export async function getAllUsers(req, res) {
     try {
         const users = await User.find(req.body);
-        res.send(users.map((user) => user.toPublic()));
+        res.json({ meta, total: users.length, data: users.map((user) => user.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -74,7 +82,7 @@ export async function getAllUsers(req, res) {
 export async function getDeletedUsers(req, res) {
     try {
         const users = await User.find({ ...req.body, isDeleted: true });
-        res.send(users.map((user) => user.toPublic()));
+        res.json({ meta, total: users.length, data: users.map((user) => user.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -85,7 +93,7 @@ export async function createUser(req, res) {
     try {
         const user = new User(req.body);
         await user.save();
-        res.status(201).send(user.toPublic());
+        res.status(201).json({ meta, total: 1, data: user.toPublic() });
     } catch (err) {
         console.error(err);
         switch (err.name) {

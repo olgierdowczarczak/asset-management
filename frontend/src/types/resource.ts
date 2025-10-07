@@ -1,5 +1,5 @@
-import type ResourceResponse from './resourceResponse';
+import type GetResources from './responses/getResources';
 
 export default interface Resource<T> {
-    get: () => Promise<ResourceResponse<T> | null>;
+    get: () => Promise<GetResources<T> | null>;
 }

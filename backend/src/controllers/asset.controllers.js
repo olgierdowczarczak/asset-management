@@ -1,13 +1,19 @@
 import Asset from '../models/asset.models.js';
 
+const meta = {
+    columns: [
+        { key: 'id', label: 'ID', type: 'number' },
+        { key: 'name', label: 'Name', type: 'string' }
+    ]
+};
+
 export async function getAsset(req, res) {
     try {
         const asset = await Asset.findOne({ id: req.params.id });
         if (!asset) {
             return res.status(404).json({ message: 'Asset not exists' });
         }
-
-        res.send(asset.toPublic());
+        res.json({ meta, total: 1, data: asset.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -26,7 +32,7 @@ export async function updateAsset(req, res) {
             return res.status(404).json({ message: 'Asset not exists' });
         }
 
-        res.send(asset.toPublic());
+        res.json({ meta, total: 1, data: asset.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -54,7 +60,7 @@ export async function getActiveAssets(req, res) {
             isDeleted: { $ne: true },
             ...req.body,
         });
-        res.send(assets.map((asset) => asset.toPublic()));
+        res.json({ meta, total: assets.length, data: assets.map((asset) => asset.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -64,7 +70,7 @@ export async function getActiveAssets(req, res) {
 export async function getAllAssets(req, res) {
     try {
         const assets = await Asset.find(req.body);
-        res.send(assets.map((asset) => asset.toPublic()));
+        res.json({ meta, total: assets.length, data: assets.map((asset) => asset.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -74,7 +80,7 @@ export async function getAllAssets(req, res) {
 export async function getDeletedAssets(req, res) {
     try {
         const assets = await Asset.find({ ...req.body, isDeleted: true });
-        res.send(assets.map((asset) => asset.toPublic()));
+        res.json({ meta, total: assets.length, data: assets.map((asset) => asset.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -85,7 +91,7 @@ export async function createAsset(req, res) {
     try {
         const asset = new Asset(req.body);
         await asset.save();
-        res.status(201).send(asset.toPublic());
+        res.status(201).json({ meta, total: 1, data: asset.toPublic() });
     } catch (err) {
         console.error(err);
         switch (err.name) {
