@@ -27,7 +27,7 @@ const AccessorieSchema = new mongoose.Schema(
 AccessorieSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
-    return obj;
+    return { id: obj.id, ...obj };
 };
 AccessorieSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();

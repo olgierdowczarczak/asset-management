@@ -10,8 +10,10 @@ import { LogoutPage } from './pages/Logout';
 import { HomePage } from './pages/Home';
 import { ResourceMainPage } from './pages/ResourceMain';
 
-import useAccessories from './features/accessories/useAccessories';
-import useAsset from './features/assets/useAsset';
+import useAccessorie from './hooks/accessories/useAccessorie';
+import useAsset from './hooks/assets/useAsset';
+import useLicense from './hooks/licenses/useLicense';
+import useUser from './hooks/users/useUser';
 
 export default function () {
     return (
@@ -26,44 +28,42 @@ export default function () {
 
                     <Route element={<MainLayout />}>
                         <Route path={ROUTES.home} element={<HomePage />} />
-                        // accessories
                         <Route
                             path={ROUTES.accessories.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Accessories"
-                                    resourceUse={useAccessories()}
+                                    resourceUse={useAccessorie()}
                                 />
                             }
                         />
-                        // accessories // assets
                         <Route
                             path={ROUTES.assets.many}
                             element={
-                                <ResourceMainPage resourceName="Assets" resourceUse={useAsset()} />
+                                <ResourceMainPage 
+                                    resourceName="Assets" 
+                                    resourceUse={useAsset()} 
+                                />
                             }
                         />
-                        // assets // licenses
                         <Route
                             path={ROUTES.licenses.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Licenses"
-                                    resourceUse={useAccessories()}
+                                    resourceUse={useLicense()}
                                 />
                             }
                         />
-                        // licenses // users
                         <Route
                             path={ROUTES.users.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Users"
-                                    resourceUse={useAccessories()}
+                                    resourceUse={useUser()}
                                 />
                             }
                         />
-                        // users
                     </Route>
                 </Route>
             </Routes>

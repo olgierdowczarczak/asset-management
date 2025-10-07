@@ -1,5 +1,12 @@
 import Department from '../models/department.models.js';
 
+const meta = {
+    columns: [
+        { key: 'id', label: 'ID', type: 'number' },
+        { key: 'name', label: 'Name', type: 'string' }
+    ]
+};
+
 export async function getDepartment(req, res) {
     try {
         const department = await Department.findOne({ id: req.params.id });
@@ -7,7 +14,7 @@ export async function getDepartment(req, res) {
             return res.status(404).json({ message: 'Department not exists' });
         }
 
-        res.send(department);
+        res.json({ meta, total: 1, data: department.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -26,7 +33,7 @@ export async function updateDepartment(req, res) {
             return res.status(404).json({ message: 'Department not exists' });
         }
 
-        res.send(department.toPublic());
+        res.json({ meta, total: 1, data: department.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -51,7 +58,7 @@ export async function deleteDepartment(req, res) {
 export async function getDepartments(req, res) {
     try {
         const departments = await Department.find(req.body);
-        res.send(departments.map((department) => department.toPublic()));
+        res.json({ meta, total: 1, data: departments.map((department) => department.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -62,7 +69,7 @@ export async function createDepartment(req, res) {
     try {
         const department = new Department(req.body);
         await department.save();
-        res.status(201).send(department.toPublic());
+        res.status(201).json({ meta, total: 1, data: department.toPublic() });
     } catch (err) {
         console.error(err);
         switch (err.name) {

@@ -27,7 +27,7 @@ const LicenseSchema = new mongoose.Schema(
 LicenseSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
-    return obj;
+    return { id: obj.id, ...obj };
 };
 LicenseSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();

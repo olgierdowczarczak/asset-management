@@ -1,5 +1,12 @@
 import Location from '../models/location.models.js';
 
+const meta = {
+    columns: [
+        { key: 'id', label: 'ID', type: 'number' },
+        { key: 'name', label: 'Name', type: 'string' }
+    ]
+};
+
 export async function getLocation(req, res) {
     try {
         const location = await Location.findOne({ id: req.params.id });
@@ -7,7 +14,7 @@ export async function getLocation(req, res) {
             return res.status(404).json({ message: 'Location not exists' });
         }
 
-        res.send(location);
+        res.json({ meta, total: 1, data: location.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -26,7 +33,7 @@ export async function updateLocation(req, res) {
             return res.status(404).json({ message: 'Location not exists' });
         }
 
-        res.send(location.toPublic());
+        res.json({ meta, total: 1, data: location.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -51,7 +58,7 @@ export async function deleteLocation(req, res) {
 export async function getLocations(req, res) {
     try {
         const locations = await Location.find(req.body);
-        res.send(locations.map((location) => location.toPublic()));
+        res.json({ meta, total: locations.length, data: locations.map((location) => location.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -62,7 +69,7 @@ export async function createLocation(req, res) {
     try {
         const location = new Location(req.body);
         await location.save();
-        res.status(201).send(location.toPublic());
+        res.status(201).json({ meta, total: 1, data: location.toPublic() });
     } catch (err) {
         console.error(err);
         switch (err.name) {

@@ -1,9 +1,9 @@
 import api from './api';
 import type Asset from '../types/asset';
-import type ResourceResponse from '../types/resourceResponse';
+import type GetResources from '../types/responses/getResources';
 
-export const fetchAccessories = async (): Promise<ResourceResponse<Asset> | null> => {
+export const fetchAccessories = async (): Promise<GetResources<Asset> | null> => {
     const response = await api.get('/assets');
-    const responseData: ResourceResponse<Asset> | null = response.data;
+    const responseData: GetResources<Asset> | null = response.data;
     return responseData;
 };

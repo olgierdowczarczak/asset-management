@@ -26,7 +26,9 @@ api.interceptors.response.use(
                     return api(originalRequest);
                 }
             } catch {
-                window.location.href = ROUTES.auth.login;
+                if (window.location.pathname !== ROUTES.auth.login) {
+                    window.location.href = ROUTES.auth.login;
+                }
             }
         }
 

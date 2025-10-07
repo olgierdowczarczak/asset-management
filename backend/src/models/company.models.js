@@ -27,7 +27,7 @@ const CompanySchema = new mongoose.Schema(
 CompanySchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
-    return obj;
+    return { id: obj.id, ...obj };
 };
 CompanySchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();

@@ -27,7 +27,7 @@ const LocationSchema = new mongoose.Schema(
 LocationSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
-    return obj;
+    return { id: obj.id, ...obj };
 };
 LocationSchema.methods.hardDelete = async function hardDelete() {
     await this.deleteOne();

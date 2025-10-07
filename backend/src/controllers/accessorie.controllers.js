@@ -1,5 +1,13 @@
 import Accessorie from '../models/accessorie.models.js';
 
+const meta = {
+    columns: [
+        { key: 'id', label: 'ID', type: 'number' },
+        { key: 'name', label: 'Name', type: 'string' },
+        { key: 'quantity', label: 'Quantity', type: 'number' }
+    ]
+};
+
 export async function getAccessorie(req, res) {
     try {
         const accessorie = await Accessorie.findOne({ id: req.params.id });
@@ -7,7 +15,7 @@ export async function getAccessorie(req, res) {
             return res.status(404).json({ message: 'Accessorie not exists' });
         }
 
-        res.send(accessorie);
+        res.json({ meta, total: 1, data: accessorie.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -26,7 +34,7 @@ export async function updateAccessorie(req, res) {
             return res.status(404).json({ message: 'Accessorie not exists' });
         }
 
-        res.send(accessorie.toPublic());
+        res.json({ meta, total: 1, data: accessorie.toPublic() });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -51,7 +59,7 @@ export async function deleteAccessorie(req, res) {
 export async function getAccessories(req, res) {
     try {
         const accessories = await Accessorie.find(req.body);
-        res.send(accessories.map((accessorie) => accessorie.toPublic()));
+        res.json({ meta, total: accessories.length, data: accessories.map((accessorie) => accessorie.toPublic()) });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
@@ -62,7 +70,7 @@ export async function createAccessorie(req, res) {
     try {
         const accessorie = new Accessorie(req.body);
         await accessorie.save();
-        res.status(201).send(accessorie.toPublic());
+        res.status(201).json({ meta, total: 1, data: accessorie.toPublic() });
     } catch (err) {
         console.error(err);
         switch (err.name) {

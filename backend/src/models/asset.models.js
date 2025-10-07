@@ -35,7 +35,7 @@ const AssetSchema = new mongoose.Schema(
 AssetSchema.methods.toPublic = function toPublic() {
     const obj = this.toObject();
     delete obj._id;
-    return obj;
+    return { id: obj.id, ...obj };
 };
 AssetSchema.methods.softDelete = async function softDelete() {
     if (this.isDeleted) {
