@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Footer } from '../components/Footer';
-import styles from './Layout.module.css';
+import styles from './styles/AuthLayout.module.css';
 
 export default function MainLayout() {
     return (

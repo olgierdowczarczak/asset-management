@@ -71,6 +71,9 @@ const UserSchema = new mongoose.Schema(
         isRemote: {
             type: Boolean,
         },
+        isRemembered: {
+            type: Boolean,
+        },
         isDeleted: {
             type: Boolean,
         },
@@ -88,6 +91,7 @@ UserSchema.methods.toPublic = function toPublic() {
     delete obj.firstName;
     delete obj.lastName;
     delete obj.role;
+    delete obj.isRemembered;
     return { id: obj.id, ...obj };
 };
 UserSchema.methods.softDelete = async function softDelete() {

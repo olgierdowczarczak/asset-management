@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
-    const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '' });
+    const [credentials, setCredentials] = useState<LoginRequest>({ username: '', password: '', isRemembered: false });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -29,8 +29,11 @@ export default function LoginPage() {
     };
 
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCredentials((prev: LoginRequest) => ({ ...prev, [name]: value }));
+        const { name, type, checked, value } = e.target;
+        setCredentials((prev: LoginRequest) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
     };
 
     useEffect(() => {
@@ -51,23 +54,32 @@ export default function LoginPage() {
 
                 <input
                     className={styles['login-page-input']}
-                    type="text"
-                    name="username"
+                    type='text'
+                    name='username'
                     value={credentials.username}
                     onChange={handleValueChange}
-                    placeholder="username"
+                    placeholder='username'
                     required
                 />
                 <input
                     className={styles['login-page-input']}
-                    type="password"
-                    name="password"
+                    type='password'
+                    name='password'
                     value={credentials.password}
                     onChange={handleValueChange}
-                    placeholder="password"
+                    placeholder='password'
                     required
                 />
-                <button className={styles['login-page-button']} type="submit" disabled={loading}>
+                <label className={styles['login-page-checkbox-label']}>
+                    <input
+                        type='checkbox'
+                        name='isRemembered'
+                        checked={credentials.isRemembered}
+                        onChange={handleValueChange}
+                    />
+                    Remember me
+                </label>
+                <button className={styles['login-page-button']} type='submit' disabled={loading}>
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>

@@ -3,7 +3,7 @@ import generateCookie from '../helpers/generateCookie.js';
 
 export async function login(req, res) {
     try {
-        const { username, password } = req.body;
+        const { username, password, isRemembered } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: 'Username and password are required' });
         }
@@ -22,9 +22,15 @@ export async function login(req, res) {
             return res.status(403).json({ message: 'Invalid permissions' });
         }
 
-        generateCookie(res, user._id);
-
-        const { id, role } = user;
+        const { _id, id, role } = user;
+        if (isRemembered) {
+            await User.findOneAndUpdate(
+                { _id },
+                { $set: { isRemembered: true } },
+                { new: true, runValidators: true }
+            
+            ).then((user) => generateCookie(res, user));
+        }
         res.json({ id, username, role });
     } catch (err) {
         console.error(err);
@@ -34,6 +40,11 @@ export async function login(req, res) {
 
 export async function logout(req, res) {
     try {
+        const { _id } = req.user;
+        await User.findOneAndUpdate(
+            { _id },
+            { $unset: { isRemembered: '' } }
+        );
         res.clearCookie('token', {
             httpOnly: true,
             secure: false,
@@ -69,7 +80,7 @@ export async function logout(req, res) {
 
 export async function refresh(req, res) {
     try {
-        generateCookie(res, req.user._id);
+        generateCookie(res, req.user);
         res.status(200).json({ message: 'OK' });
     } catch (err) {
         console.error(err);
