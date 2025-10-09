@@ -27,7 +27,7 @@ export async function updateUser(req, res) {
         const user = await User.findOneAndUpdate(
             { id: req.params.id, isDeleted: false },
             { $set: req.body },
-            { new: true, runValidators: true },
+            { new: true, runValidators: true }
         );
 
         if (!user) {

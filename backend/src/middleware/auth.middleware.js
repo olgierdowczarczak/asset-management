@@ -14,7 +14,7 @@ const handleAuthHeader = async (req, res) => {
         throw new Error('User not found');
     }
 
-    const user = await User.findById(id).select('_id id username role');
+    const user = await User.findOne({ id }).select('_id id username role');
     if (!user) {
         throw new Error('User not found');
     }
@@ -22,7 +22,7 @@ const handleAuthHeader = async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
     // 10 minutes
     if (decoded.exp - now < 600) {
-        generateCookie(res, id);
+        generateCookie(res, user);
     }
 
     return user;

@@ -113,4 +113,8 @@
 * Update models (backend)<br>
 * Update resouce page (frontend)<br>
 * Update resouce structure (frontend)<br>
+
+**OO-0022**
+* Add option remember me<br>
+* Update layouts<br>
 #
