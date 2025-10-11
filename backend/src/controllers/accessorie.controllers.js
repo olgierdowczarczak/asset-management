@@ -4,8 +4,8 @@ const meta = {
     columns: [
         { key: 'id', label: 'ID', type: 'number' },
         { key: 'name', label: 'Name', type: 'string' },
-        { key: 'quantity', label: 'Quantity', type: 'number' }
-    ]
+        { key: 'quantity', label: 'Quantity', type: 'number' },
+    ],
 };
 
 export async function getAccessorie(req, res) {
@@ -59,7 +59,11 @@ export async function deleteAccessorie(req, res) {
 export async function getAccessories(req, res) {
     try {
         const accessories = await Accessorie.find(req.body);
-        res.json({ meta, total: accessories.length, data: accessories.map((accessorie) => accessorie.toPublic()) });
+        res.json({
+            meta,
+            total: accessories.length,
+            data: accessories.map((accessorie) => accessorie.toPublic()),
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });

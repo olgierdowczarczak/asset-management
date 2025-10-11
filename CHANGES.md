@@ -117,4 +117,8 @@
 **OO-0022**
 * Add option remember me<br>
 * Update layouts<br>
+
+**OO-0023**
+* Add users generator (backend)<br>
+* Add default admin (backend)<br>
 #

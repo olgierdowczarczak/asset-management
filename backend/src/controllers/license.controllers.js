@@ -5,7 +5,7 @@ const meta = {
         { key: 'id', label: 'ID', type: 'number' },
         { key: 'name', label: 'Name', type: 'string' },
         { key: 'quantity', label: 'Quantity', type: 'number' },
-    ]
+    ],
 };
 
 export async function getLicense(req, res) {
@@ -59,7 +59,11 @@ export async function deleteLicense(req, res) {
 export async function getLicenses(req, res) {
     try {
         const licenses = await License.find(req.body);
-        res.json({ meta, total: licenses.length, data: licenses.map((license) => license.toPublic()) });
+        res.json({
+            meta,
+            total: licenses.length,
+            data: licenses.map((license) => license.toPublic()),
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });

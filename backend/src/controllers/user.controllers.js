@@ -4,8 +4,8 @@ const meta = {
     columns: [
         { key: 'id', label: 'ID', type: 'number' },
         { key: 'username', label: 'Username', type: 'string' },
-        { key: 'email', label: 'Email', type: 'string' }
-    ]
+        { key: 'email', label: 'Email', type: 'string' },
+    ],
 };
 
 export async function getUser(req, res) {
@@ -27,7 +27,7 @@ export async function updateUser(req, res) {
         const user = await User.findOneAndUpdate(
             { id: req.params.id, isDeleted: false },
             { $set: req.body },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true },
         );
 
         if (!user) {

@@ -3,8 +3,8 @@ import Company from '../models/company.models.js';
 const meta = {
     columns: [
         { key: 'id', label: 'ID', type: 'number' },
-        { key: 'name', label: 'Name', type: 'string' }
-    ]
+        { key: 'name', label: 'Name', type: 'string' },
+    ],
 };
 
 export async function getCompany(req, res) {
@@ -58,7 +58,11 @@ export async function deleteCompany(req, res) {
 export async function getCompanies(req, res) {
     try {
         const companies = await Company.find(req.body);
-        res.json({ meta, total: companies.length, data: companies.map((company) => company.toPublic()) });
+        res.json({
+            meta,
+            total: companies.length,
+            data: companies.map((company) => company.toPublic()),
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });

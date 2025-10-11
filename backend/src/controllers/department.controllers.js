@@ -3,8 +3,8 @@ import Department from '../models/department.models.js';
 const meta = {
     columns: [
         { key: 'id', label: 'ID', type: 'number' },
-        { key: 'name', label: 'Name', type: 'string' }
-    ]
+        { key: 'name', label: 'Name', type: 'string' },
+    ],
 };
 
 export async function getDepartment(req, res) {

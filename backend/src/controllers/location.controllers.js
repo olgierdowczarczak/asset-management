@@ -3,8 +3,8 @@ import Location from '../models/location.models.js';
 const meta = {
     columns: [
         { key: 'id', label: 'ID', type: 'number' },
-        { key: 'name', label: 'Name', type: 'string' }
-    ]
+        { key: 'name', label: 'Name', type: 'string' },
+    ],
 };
 
 export async function getLocation(req, res) {
@@ -58,7 +58,11 @@ export async function deleteLocation(req, res) {
 export async function getLocations(req, res) {
     try {
         const locations = await Location.find(req.body);
-        res.json({ meta, total: locations.length, data: locations.map((location) => location.toPublic()) });
+        res.json({
+            meta,
+            total: locations.length,
+            data: locations.map((location) => location.toPublic()),
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message || 'Internal server error' });
