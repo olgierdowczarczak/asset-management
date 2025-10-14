@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const schema = new mongoose.Schema({
-    accessorieId: {
+    id: {
         type: Number,
         unique: true,
         immutable: true
@@ -17,6 +17,6 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     }
-});
+}, { versionKey: false });
 
 export default schema;

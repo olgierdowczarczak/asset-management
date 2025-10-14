@@ -1,62 +1,45 @@
+import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import { faker } from '@faker-js/faker';
-import User from '../../models/user.models.js';
+import { Users } from '../../lib/collections/index.js';
 
 const MAX_USER = 1000;
 const CHUNK_SIZE = 100;
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 31;
+const MIN_PASSWORD_LENGTH = 12;
 
 const generateUsername = (firstName, lastName) => {
     return `${firstName[0]}.${lastName}`.toLowerCase();
-};
-
-const generatePassword = () => {
-    const length =
-        Math.floor(Math.random() * (MAX_PASSWORD_LENGTH - MIN_PASSWORD_LENGTH + 1)) +
-        MIN_PASSWORD_LENGTH;
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-        password += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return password;
 };
 
 const generateEmail = (firstName, lastName) => {
     return `${firstName[0]}.${lastName}@random.com`.toLowerCase();
 };
 
-export default async (environment) => {
-    await new User({
-        username: 'admin',
-        password: process.env.ADMIN_PASSWORD || 'zaq1@WSX',
-        email: process.env.ADMIN_EMAIL || 'owczarczakdev@gmail.com',
-        firstName: 'admin',
-        lastName: 'admin',
-        role: 'admin',
-    }).save();
+export default async () => {
+    const lastId = async () => {
+        const lastUser = await Users.findOne().sort({ id: -1 });
+        return lastUser.id || 1;
+    };
 
-    if (environment !== 'dev') {
-        return;
-    }
-
+    let id = await lastId();
     for (let i = 0; i < MAX_USER / CHUNK_SIZE; i++) {
         const users = [];
         for (let j = 0; j < CHUNK_SIZE; j++) {
+            ++id;
             const firstName = faker.person.firstName();
             const lastName = faker.person.lastName();
             users.push({
+                id,
                 username: generateUsername(firstName, lastName),
-                password: generatePassword(),
+                password: faker.internet.password({ length: MIN_PASSWORD_LENGTH }),
                 email: generateEmail(firstName, lastName),
                 firstName,
                 lastName,
             });
         }
 
-        await User.create(users);
+        await Users.create(users);
         console.log(`Generated: ${CHUNK_SIZE} users`);
     }
 
-    console.log('Generated users');
+    console.log(ConstMessages.generatedUsers);
 };

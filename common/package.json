@@ -1,11 +1,12 @@
 {
   "name": "asset-management-common",
   "version": "1.0.0",
-  "description": "",
+  "type": "module",
   "author": "Owczarczak Olgierd",
   "license": "MIT",
   "keywords": [],
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "mongoose": "^8.19.1"
   }
 }

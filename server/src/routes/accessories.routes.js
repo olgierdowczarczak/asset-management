@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import {
+    getAccessories,
     getAccessorie,
     updateAccessorie,
     deleteAccessorie,
-    getAccessories,
     createAccessorie,
-} from '../controllers/accessorie.controllers.js';
+} from '../controllers/accessories.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();

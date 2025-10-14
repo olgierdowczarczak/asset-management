@@ -1,22 +1,25 @@
+import ConstMessages from 'asset-management-common/constants/constMessages.js';
+import ConstCodes from 'asset-management-common/constants/constCodes.js';
 import jsonwebtoken from 'jsonwebtoken';
-import User from '../models/user.models.js';
-import generateCookie from '../helpers/generateCookie.js';
+import { Users } from '../lib/collections/index.js';
+import generateCookie from '../lib/helpers/generateCookie.js';
+import validateError from '../lib/helpers/validateError.js';
 
 const handleAuthHeader = async (req, res) => {
     const token = req.cookies.token;
     if (!token) {
-        throw new Error('Token missing');
+        throw new Error(ConstMessages.tokenMissing);
     }
 
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
     const { id } = decoded;
     if (!id) {
-        throw new Error('User not found');
+        throw new Error(ConstMessages.userNotExists);
     }
 
-    const user = await User.findOne({ id }).select('_id id username role');
+    const user = await Users.findOne({ id });
     if (!user) {
-        throw new Error('User not found');
+        throw new Error(ConstMessages.userNotExists);
     }
 
     const now = Math.floor(Date.now() / 1000);
@@ -34,6 +37,8 @@ export default async function (req, res, next) {
         req.user = user;
         next();
     } catch (err) {
-        return res.status(401).json({ message: err.message });
+        res.status(ConstCodes.unauthorized).send(
+            validateError(err) || ConstMessages.internalServerError,
+        );
     }
 }

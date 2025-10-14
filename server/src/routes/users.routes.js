@@ -1,20 +1,16 @@
 import { Router } from 'express';
 import {
+    getUsers,
     getUser,
     updateUser,
     deleteUser,
-    getActiveUsers,
-    getAllUsers,
-    getDeletedUsers,
     createUser,
-} from '../controllers/user.controllers.js';
+} from '../controllers/users.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();
-router.route('/').get(getActiveUsers).post(adminMiddleware, createUser);
+router.route('/').get(getUsers).post(adminMiddleware, createUser);
 
-router.get('/all', adminMiddleware, getAllUsers);
-router.get('/deleted', adminMiddleware, getDeletedUsers);
 router
     .route('/:id')
     .get(getUser)

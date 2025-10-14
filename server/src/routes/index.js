@@ -1,19 +1,19 @@
 import AuthRoutes from './auth.routes.js';
-import UserRoutes from './user.routes.js';
-import AccessorieRoutes from './accessorie.routes.js';
-import AssetRoutes from './asset.routes.js';
-import LicenseRoutes from './license.routes.js';
-import LocationRoutes from './location.routes.js';
-import CompanyRoutes from './company.routes.js';
-import DepartmentRoutes from './department.routes.js';
+import AccessoriesRoutes from './accessories.routes.js';
+import AssetsRoutes from './assets.routes.js';
+import CompaniesRoutes from './companies.routes.js';
+import DepartmentsRoutes from './departments.routes.js';
+import LicensesRoutes from './licenses.routes.js';
+import LocationsRoutes from './locations.routes.js';
+import UsersRoutes from './users.routes.js';
 
 export default {
     AuthRoutes,
-    UserRoutes,
-    AccessorieRoutes,
-    AssetRoutes,
-    LicenseRoutes,
-    LocationRoutes,
-    CompanyRoutes,
-    DepartmentRoutes,
+    AccessoriesRoutes,
+    AssetsRoutes,
+    CompaniesRoutes,
+    DepartmentsRoutes,
+    LicensesRoutes,
+    LocationsRoutes,
+    UsersRoutes,
 };

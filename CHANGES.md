@@ -126,4 +126,10 @@
 * Change folders names<br>
 * Add common package<br>
 * Change schema in project<br>
+
+**TODO**
+* Update companies controller + route<br>
+* Update departmets controller + route<br>
+* Update licenses controller + route<br>
+* Update locations controller + route<br>
 #
