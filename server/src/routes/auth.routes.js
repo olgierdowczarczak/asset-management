@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { login, logout, refresh, getMe } from '../controllers/auth.controllers.js';
 import authMiddleware from '../middleware/auth.middleware.js';
+import { login, logout, refresh, getMe } from '../controllers/auth.controllers.js';
 
 const router = Router();
 router.post('/login', login);

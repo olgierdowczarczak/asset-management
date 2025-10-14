@@ -1,0 +1,11 @@
+{
+  "name": "asset-management-common",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Owczarczak Olgierd",
+  "license": "MIT",
+  "keywords": [],
+  "dependencies": {
+    "mongoose": "^8.19.1"
+  }
+}

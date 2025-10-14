@@ -1,5 +1,5 @@
 {
-    "name": "asset-management-backend",
+    "name": "asset-management-server",
     "version": "1.0.0",
     "type": "module",
     "main": "index.js",
@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "@faker-js/faker": "^10.0.0",
+        "asset-management-common": "file:../common",
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
