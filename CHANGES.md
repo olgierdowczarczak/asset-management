@@ -121,4 +121,12 @@
 **OO-0023**
 * Add users generator (backend)<br>
 * Add default admin (backend)<br>
+
+**OO-0024**
+* Change folders names<br>
+* Add common package<br>
+* Change schema in project<br>
+* Add logger<br>
+
+**TODO**
 #
