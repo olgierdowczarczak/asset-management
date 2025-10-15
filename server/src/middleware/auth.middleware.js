@@ -1,5 +1,6 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
+import Constats from 'asset-management-common/constants/constats.js';
 import jsonwebtoken from 'jsonwebtoken';
 import { Users } from '../lib/collections/index.js';
 import generateCookie from '../lib/helpers/generateCookie.js';
@@ -22,9 +23,8 @@ const handleAuthHeader = async (req, res) => {
         throw new Error(ConstMessages.userNotExists);
     }
 
-    const now = Math.floor(Date.now() / 1000);
-    // 10 minutes
-    if (decoded.exp - now < 600) {
+    const now = Math.floor(Date.now() / Constats.oneSecond);
+    if (decoded.exp - now < Constats.tenSeconds) {
         generateCookie(res, user);
     }
 

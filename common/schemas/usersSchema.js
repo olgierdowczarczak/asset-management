@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 const schema = new mongoose.Schema({
-    id: {
-        type: Number,
-        unique: [true, 'User already exists'],
-        immutable: true,
-    },
     username: {
         type: String,
         required: [true, 'Username is required'],
@@ -71,6 +66,11 @@ const schema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
     },
+    id: {
+        type: Number,
+        unique: [true, 'User already exists'],
+        immutable: true,
+    }
 }, { versionKey: false });
 
 schema.pre('save', async function save(next) {
@@ -84,5 +84,13 @@ schema.pre('save', async function save(next) {
         next(err);
     }
 });
+
+schema.methods.checkPassword = async function checkPassword(password) {
+    try {
+        return bcrypt.compare(password, this.password);
+    } catch {
+        return false;
+    }
+};
 
 export default schema;

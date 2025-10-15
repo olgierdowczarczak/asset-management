@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import {
+    getDepartments,
     getDepartment,
     updateDepartment,
     deleteDepartment,
-    getDepartments,
     createDepartment,
-} from '../controllers/department.controllers.js';
+} from '../controllers/departments.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();

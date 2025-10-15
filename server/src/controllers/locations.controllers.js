@@ -1,14 +1,14 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
-import { Accessories } from '../lib/collections/index.js';
+import { Locations } from '../lib/collections/index.js';
 import validateError from '../lib/helpers/validateError.js';
 
-export async function getAccessories(req, res) {
+export async function getLocations(req, res) {
     try {
-        const accessories = await Accessories.find(req.body);
+        const locations = await Locations.find(req.body);
 
-        res.status(ConstCodes.ok).send(accessories);
+        res.status(ConstCodes.ok).send(locations);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -16,16 +16,16 @@ export async function getAccessories(req, res) {
     }
 }
 
-export async function getAccessorie(req, res) {
+export async function getLocation(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOne({ id });
+        const location = await Locations.findOne({ id });
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!location) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.locationNotExists);
         }
 
-        res.status(ConstCodes.ok).send(accessorie);
+        res.status(ConstCodes.ok).send(location);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -33,20 +33,20 @@ export async function getAccessorie(req, res) {
     }
 }
 
-export async function updateAccessorie(req, res) {
+export async function updateLocation(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOneAndUpdate(
+        const location = await Locations.findOneAndUpdate(
             { id },
             { $set: req.body },
             { new: true, runValidators: true },
         );
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!location) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.locationNotExists);
         }
 
-        res.status(ConstCodes.ok).send(accessorie);
+        res.status(ConstCodes.ok).send(location);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -54,15 +54,15 @@ export async function updateAccessorie(req, res) {
     }
 }
 
-export async function deleteAccessorie(req, res) {
+export async function deleteLocation(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOne({ id });
+        const location = await Locations.findOne({ id });
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!location) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.locationNotExists);
         }
-        await Accessories.deleteOne({ id });
+        await Locations.deleteOne({ id });
 
         res.status(ConstCodes.deleted).send(ConstMessages.actionSucceed);
     } catch (err) {
@@ -72,15 +72,15 @@ export async function deleteAccessorie(req, res) {
     }
 }
 
-export async function createAccessorie(req, res) {
+export async function createLocation(req, res) {
     try {
-        const lastId = await getLastDocument(Accessories);
-        const accessorie = new Accessories(req.body);
-        accessorie.id = lastId;
+        const lastId = await getLastDocument(Locations);
+        const location = new Locations(req.body);
+        location.id = lastId;
 
-        await accessorie.save();
+        await location.save();
 
-        res.status(ConstCodes.created).send(accessorie);
+        res.status(ConstCodes.created).send(location);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,

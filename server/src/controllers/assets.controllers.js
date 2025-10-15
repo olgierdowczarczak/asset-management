@@ -1,5 +1,6 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
+import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
 import { Assets } from '../lib/collections/index.js';
 import validateError from '../lib/helpers/validateError.js';
 
@@ -73,7 +74,9 @@ export async function deleteAsset(req, res) {
 
 export async function createAsset(req, res) {
     try {
+        const lastId = await getLastDocument(Assets);
         const asset = new Assets(req.body);
+        asset.id = lastId;
 
         await asset.save();
 

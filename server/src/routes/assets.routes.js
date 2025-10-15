@@ -1,20 +1,16 @@
 import { Router } from 'express';
 import {
+    getAssets,
     getAsset,
     updateAsset,
     deleteAsset,
-    getActiveAssets,
-    getAllAssets,
-    getDeletedAssets,
     createAsset,
-} from '../controllers/asset.controllers.js';
+} from '../controllers/assets.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();
-router.route('/').get(getActiveAssets).post(adminMiddleware, createAsset);
+router.route('/').get(getAssets).post(adminMiddleware, createAsset);
 
-router.get('/all', adminMiddleware, getAllAssets);
-router.get('/deleted', adminMiddleware, getDeletedAssets);
 router
     .route('/:id')
     .get(getAsset)

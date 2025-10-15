@@ -1,5 +1,6 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
+import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
 import { Users } from '../lib/collections/index.js';
 import validateError from '../lib/helpers/validateError.js';
 
@@ -73,7 +74,9 @@ export async function deleteUser(req, res) {
 
 export async function createUser(req, res) {
     try {
+        const lastId = await getLastDocument(Users);
         const user = new Users(req.body);
+        user.id = lastId;
 
         await user.save();
 

@@ -6,7 +6,7 @@ const constCodes = {
     'unauthorized': 401,
     'forbidden': 403,
     'notFound': 404,
-    'duplicatedField': 11000,
+    'duplicatedField': 11000
 };
 
 export default constCodes;

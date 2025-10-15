@@ -1,4 +1,5 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
+import Logger from 'asset-management-common/constants/logger.js';
 import { Users } from '../lib/collections/index.js';
 
 export default async () => {
@@ -13,7 +14,7 @@ export default async () => {
             lastName: ConstMessages.admin,
             role: ConstMessages.admin,
         }).save();
-        console.log(ConstMessages.adminAdded);
+        Logger.debug(ConstMessages.adminAdded);
     }
     return !result;
 };

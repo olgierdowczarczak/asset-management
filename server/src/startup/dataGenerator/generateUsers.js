@@ -1,4 +1,6 @@
+import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
+import Logger from 'asset-management-common/constants/logger.js';
 import { faker } from '@faker-js/faker';
 import { Users } from '../../lib/collections/index.js';
 
@@ -15,11 +17,7 @@ const generateEmail = (firstName, lastName) => {
 };
 
 export default async () => {
-    const lastId = async () => {
-        const lastUser = await Users.findOne().sort({ id: -1 });
-        return lastUser.id || 1;
-    };
-
+    const lastId = await getLastDocument(Users);
     let id = await lastId();
     for (let i = 0; i < MAX_USER / CHUNK_SIZE; i++) {
         const users = [];
@@ -38,8 +36,7 @@ export default async () => {
         }
 
         await Users.create(users);
-        console.log(`Generated: ${CHUNK_SIZE} users`);
+        Logger.debug(`Generated: ${CHUNK_SIZE} users`);
     }
-
-    console.log(ConstMessages.generatedUsers);
+    Logger.debug(ConstMessages.generatedUsers);
 };

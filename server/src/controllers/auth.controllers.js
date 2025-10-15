@@ -31,6 +31,8 @@ export async function login(req, res) {
                 { $set: { isRemembered: true } },
                 { new: true, runValidators: true },
             ).then((user) => generateCookie(res, user));
+        } else {
+            generateCookie(res, user);
         }
 
         res.status(ConstCodes.ok).json({ id, username, role });
@@ -44,7 +46,6 @@ export async function login(req, res) {
 export async function logout(req, res) {
     try {
         const { _id } = req.user;
-
         await Users.findOneAndUpdate({ _id }, { $unset: { isRemembered: '' } });
         res.clearCookie('token', {
             httpOnly: true,

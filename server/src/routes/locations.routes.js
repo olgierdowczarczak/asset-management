@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import {
+    getLocations,
     getLocation,
     updateLocation,
     deleteLocation,
-    getLocations,
     createLocation,
-} from '../controllers/location.controllers.js';
+} from '../controllers/locations.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();
-router.route('/').get(getLocations).post(adminMiddleware, createLocation);
+router.route('/', adminMiddleware).get(getLocations).post(adminMiddleware, createLocation);
 
 router
     .route('/:id')

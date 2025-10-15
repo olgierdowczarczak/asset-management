@@ -3,12 +3,14 @@ dotenv.config();
 
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
+import Logger from 'asset-management-common/constants/logger.js';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import Config from './config/index.js';
 import Startup from './startup/index.js';
+import Config from './config/index.js';
+import authMiddleware from './middleware/auth.middleware.js';
 import Routes from './routes/index.js';
 
 const app = express();
@@ -28,20 +30,20 @@ app.use(Config.Routes.status, (req, res) =>
     res.json(ConstCodes.ok).send(ConstMessages.actionSucceed),
 );
 app.use(Config.Routes.auth, Routes.AuthRoutes);
-app.use(Config.Routes.accessories, Routes.AccessoriesRoutes);
-app.use(Config.Routes.assets, Routes.AssetsRoutes);
-app.use(Config.Routes.companies, Routes.CompaniesRoutes);
-app.use(Config.Routes.departments, Routes.DepartmentsRoutes);
-app.use(Config.Routes.licenses, Routes.LicensesRoutes);
-app.use(Config.Routes.locations, Routes.LocationsRoutes);
-app.use(Config.Routes.users, Routes.UsersRoutes);
+app.use(Config.Routes.accessories, authMiddleware, Routes.AccessoriesRoutes);
+app.use(Config.Routes.assets, authMiddleware, Routes.AssetsRoutes);
+app.use(Config.Routes.companies, authMiddleware, Routes.CompaniesRoutes);
+app.use(Config.Routes.departments, authMiddleware, Routes.DepartmentsRoutes);
+app.use(Config.Routes.licenses, authMiddleware, Routes.LicensesRoutes);
+app.use(Config.Routes.locations, authMiddleware, Routes.LocationsRoutes);
+app.use(Config.Routes.users, authMiddleware, Routes.UsersRoutes);
 
 // connections
 mongoose
     .connect(process.env.MONGO_URI)
     .then(async () => {
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => console.log(ConstMessages.appIsRunning, PORT));
+        app.listen(PORT, () => Logger.info(ConstMessages.appIsRunning, PORT));
 
         if (
             (await Startup.isInitialized()) &&
@@ -51,4 +53,4 @@ mongoose
             await Startup.DataGenerator(process.env.ENVIRONMENT);
         }
     })
-    .catch((err) => console.error(err));
+    .catch(err => Logger.error(err));

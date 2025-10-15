@@ -1,14 +1,14 @@
 import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
-import { Accessories } from '../lib/collections/index.js';
+import { Departments } from '../lib/collections/index.js';
 import validateError from '../lib/helpers/validateError.js';
 
-export async function getAccessories(req, res) {
+export async function getDepartments(req, res) {
     try {
-        const accessories = await Accessories.find(req.body);
+        const departments = await Departments.find(req.body);
 
-        res.status(ConstCodes.ok).send(accessories);
+        res.status(ConstCodes.ok).send(departments);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -16,16 +16,16 @@ export async function getAccessories(req, res) {
     }
 }
 
-export async function getAccessorie(req, res) {
+export async function getDepartment(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOne({ id });
+        const department = await Departments.findOne({ id });
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!department) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.departmentNotExists);
         }
 
-        res.status(ConstCodes.ok).send(accessorie);
+        res.status(ConstCodes.ok).send(department);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -33,20 +33,20 @@ export async function getAccessorie(req, res) {
     }
 }
 
-export async function updateAccessorie(req, res) {
+export async function updateDepartment(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOneAndUpdate(
+        const department = await Departments.findOneAndUpdate(
             { id },
             { $set: req.body },
             { new: true, runValidators: true },
         );
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!department) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.departmentNotExists);
         }
 
-        res.status(ConstCodes.ok).send(accessorie);
+        res.status(ConstCodes.ok).send(department);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,
@@ -54,15 +54,15 @@ export async function updateAccessorie(req, res) {
     }
 }
 
-export async function deleteAccessorie(req, res) {
+export async function deleteDepartment(req, res) {
     try {
         const { id } = req.params;
-        const accessorie = await Accessories.findOne({ id });
+        const department = await Departments.findOne({ id });
 
-        if (!accessorie) {
-            return res.status(ConstCodes.notFound).send(ConstMessages.accessorieNotExists);
+        if (!department) {
+            return res.status(ConstCodes.notFound).send(ConstMessages.departmentNotExists);
         }
-        await Accessories.deleteOne({ id });
+        await Departments.deleteOne({ id });
 
         res.status(ConstCodes.deleted).send(ConstMessages.actionSucceed);
     } catch (err) {
@@ -72,15 +72,15 @@ export async function deleteAccessorie(req, res) {
     }
 }
 
-export async function createAccessorie(req, res) {
+export async function createDepartment(req, res) {
     try {
-        const lastId = await getLastDocument(Accessories);
-        const accessorie = new Accessories(req.body);
-        accessorie.id = lastId;
+        const lastId = await getLastDocument(Departments);
+        const department = new Departments(req.body);
+        department.id = lastId;
 
-        await accessorie.save();
+        await department.save();
 
-        res.status(ConstCodes.created).send(accessorie);
+        res.status(ConstCodes.created).send(department);
     } catch (err) {
         res.status(ConstCodes.badRequest).send(
             validateError(err) || ConstMessages.internalServerError,

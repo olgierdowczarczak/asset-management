@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import {
+    getLicenses,
     getLicense,
     updateLicense,
     deleteLicense,
-    getLicenses,
     createLicense,
-} from '../controllers/license.controllers.js';
+} from '../controllers/licenses.controllers.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
 const router = Router();

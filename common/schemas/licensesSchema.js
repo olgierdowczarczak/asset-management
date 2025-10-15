@@ -1,11 +1,6 @@
 import mongoose from 'mongoose';
 
 const schema = new mongoose.Schema({
-    id: {
-        type: Number,
-        unique: [true, 'License already exists'],
-        immutable: true,
-    },
     name: {
         type: String,
         required: [true, 'Name is required'],
@@ -17,6 +12,11 @@ const schema = new mongoose.Schema({
         type: Number,
         required: [true, 'Quantity is required'],
     },
+    id: {
+        type: Number,
+        unique: [true, 'License already exists'],
+        immutable: true,
+    }
 }, { versionKey: false });
 
 export default schema;
