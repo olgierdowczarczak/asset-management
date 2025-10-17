@@ -107,4 +107,29 @@
 **OO-0020**
 * Adding token auto refreshing (backend)<br>
 * Format functions (backend)<br>
+
+**OO-0021**
+* Update controllers (backend)<br>
+* Update models (backend)<br>
+* Update resouce page (frontend)<br>
+* Update resouce structure (frontend)<br>
+
+**OO-0022**
+* Add option remember me<br>
+* Update layouts<br>
+
+**OO-0023**
+* Add users generator (backend)<br>
+* Add default admin (backend)<br>
+
+**OO-0024**
+* Change folders names<br>
+* Add common package<br>
+* Change schema in project<br>
+* Add logger<br>
+
+**OO-0025**
+* Update client<br>
+
+**TODO**
 #
