@@ -128,5 +128,8 @@
 * Change schema in project<br>
 * Add logger<br>
 
+**OO-0025**
+* Update client<br>
+
 **TODO**
 #

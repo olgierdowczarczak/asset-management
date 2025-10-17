@@ -15,7 +15,7 @@ export async function login(req, res) {
         }
         const user = await Users.findOne({ username });
         if (!user) {
-            return res.status(ConstCodes.unauthorized).send(ConstMessages.invalidCredentials);
+            return res.status(ConstCodes.notFound).send(ConstMessages.notFound);
         }
         const isPasswordCorrect = await user.checkPassword(password);
         if (!isPasswordCorrect) {
