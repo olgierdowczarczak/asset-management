@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type User from '../types/user';
 import type LoginRequest from '../types/auth';
 import * as AuthApi from '../api/auth';
+import validateError from 'asset-management-common/helpers/validateError.js';
 
 type AuthContextType = {
     user: User | null;
@@ -37,14 +38,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(user);
             setIsChecked(true);
         } catch (err) {
-            console.error(err);
+            console.error(validateError(err));
         }
     };
     const logout = async () => {
         try {
             await AuthApi.logoutUser();
-        } catch (err) {
-            console.error(err);
         } finally {
             setUser(null);
             setIsChecked(true);

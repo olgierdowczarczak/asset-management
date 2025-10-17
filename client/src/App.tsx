@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ROUTES from './config/routes';
+import Config from './config/index';
 
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -20,16 +20,16 @@ export default function () {
         <Router>
             <Routes>
                 <Route element={<AuthLayout />}>
-                    <Route path={ROUTES.auth.login} element={<LoginPage />} />
+                    <Route path={Config.Routes.auth.login} element={<LoginPage />} />
                 </Route>
 
                 <Route element={<PrivateRoute />}>
-                    <Route path={ROUTES.auth.logout} element={<LogoutPage />} />
+                    <Route path={Config.Routes.auth.logout} element={<LogoutPage />} />
 
                     <Route element={<MainLayout />}>
-                        <Route path={ROUTES.home} element={<HomePage />} />
+                        <Route path={Config.Routes.home} element={<HomePage />} />
                         <Route
-                            path={ROUTES.accessories.many}
+                            path={Config.Routes.accessories.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Accessories"
@@ -38,7 +38,7 @@ export default function () {
                             }
                         />
                         <Route
-                            path={ROUTES.assets.many}
+                            path={Config.Routes.assets.many}
                             element={
                                 <ResourceMainPage 
                                     resourceName="Assets" 
@@ -47,7 +47,7 @@ export default function () {
                             }
                         />
                         <Route
-                            path={ROUTES.licenses.many}
+                            path={Config.Routes.licenses.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Licenses"
@@ -56,7 +56,7 @@ export default function () {
                             }
                         />
                         <Route
-                            path={ROUTES.users.many}
+                            path={Config.Routes.users.many}
                             element={
                                 <ResourceMainPage
                                     resourceName="Users"
