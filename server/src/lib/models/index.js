@@ -24,3 +24,13 @@ export const Locations = mongoose.model(
     Collections[CollectionNames.locations],
 );
 export const Users = mongoose.model(CollectionNames.users, Collections[CollectionNames.users]);
+
+export const Models = {
+    Accessories,
+    Assets,
+    Companies,
+    Departments,
+    Licenses,
+    Locations,
+    Users,
+};

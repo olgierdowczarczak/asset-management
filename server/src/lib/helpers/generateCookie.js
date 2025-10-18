@@ -1,7 +1,11 @@
 import generateToken from './generateToken.js';
 
-export default (res, user) => {
-    res.cookie('token', generateToken(user), {
+/**
+ * @param {Response} response
+ * @param {Object} user
+ */
+export default (response, user) => {
+    response.cookie('token', generateToken(user), {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',

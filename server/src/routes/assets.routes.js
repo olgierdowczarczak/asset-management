@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getAssets,
-    getAsset,
-    updateAsset,
-    deleteAsset,
-    createAsset,
-} from '../controllers/assets.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { assets } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getAssets).post(adminMiddleware, createAsset);
+assets.router.route('/').get(assets.getItems).post(assets.createItem);
 
-router
+assets.router
     .route('/:id')
-    .get(getAsset)
-    .put(adminMiddleware, updateAsset)
-    .patch(adminMiddleware, updateAsset)
-    .delete(adminMiddleware, deleteAsset);
+    .get(assets.getItem)
+    .put(assets.updateItem)
+    .patch(assets.updateItem)
+    .delete(assets.deleteItem);
 
-export default router;
+export default assets.router;

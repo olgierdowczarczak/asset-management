@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getAccessories,
-    getAccessorie,
-    updateAccessorie,
-    deleteAccessorie,
-    createAccessorie,
-} from '../controllers/accessories.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { accessories } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getAccessories).post(adminMiddleware, createAccessorie);
+accessories.router.route('/').get(accessories.getItems).post(accessories.createItem);
 
-router
+accessories.router
     .route('/:id')
-    .get(getAccessorie)
-    .put(adminMiddleware, updateAccessorie)
-    .patch(adminMiddleware, updateAccessorie)
-    .delete(adminMiddleware, deleteAccessorie);
+    .get(accessories.getItem)
+    .put(accessories.updateItem)
+    .patch(accessories.updateItem)
+    .delete(accessories.deleteItem);
 
-export default router;
+export default accessories.router;

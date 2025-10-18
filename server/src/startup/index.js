@@ -1,7 +1,7 @@
-import isInitialized from './init.js';
 import DataGenerator from './dataGenerator/index.js';
+import isInitialized from './init.js';
 
 export default {
-    isInitialized,
     DataGenerator,
+    isInitialized,
 };

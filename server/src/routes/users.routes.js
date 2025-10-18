@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getUsers,
-    getUser,
-    updateUser,
-    deleteUser,
-    createUser,
-} from '../controllers/users.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { users } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getUsers).post(adminMiddleware, createUser);
+users.router.route('/').get(users.getItems).post(users.createItem);
 
-router
+users.router
     .route('/:id')
-    .get(getUser)
-    .put(adminMiddleware, updateUser)
-    .patch(adminMiddleware, updateUser)
-    .delete(adminMiddleware, deleteUser);
+    .get(users.getItem)
+    .put(users.updateItem)
+    .patch(users.updateItem)
+    .delete(users.deleteItem);
 
-export default router;
+export default users.router;
