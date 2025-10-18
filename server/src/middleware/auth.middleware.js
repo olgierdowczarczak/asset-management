@@ -2,12 +2,16 @@ import ConstMessages from 'asset-management-common/constants/constMessages.js';
 import ConstCodes from 'asset-management-common/constants/constCodes.js';
 import Constats from 'asset-management-common/constants/constats.js';
 import jsonwebtoken from 'jsonwebtoken';
-import { Users } from '../lib/collections/index.js';
+import { Users } from '../lib/models/index.js';
 import generateCookie from '../lib/helpers/generateCookie.js';
 import validateError from '../lib/helpers/validateError.js';
 
-const handleAuthHeader = async (req, res) => {
-    const token = req.cookies.token;
+/**
+ * @param {Request} request
+ * @param {Response} response
+ */
+const handleAuthHeader = async (request, response) => {
+    const token = request.cookies.token;
     if (!token) {
         throw new Error(ConstMessages.tokenMissing);
     }
@@ -15,30 +19,35 @@ const handleAuthHeader = async (req, res) => {
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
     const { id } = decoded;
     if (!id) {
-        throw new Error(ConstMessages.userNotExists);
+        throw new Error(ConstMessages.notExists);
     }
 
     const user = await Users.findOne({ id });
     if (!user) {
-        throw new Error(ConstMessages.userNotExists);
+        throw new Error(ConstMessages.notExists);
     }
 
     const now = Math.floor(Date.now() / Constats.oneSecond);
     if (decoded.exp - now < Constats.tenSeconds) {
-        generateCookie(res, user);
+        generateCookie(response, user);
     }
 
     return user;
 };
 
-export default async function (req, res, next) {
+/**
+ * @param {Request} request
+ * @param {Response} response
+ * @param {Function} next
+ */
+export default async function (request, response, next) {
     try {
-        const user = await handleAuthHeader(req, res);
-        req.user = user;
+        const user = await handleAuthHeader(request, response);
+        request.user = user;
         next();
     } catch (err) {
-        res.status(ConstCodes.unauthorized).send(
-            validateError(err) || ConstMessages.internalServerError,
-        );
+        response
+            .status(ConstCodes.unauthorized)
+            .send(validateError(err) || ConstMessages.internalServerError);
     }
 }

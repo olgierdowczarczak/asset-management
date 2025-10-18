@@ -131,5 +131,8 @@
 **OO-0025**
 * Update client<br>
 
+**OO-0026**
+* Update backend structure<br>
+
 **TODO**
 #

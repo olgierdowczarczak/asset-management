@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getCompanies,
-    getCompany,
-    updateCompany,
-    deleteCompany,
-    createCompany,
-} from '../controllers/companies.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { companies } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getCompanies).post(adminMiddleware, createCompany);
+companies.router.route('/').get(companies.getItems).post(companies.createItem);
 
-router
+companies.router
     .route('/:id')
-    .get(getCompany)
-    .put(adminMiddleware, updateCompany)
-    .patch(adminMiddleware, updateCompany)
-    .delete(adminMiddleware, deleteCompany);
+    .get(companies.getItem)
+    .put(companies.updateItem)
+    .patch(companies.updateItem)
+    .delete(companies.deleteItem);
 
-export default router;
+export default companies.router;

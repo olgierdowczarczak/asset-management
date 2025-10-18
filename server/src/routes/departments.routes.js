@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getDepartments,
-    getDepartment,
-    updateDepartment,
-    deleteDepartment,
-    createDepartment,
-} from '../controllers/departments.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { departments } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getDepartments).post(adminMiddleware, createDepartment);
+departments.router.route('/').get(departments.getItems).post(departments.createItem);
 
-router
+departments.router
     .route('/:id')
-    .get(getDepartment)
-    .put(adminMiddleware, updateDepartment)
-    .patch(adminMiddleware, updateDepartment)
-    .delete(adminMiddleware, deleteDepartment);
+    .get(departments.getItem)
+    .put(departments.updateItem)
+    .patch(departments.updateItem)
+    .delete(departments.deleteItem);
 
-export default router;
+export default departments.router;
