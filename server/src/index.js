@@ -40,7 +40,7 @@ mongoose
     .connect(process.env.MONGO_URI)
     .then(async () => {
         const PORT = process.env.PORT || DEFAULT_PORT;
-        app.listen(PORT, () => Logger.info(ConstMessages.appIsRunning, PORT));
+        app.listen(PORT, () => Logger.info(`${ConstMessages.appIsRunning} ${PORT}`));
 
         if (
             (await Startup.isInitialized()) &&
