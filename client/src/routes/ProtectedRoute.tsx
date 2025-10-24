@@ -11,6 +11,7 @@ function ProtectedRoute() {
     if (!isAuthenticated) {
         return <Navigate to={Routes.LOGIN} replace />;
     }
+    
     return <Outlet />;
 };
 

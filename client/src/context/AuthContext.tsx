@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import type { AuthContextType, User, LoginFormData } from '@/types';
-import { loginRequest, logoutRequest, getMe } from '@/api/auth';
+import { AuthService } from '@/services';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -9,17 +9,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(true);
 
     const login = async (credentials: LoginFormData) => {
-        const user = await loginRequest(credentials);
+        const user = await AuthService.loginRequest(credentials);
         setUser(user);
     };
 
     const logout = async () => {
-        await logoutRequest();
+        await AuthService.logoutRequest();
         setUser(null);
     };
 
     useEffect(() => {
-        getMe()
+        AuthService.getMe()
             .then((user) => setUser(user))
             .catch(() => {
                 if (user) {
