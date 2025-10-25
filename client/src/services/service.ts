@@ -1,24 +1,23 @@
 import type { AxiosInstance } from 'axios';
 
-type Data  ={
+type Data = {
     id?: number;
     body?: any;
 }
 
 class Service {
-    private client: AxiosInstance;
-    private route: string;
-    
+    private readonly client: AxiosInstance;
+    private readonly route: string;
+
     constructor(client: AxiosInstance, route: string) {
         this.client = client;
         this.route = route;
     }
 
     protected async sendRequest(
-        method: 'get' | 'post' | 'put' | 'patch' | 'delete', 
-        endpoint: string, 
-        data: Data = {}
-    ) {
+        method: 'get' | 'post' | 'put' | 'patch' | 'delete',
+        endpoint: string,
+        data: Data = {}) {
         if (data.id) {
             endpoint.replace(':id', data.id.toString());
         }

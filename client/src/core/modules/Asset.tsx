@@ -7,7 +7,7 @@ class Asset extends AbstractMainResourceHandler<IAsset> {
     create = async(data: IAsset) => AssetService.create(data);
     get = async(id: number) => AssetService.get(id);
     edit = async(id: number, data: IAsset) => AssetService.edit(id, data);
-    delete = async() => AssetService.delete();
+    delete = async(id: number) => AssetService.delete(id);
     history = async(id: number) => AssetService.history(id);
 };
 

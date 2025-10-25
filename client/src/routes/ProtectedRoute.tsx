@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { Routes } from '@/config';
+import { routes } from '@/config';
 import { useAuth } from '@/hooks';
 
 function ProtectedRoute() {
@@ -9,7 +9,7 @@ function ProtectedRoute() {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to={Routes.LOGIN} replace />;
+        return <Navigate to={routes.login} replace />;
     }
     
     return <Outlet />;

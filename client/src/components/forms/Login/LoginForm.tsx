@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import type { LoginFormData } from '@/types';
-import { Routes } from '@/config';
+import type { ILoginFormData } from '@/types';
+import { routes } from '@/config';
 import { useAuth } from '@/hooks';
+import { validateError } from '@/lib/helpers';
 
 function LoginForm() {
     const { login, loading, isAuthenticated } = useAuth();
-    const [credentials, setCredentials] = useState<LoginFormData>({
+    const [credentials, setCredentials] = useState<ILoginFormData>({
         username: '',
         password: '',
         isRemembered: false
@@ -20,15 +21,15 @@ function LoginForm() {
 
         try {
             await login(credentials);
-            navigate(Routes.HOME);
+            navigate(routes.home);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
+            validateError(err, 'Login failed');
         }
     };
 
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, type, checked, value } = e.target;
-        setCredentials((prev: LoginFormData) => ({
+        setCredentials((prev: ILoginFormData) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
@@ -39,7 +40,7 @@ function LoginForm() {
     }
 
     if (isAuthenticated) {
-        return <Navigate to={Routes.HOME} replace />;
+        return <Navigate to={routes.home} replace />;
     }
 
     return (

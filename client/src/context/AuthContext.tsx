@@ -1,15 +1,15 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import type { AuthContextType, User, LoginFormData } from '@/types';
+import type { IAuthContextType, IUser, ILoginFormData } from '@/types';
 import { AuthService } from '@/services';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<IUser | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const login = async (credentials: LoginFormData) => {
-        const user = await AuthService.loginRequest(credentials);
+    const login = async (credentials: ILoginFormData) => {
+        const user: IUser | null = await AuthService.loginRequest(credentials);
         setUser(user);
     };
 

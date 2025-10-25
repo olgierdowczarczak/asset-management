@@ -1,5 +1,5 @@
 import Collections from 'asset-management-common/schemas/index.js';
-import CollectionNames from 'asset-management-common/constants/collectionNames.js';
+import { CollectionNames } from 'asset-management-common/constants/index.js';
 import mongoose from 'mongoose';
 
 export const Accessories = mongoose.model(

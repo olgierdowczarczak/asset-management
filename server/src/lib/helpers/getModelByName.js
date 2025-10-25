@@ -1,19 +1,16 @@
 import { Models } from '../models/index.js';
 
 /**
- * @param {string} collectionName
+ * @param {String} collectionName
  */
 const getModelByName = (collectionName) => {
-    /**
-     * @param {string} collectionName
-     */
-    const capitalizeFirstLetter = (str) => {
-        if (!str) {
+    const capitalizeFirstLetter = () => {
+        if (!collectionName) {
             return '';
         }
-        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        return collectionName.charAt(0).toUpperCase() + collectionName.slice(1).toLowerCase();
     };
-    return Models[capitalizeFirstLetter(collectionName)];
+    return Models[capitalizeFirstLetter()];
 };
 
 export default getModelByName;

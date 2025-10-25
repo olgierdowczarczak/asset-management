@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import { Routes } from '@/config';
+import { routes } from '@/config';
 import { useAuth } from '@/hooks';
+import { validateError } from '@/lib/helpers';
 
 function LogoutRoute() {
     const { logout, loading } = useAuth();
@@ -8,8 +9,13 @@ function LogoutRoute() {
         return null;
     }
 
-    logout();
-    return <Navigate to={Routes.LOGIN} replace />;
+    try {
+        logout();
+    } catch (err: any) {
+        validateError(err, 'Logout failed');
+    }
+
+    return <Navigate to={routes.login} replace />;
 };
 
 export default LogoutRoute;

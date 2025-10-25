@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import ConstMessages from 'asset-management-common/constants/constMessages.js';
-import Logger from 'asset-management-common/constants/logger.js';
+import { ConstMessages, Logger } from 'asset-management-common/constants/index.js';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
