@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getLocations,
-    getLocation,
-    updateLocation,
-    deleteLocation,
-    createLocation,
-} from '../controllers/locations.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { locations } from '../controllers/index.js';
 
-const router = Router();
-router.route('/', adminMiddleware).get(getLocations).post(adminMiddleware, createLocation);
+locations.router.route('/').get(locations.getItems).post(locations.createItem);
 
-router
+locations.router
     .route('/:id')
-    .get(getLocation)
-    .put(adminMiddleware, updateLocation)
-    .patch(adminMiddleware, updateLocation)
-    .delete(adminMiddleware, deleteLocation);
+    .get(locations.getItem)
+    .put(locations.updateItem)
+    .patch(locations.updateItem)
+    .delete(locations.deleteItem);
 
-export default router;
+export default locations.router;

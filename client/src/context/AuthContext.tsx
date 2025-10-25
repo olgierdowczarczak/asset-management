@@ -1,66 +1,45 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type User from '../types/user';
-import type LoginRequest from '../types/auth';
-import * as AuthApi from '../api/auth';
-import validateError from 'asset-management-common/helpers/validateError.js';
+import { createContext, useState, useEffect, useContext } from 'react';
+import type { IAuthContextType, IUser, ILoginFormData } from '@/types';
+import { AuthService } from '@/services';
 
-type AuthContextType = {
-    user: User | null;
-    isLoggedIn: boolean;
-    isChecked: boolean;
-    login: (credentials: LoginRequest) => Promise<void>;
-    logout: () => Promise<void>;
-};
+const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+    const [user, setUser] = useState<IUser | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isChecked, setIsChecked] = useState(false);
+    const login = async (credentials: ILoginFormData) => {
+        const user: IUser | null = await AuthService.loginRequest(credentials);
+        setUser(user);
+    };
+
+    const logout = async () => {
+        await AuthService.logoutRequest();
+        setUser(null);
+    };
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                setUser(await AuthApi.getMe());
-            } catch {
-                setUser(null);
-            } finally {
-                setIsChecked(true);
-            }
-        };
-
-        fetchUser();
+        AuthService.getMe()
+            .then((user) => setUser(user))
+            .catch(() => {
+                if (user) {
+                    logout();
+                }
+            })
+            .finally(() => setLoading(false))
     }, []);
 
-    const login = async (credentials: LoginRequest) => {
-        try {
-            const user: User | null = await AuthApi.loginUser(credentials);
-            setUser(user);
-            setIsChecked(true);
-        } catch (err) {
-            console.error(validateError(err));
-        }
-    };
-    const logout = async () => {
-        try {
-            await AuthApi.logoutUser();
-        } finally {
-            setUser(null);
-            setIsChecked(true);
-        }
-    };
-
     return (
-        <AuthContext.Provider value={{ user, isLoggedIn: !!user, isChecked, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, loading }}>
             {children}
         </AuthContext.Provider>
     );
-}
+};
 
-export const useAuth = () => {
+export const useAuthContext = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
+        throw new Error('useAuthContext should be use in AuthProvider');
     }
     return context;
 };

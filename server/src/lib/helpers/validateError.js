@@ -1,11 +1,40 @@
-import Logger from 'asset-management-common/constants/logger.js';
-import validateError from 'asset-management-common/helpers/validateError.js';
+import { Logger, ConstMessages, ConstCodes } from 'asset-management-common/constants/index.js';
 
-export default (err) => {
-    console.log(err);
-    const message = validateError(err);
-    if (message) {
-        Logger.error(message);
+/**
+ * @param {Error} error
+ */
+const handleErrorMessage = (error) => {
+    switch (error.name) {
+        case 'MongoServerError': {
+            if (error.code === ConstCodes.duplicatedField) {
+                return ConstMessages.duplicatedField;
+            }
+            return error.message || '';
+        }
+        case 'ValidationError': {
+            const errors = Object.values(error.errors).map((e) => e.message);
+            return errors[0];
+        }
     }
-    return message;
+
+    return error.message || '';
 };
+
+/**
+ * @param {Error} error
+ * @param {Boolean} printingError
+ */
+const validateError = (error, printingError=false) => {
+    if (printingError) {
+        console.error(error)
+    }
+    
+    const errorMessage = handleErrorMessage(error);
+    if (errorMessage) {
+        Logger.error(errorMessage);
+    };
+
+    return errorMessage;
+};
+
+export default validateError;

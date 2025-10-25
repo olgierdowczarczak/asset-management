@@ -1,5 +1,1 @@
-import Routes from './routes.js';
-
-export default {
-    Routes
-};
+export { default as routes } from './routes';

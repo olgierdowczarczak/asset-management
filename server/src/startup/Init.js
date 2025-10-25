@@ -1,6 +1,5 @@
-import ConstMessages from 'asset-management-common/constants/constMessages.js';
-import Logger from 'asset-management-common/constants/logger.js';
-import { Users } from '../lib/collections/index.js';
+import { ConstMessages, Logger } from 'asset-management-common/constants/index.js';
+import { Users } from '../lib/models/index.js';
 
 export default async () => {
     const result = await Users.countDocuments({});

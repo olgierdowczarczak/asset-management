@@ -5,6 +5,7 @@ const schema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, 'Username is required'],
+        unique: true,
         minlength: [2, 'Username is shorter than the minimum allowed length (2)'],
         maxlength: [31, 'Username is longer than the maximum allowed length (31)'],
     },
@@ -17,6 +18,7 @@ const schema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
         match: [/^\S+@\S+\.\S+$/, 'Invalid form'],
         maxlength: [127, 'Email is longer than the maximum allowed length (31)'],
     },

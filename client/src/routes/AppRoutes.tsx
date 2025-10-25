@@ -1,0 +1,32 @@
+import { Routes, Route } from 'react-router-dom';
+import { routes as ConfigRoutes } from '@/config';
+import * as Layouts from '@/components/layouts';
+import * as Controllers from '@/core';
+import * as Pages from '../pages';
+import ProtectedRoute from './ProtectedRoute';
+import LogoutRoute from './LogoutRoute';
+
+const AppRoutes = () => {
+    return (
+        <Routes>
+            <Route element={<Layouts.AuthLayout />}>
+                <Route path={ConfigRoutes.login} element={<Pages.LoginPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute />}>
+                <Route path={ConfigRoutes.logout} element={<LogoutRoute />} />
+
+                <Route element={<Layouts.AppLayout />}>
+                    <Route path={ConfigRoutes.home} element={<Pages.HomePage />} />
+                    {Object.values(Controllers).flatMap((controller) =>
+                        controller.registeredRoutes.map((r) =>
+                            <Route path={r.path} element={r.element ? <r.element /> : undefined} />
+                        )
+                    )}
+                </Route>
+            </Route>
+        </Routes>
+    );
+};
+
+export default AppRoutes;

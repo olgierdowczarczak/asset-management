@@ -1,21 +1,12 @@
-import { Router } from 'express';
-import {
-    getLicenses,
-    getLicense,
-    updateLicense,
-    deleteLicense,
-    createLicense,
-} from '../controllers/licenses.controllers.js';
-import adminMiddleware from '../middleware/admin.middleware.js';
+import { licenses } from '../controllers/index.js';
 
-const router = Router();
-router.route('/').get(getLicenses).post(adminMiddleware, createLicense);
+licenses.router.route('/').get(licenses.getItems).post(licenses.createItem);
 
-router
+licenses.router
     .route('/:id')
-    .get(getLicense)
-    .put(adminMiddleware, updateLicense)
-    .patch(adminMiddleware, updateLicense)
-    .delete(adminMiddleware, deleteLicense);
+    .get(licenses.getItem)
+    .put(licenses.updateItem)
+    .patch(licenses.updateItem)
+    .delete(licenses.deleteItem);
 
-export default router;
+export default licenses.router;
