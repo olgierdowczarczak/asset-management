@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
-import ConstMessages from 'asset-management-common/constants/constMessages.js';
-import Logger from 'asset-management-common/constants/logger.js';
+import { ConstMessages, Logger } from 'asset-management-common/constants/index.js';
 import { Users } from '../../lib/models/index.js';
 
 const MAX_USER = 1000;

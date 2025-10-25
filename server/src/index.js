@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import ConstMessages from 'asset-management-common/constants/constMessages.js';
-import Logger from 'asset-management-common/constants/logger.js';
+import { ConstMessages, Logger } from 'asset-management-common/constants/index.js';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -40,7 +39,7 @@ mongoose
     .connect(process.env.MONGO_URI)
     .then(async () => {
         const PORT = process.env.PORT || DEFAULT_PORT;
-        app.listen(PORT, () => Logger.info(ConstMessages.appIsRunning, PORT));
+        app.listen(PORT, () => Logger.info(`${ConstMessages.appIsRunning} ${PORT}`));
 
         if (
             (await Startup.isInitialized()) &&

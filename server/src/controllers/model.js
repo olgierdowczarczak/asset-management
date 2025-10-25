@@ -1,5 +1,4 @@
-import ConstMessages from 'asset-management-common/constants/constMessages.js';
-import ConstCodes from 'asset-management-common/constants/constCodes.js';
+import { ConstMessages, ConstCodes } from 'asset-management-common/constants/index.js';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
