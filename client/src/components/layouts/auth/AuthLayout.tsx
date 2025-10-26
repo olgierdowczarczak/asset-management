@@ -6,6 +6,6 @@ function AuthLayout() {
             <Outlet />
         </main>
     );
-};
+}
 
 export default AuthLayout;

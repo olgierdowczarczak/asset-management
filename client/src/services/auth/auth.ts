@@ -4,7 +4,9 @@ import Service from '../service';
 
 class AccessorieService extends Service {
     async loginRequest(credentials: ILoginFormData): Promise<IUser | null> {
-        const response = await this.sendRequest('post', endpoints.auth.paths.login, { body: credentials });
+        const response = await this.sendRequest('post', endpoints.auth.paths.login, {
+            body: credentials,
+        });
         const user: IUser | null = response.data;
         return user;
     }
@@ -17,7 +19,7 @@ class AccessorieService extends Service {
         const response = await this.sendRequest('get', endpoints.auth.paths.getMe);
         const user: IUser | null = response.data;
         return user;
-    };
+    }
 }
 
 export default AccessorieService;

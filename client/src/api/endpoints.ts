@@ -4,10 +4,10 @@ const endpoints = {
         paths: {
             login: '/login',
             logout: '/logout',
-            getMe: '/me'
-        }
+            getMe: '/me',
+        },
     },
-    accessorie: {
+    accessories: {
         name: 'accessories',
         paths: {
             getAll: '/',
@@ -15,10 +15,11 @@ const endpoints = {
             get: '/:id/',
             edit: '/:id/',
             delete: '/:id/',
-            history: '/:id/history'
-        }
+            history: '/:id/history',
+            historyRecord: '/:id/history/:id',
+        },
     },
-    asset: {
+    assets: {
         name: 'assets',
         paths: {
             getAll: '/',
@@ -26,10 +27,11 @@ const endpoints = {
             get: '/:id/',
             edit: '/:id/',
             delete: '/:id/',
-            history: '/:id/history'
-        }
+            history: '/:id/history',
+            historyRecord: '/:id/history/:id',
+        },
     },
-    license: {
+    licenses: {
         name: 'licenses',
         paths: {
             getAll: '/',
@@ -37,10 +39,11 @@ const endpoints = {
             get: '/:id/',
             edit: '/:id/',
             delete: '/:id/',
-            history: '/:id/history'
-        }
+            history: '/:id/history',
+            historyRecord: '/:id/history/:id',
+        },
     },
-    user: {
+    users: {
         name: 'users',
         paths: {
             getAll: '/',
@@ -48,9 +51,10 @@ const endpoints = {
             get: '/:id/',
             edit: '/:id/',
             delete: '/:id/',
-            history: '/:id/history'
-        }
-    }
+            history: '/:id/history',
+            historyRecord: '/:id/history/:id',
+        },
+    },
 };
 
 export default endpoints;

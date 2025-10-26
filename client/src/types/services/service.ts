@@ -10,4 +10,5 @@ export interface IResource<T> {
 
 export interface IMainResource<T> extends IResource<T> {
     history: (id: number) => Promise<IHistoryRecord[] | null>;
+    historyRecord: (id: number, recordId: number) => Promise<IHistoryRecord | null>;
 }
