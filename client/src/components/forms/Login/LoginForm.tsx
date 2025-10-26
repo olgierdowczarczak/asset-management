@@ -6,11 +6,11 @@ import { useAuth } from '@/hooks';
 import { validateError } from '@/lib/helpers';
 
 function LoginForm() {
-    const { login, loading, isAuthenticated } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const [credentials, setCredentials] = useState<ILoginFormData>({
         username: '',
         password: '',
-        isRemembered: false
+        isRemembered: false,
     });
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -33,11 +33,7 @@ function LoginForm() {
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
-    }
-
-    if (loading) {
-        return <p>Loading...</p>;
-    }
+    };
 
     if (isAuthenticated) {
         return <Navigate to={routes.home} replace />;
@@ -48,31 +44,31 @@ function LoginForm() {
             {error && <div>{error}</div>}
             <form onSubmit={handleSubmit}>
                 <input
-                    type='text'
-                    name='username'
+                    type="text"
+                    name="username"
                     value={credentials.username}
                     onChange={handleValueChange}
-                    placeholder='username'
+                    placeholder="username"
                     required
                 />
                 <input
-                    type='password'
-                    name='password'
+                    type="password"
+                    name="password"
                     value={credentials.password}
                     onChange={handleValueChange}
-                    placeholder='password'
+                    placeholder="password"
                     required
                 />
                 <label>
                     <input
-                        type='checkbox'
-                        name='isRemembered'
+                        type="checkbox"
+                        name="isRemembered"
                         checked={credentials.isRemembered}
                         onChange={handleValueChange}
                     />
                     Remember me
                 </label>
-                <button type='submit'>Login</button>
+                <button type="submit">Login</button>
             </form>
         </>
     );

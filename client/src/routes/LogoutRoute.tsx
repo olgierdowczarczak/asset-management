@@ -4,10 +4,7 @@ import { useAuth } from '@/hooks';
 import { validateError } from '@/lib/helpers';
 
 function LogoutRoute() {
-    const { logout, loading } = useAuth();
-    if (loading) {
-        return null;
-    }
+    const { logout } = useAuth();
 
     try {
         logout();
@@ -16,6 +13,6 @@ function LogoutRoute() {
     }
 
     return <Navigate to={routes.login} replace />;
-};
+}
 
 export default LogoutRoute;

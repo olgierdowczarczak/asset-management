@@ -24,15 +24,15 @@ const handleErrorMessage = (error) => {
  * @param {Error} error
  * @param {Boolean} printingError
  */
-const validateError = (error, printingError=false) => {
+const validateError = (error, printingError = false) => {
     if (printingError) {
-        console.error(error)
+        console.error(error);
     }
-    
+
     const errorMessage = handleErrorMessage(error);
     if (errorMessage) {
         Logger.error(errorMessage);
-    };
+    }
 
     return errorMessage;
 };

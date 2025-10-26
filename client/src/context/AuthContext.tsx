@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     logout();
                 }
             })
-            .finally(() => setLoading(false))
+            .finally(() => setLoading(false));
     }, []);
 
     return (

@@ -1,3 +1,1 @@
-export default interface License {
-
-}
+export default interface License {}

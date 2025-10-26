@@ -1,4 +1,8 @@
-import { ConstMessages, ConstCodes, ConstatsValues } from 'asset-management-common/constants/index.js';
+import {
+    ConstMessages,
+    ConstCodes,
+    ConstatsValues,
+} from 'asset-management-common/constants/index.js';
 import jsonwebtoken from 'jsonwebtoken';
 import { Users } from '../lib/models/index.js';
 import generateCookie from '../lib/helpers/generateCookie.js';

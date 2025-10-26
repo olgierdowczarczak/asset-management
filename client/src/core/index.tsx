@@ -1,10 +1,14 @@
 import { routes } from '@/config';
-import Accessorie from './modules/accessorie';
-import Asset from './modules/asset';
-import License from './modules/license';
-import User from './modules/user';
+import * as Services from '@/services';
+import MainResourceController from './MainResourceController';
 
-export const AccessorieController = new Accessorie(routes.accessories);
-export const AssetController = new User(routes.assets);
-export const LicenseController = new Asset(routes.licenses);
-export const UserController = new License(routes.users);
+export const AccessorieController = new MainResourceController(
+    routes.accessories,
+    Services.AccessorieService,
+);
+export const AssetController = new MainResourceController(routes.assets, Services.AssetService);
+export const LicenseController = new MainResourceController(
+    routes.licenses,
+    Services.LicenseService,
+);
+export const UserController = new MainResourceController(routes.users, Services.UserService);

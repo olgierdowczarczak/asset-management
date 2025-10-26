@@ -5,7 +5,7 @@ const routes = {
     accessories: 'accessories',
     assets: 'assets',
     licenses: 'licenses',
-    users: 'users'
+    users: 'users',
 };
 
 export default routes;

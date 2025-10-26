@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios';
 type Data = {
     id?: number;
     body?: any;
-}
+};
 
 class Service {
     private readonly client: AxiosInstance;
@@ -17,9 +17,11 @@ class Service {
     protected async sendRequest(
         method: 'get' | 'post' | 'put' | 'patch' | 'delete',
         endpoint: string,
-        data: Data = {}) {
-        if (data.id) {
-            endpoint.replace(':id', data.id.toString());
+        data: Data = {},
+    ) {
+        // TODO: refactor
+        if (endpoint.includes(':id')) {
+            endpoint.replace(':id', data.id ? data.id.toString() : '0');
         }
         return await this.client[method](`${this.route}${endpoint}`, data.body);
     }

@@ -6,6 +6,6 @@ function AppLayout() {
             <Outlet />
         </main>
     );
-};
+}
 
 export default AppLayout;

@@ -1,3 +1,1 @@
-export default interface HistoryRecord {
-
-};
+export default interface HistoryRecord {}

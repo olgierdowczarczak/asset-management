@@ -1,3 +1,1 @@
-export default interface Accessorie {
-
-}
+export default interface Accessorie {}
