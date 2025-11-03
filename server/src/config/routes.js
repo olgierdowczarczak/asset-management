@@ -1,6 +1,14 @@
 const routes = {
+    auth: {
+        route: '/api/auth',
+        endpoints: {
+            login: '/login',
+            logout: '/logout',
+            refresh: '/refresh',
+            me: '/me',
+        },
+    },
     status: '/api/status',
-    auth: '/api/auth',
     accessories: '/api/accessories',
     assets: '/api/assets',
     companies: '/api/companies',

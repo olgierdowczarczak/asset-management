@@ -1,24 +1,22 @@
-import {
-    ConstMessages,
-    ConstCodes,
-    ConstatsValues,
-} from 'asset-management-common/constants/index.js';
+import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
 import jsonwebtoken from 'jsonwebtoken';
+import { StatusCodes } from 'http-status-codes';
 import { Users } from '../lib/models/index.js';
 import generateCookie from '../lib/helpers/generateCookie.js';
 import validateError from '../lib/helpers/validateError.js';
+import config from '../config/index.js';
 
 /**
  * @param {Request} request
  * @param {Response} response
  */
 const handleAuthHeader = async (request, response) => {
-    const token = request.cookies.token;
+    const token = request.cookies.access_token;
     if (!token) {
         throw new Error(ConstMessages.tokenMissing);
     }
 
-    const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+    const decoded = jsonwebtoken.verify(token, config.JWT_SECRET);
     const { id } = decoded;
     if (!id) {
         throw new Error(ConstMessages.notExists);
@@ -49,7 +47,7 @@ export default async function (request, response, next) {
         next();
     } catch (err) {
         response
-            .status(ConstCodes.unauthorized)
+            .status(StatusCodes.UNAUTHORIZED)
             .send(validateError(err) || ConstMessages.internalServerError);
     }
 }

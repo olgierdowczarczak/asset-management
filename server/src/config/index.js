@@ -1,5 +1,11 @@
-import Routes from './routes.js';
+import { Logger } from 'asset-management-common/constants/index.js';
+import env from './env.js';
+import routes from './routes.js';
 
-export default {
-    Routes,
+const config = {
+    Logger,
+    ...env,
+    routes,
 };
+
+export default config;

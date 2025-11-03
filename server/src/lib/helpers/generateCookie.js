@@ -1,14 +1,16 @@
-import generateToken from './generateToken.js';
-
 /**
  * @param {Response} response
- * @param {Object} user
+ * @param {String} name
+ * @param {String} value
+ * @param {Number} maxAge
  */
-export default (response, user) => {
-    response.cookie('token', generateToken(user), {
+const generateCookie = (response, name, value, maxAge) => {
+    response.cookie(name, value, {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
-        maxAge: user.isRemembered ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+        maxAge,
     });
 };
+
+export default generateCookie;
