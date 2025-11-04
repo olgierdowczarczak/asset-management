@@ -15,4 +15,4 @@ export default {
     [CollectionNames.licenses]: LicensesSchema,
     [CollectionNames.locations]: LocationsSchema,
     [CollectionNames.users]: UsersSchema
-}
+};

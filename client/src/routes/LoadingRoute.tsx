@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '@/hooks';
+import useAuth from '@/hooks/useAuth';
 
 function LoadingRoute() {
     const { loading } = useAuth();

@@ -1,12 +1,10 @@
-import { client, endpoints } from '@/api';
-import Auth from './auth/auth';
-import Accessorie from './resources/accessorie';
-import Asset from './resources/asset';
-import License from './resources/license';
-import User from './resources/user';
+import config from '@/config';
+import { client } from '@/api';
+import Auth from './auth';
+import Resource from './resource';
 
-export const AuthService = new Auth(client, endpoints.auth.name);
-export const AccessorieService = new Accessorie(client, endpoints.accessories.name);
-export const AssetService = new Asset(client, endpoints.assets.name);
-export const LicenseService = new License(client, endpoints.licenses.name);
-export const UserService = new User(client, endpoints.users.name);
+export const AuthService = new Auth(client, config.endpoints.auth.name);
+export const AccessorieService = new Resource(client, config.endpoints.accessories);
+export const AssetService = new Resource(client, config.endpoints.assets);
+export const LicenseService = new Resource(client, config.endpoints.licenses);
+export const UserService = new Resource(client, config.endpoints.users);

@@ -4,17 +4,13 @@ import config from '../../config/index.js';
 /**
  * @param {Response} response
  * @param {String} name
- * @param {String} value
- * @param {Number} maxAge
  */
-const generateCookie = (response, name, value, maxAge) => {
-    response.cookie(name, value, {
+const clearCookie = (response, name) => {
+    response.clearCookie(name, {
         httpOnly: true,
         secure: config.ENVIRONMENT === EnvironmentNames.production,
         sameSite: 'strict',
-        maxAge,
-        path: '/',
     });
 };
 
-export default generateCookie;
+export default clearCookie;

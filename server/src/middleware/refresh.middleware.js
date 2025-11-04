@@ -9,13 +9,8 @@ import config from '../config/index.js';
  * @param {Request} request
  * @param {Response} response
  */
-const handleAuthHeader = async (request) => {
-    const authorization = request.headers.authorization;
-    if (!authorization) {
-        throw new Error(ConstMessages.tokenMissing);
-    }
-
-    const token = authorization.split(' ')[1];
+const handleAuthCookie = async (request) => {
+    const token = request.cookies.token;
     if (!token) {
         throw new Error(ConstMessages.tokenMissing);
     }
@@ -26,7 +21,7 @@ const handleAuthHeader = async (request) => {
         throw new Error(ConstMessages.notExists);
     }
 
-    const user = await Users.findOne({ _id: id });
+    const user = await Users.findOne({ id });
     if (!user) {
         throw new Error(ConstMessages.notExists);
     }
@@ -41,7 +36,7 @@ const handleAuthHeader = async (request) => {
  */
 export default async function (request, response, next) {
     try {
-        const user = await handleAuthHeader(request);
+        const user = await handleAuthCookie(request);
         request.user = user;
         next();
     } catch (err) {

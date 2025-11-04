@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import encryptData from '../helpers/encryptData.js';
 
 const schema = new mongoose.Schema({
     username: {
@@ -81,18 +81,10 @@ schema.pre('save', async function save(next) {
     }
 
     try {
-        this.password = await bcrypt.hash(this.password, Number(process.env.JWT_SALT));
+        this.password = await encryptData(this.password);
     } catch (err) {
         next(err);
     }
-});
-
-schema.methods.checkPassword = async function checkPassword(password) {
-    try {
-        return bcrypt.compare(password, this.password);
-    } catch {
-        return false;
-    }
-};
+})
 
 export default schema;

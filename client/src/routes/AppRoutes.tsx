@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { routes as ConfigRoutes } from '@/config';
+import config from '@/config';
 import * as Layouts from '@/components/layouts';
 import * as Controllers from '@/core';
 import * as Pages from '../pages';
@@ -10,16 +10,16 @@ const AppRoutes = () => {
         <Routes>
             <Route element={<Layouts.AuthLayout />}>
                 <Route element={<LoadingRoute />}>
-                    <Route path={ConfigRoutes.login} element={<Pages.LoginPage />} />
+                    <Route path={config.routes.login} element={<Pages.LoginPage />} />
                 </Route>
             </Route>
 
             <Route element={<ProtectedRoute />}>
                 <Route element={<LoadingRoute />}>
-                    <Route path={ConfigRoutes.logout} element={<LogoutRoute />} />
+                    <Route path={config.routes.logout} element={<LogoutRoute />} />
 
                     <Route element={<Layouts.AppLayout />}>
-                        <Route path={ConfigRoutes.home} element={<Pages.HomePage />} />
+                        <Route path={config.routes.home} element={<Pages.HomePage />} />
                         {Object.values(Controllers).flatMap((controller) =>
                             controller.registeredRoutes.map((r) => (
                                 <Route

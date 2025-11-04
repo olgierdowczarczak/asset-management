@@ -1,19 +1,14 @@
-import AccessoriesRoutes from './accessories.routes.js';
-import AssetsRoutes from './assets.routes.js';
-import AuthRoutes from './auth.routes.js';
-import CompaniesRoutes from './companies.routes.js';
-import DepartmentsRoutes from './departments.routes.js';
-import LicensesRoutes from './licenses.routes.js';
-import LocationsRoutes from './locations.routes.js';
-import UsersRoutes from './users.routes.js';
+import config from '../config/index.js';
+import * as Controllers from '../controllers/index.js';
+import authMiddleware from '../middleware/auth.middleware.js';
 
-export default {
-    AccessoriesRoutes,
-    AssetsRoutes,
-    AuthRoutes,
-    CompaniesRoutes,
-    DepartmentsRoutes,
-    LicensesRoutes,
-    LocationsRoutes,
-    UsersRoutes,
+export default (app) => {
+    app.use(config.routes.auth.route, Controllers.auth.router);
+    app.use(config.routes.accessories, authMiddleware, Controllers.accessories.router);
+    app.use(config.routes.assets, authMiddleware, Controllers.assets.router);
+    app.use(config.routes.companies, authMiddleware, Controllers.companies.router);
+    app.use(config.routes.departments, authMiddleware, Controllers.departments.router);
+    app.use(config.routes.licenses, authMiddleware, Controllers.licenses.router);
+    app.use(config.routes.locations, authMiddleware, Controllers.locations.router);
+    app.use(config.routes.users, authMiddleware, Controllers.users.router);
 };

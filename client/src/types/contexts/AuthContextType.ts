@@ -1,9 +1,9 @@
-import type User from '../user';
-import type LoginFormData from '../forms/LoginFormData';
+import type IUser from '../resources/user';
+import type ILoginForm from '../forms/LoginForm';
 
 export default interface AuthContextType {
-    user: User | null;
-    login: (credentials: LoginFormData) => Promise<void>;
+    user: IUser | null;
+    login: (credentials: ILoginForm) => Promise<void>;
     logout: () => Promise<void>;
     isAuthenticated: boolean;
     loading: boolean;
