@@ -1,3 +1,5 @@
+import { CollectionNames } from 'asset-management-common/constants/index.js';
+
 const routes = {
     auth: {
         route: '/api/auth',
@@ -8,14 +10,13 @@ const routes = {
             me: '/me',
         },
     },
-    status: '/api/status',
-    accessories: '/api/accessories',
-    assets: '/api/assets',
-    companies: '/api/companies',
-    departments: '/api/departments',
-    licenses: '/api/licenses',
-    locations: '/api/locations',
-    users: '/api/users',
+    accessories: `/api/${CollectionNames.accessories}`,
+    assets: `/api/${CollectionNames.assets}`,
+    companies: `/api/${CollectionNames.companies}`,
+    departments: `/api/${CollectionNames.departments}`,
+    licenses: `/api/${CollectionNames.licenses}`,
+    locations: `/api/${CollectionNames.locations}`,
+    users: `/api/${CollectionNames.users}`,
 };
 
 export default routes;

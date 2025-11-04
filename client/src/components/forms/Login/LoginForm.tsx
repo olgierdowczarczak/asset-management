@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import type { ILoginForm } from '@/types';
 import config from '@/config';
-import { useAuth } from '@/hooks';
-import { validateError } from '@/lib/helpers';
+import useAuth from '@/hooks/useAuth';
+import validateError from '@/lib/helpers/validateError';
 
 function LoginForm() {
     const { login, isAuthenticated } = useAuth();

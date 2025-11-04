@@ -9,7 +9,7 @@ const clearCookie = (response, name) => {
     response.clearCookie(name, {
         httpOnly: true,
         secure: config.ENVIRONMENT === EnvironmentNames.production,
-        sameSite: 'strict'
+        sameSite: 'strict',
     });
 };
 

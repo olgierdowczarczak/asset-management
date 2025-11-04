@@ -1,9 +1,11 @@
 import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
+import compareData from 'asset-management-common/helpers/compareData.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import config from '../config/index.js';
 import { Users } from '../lib/models/index.js';
 import authMiddleware from '../middleware/auth.middleware.js';
+import refreshMiddleware from '../middleware/refresh.middleware.js';
 import generateCookie from '../lib/helpers/generateCookie.js';
 import clearCookie from '../lib/helpers/clearCookie.js';
 import * as Token from '../lib/helpers/generateToken.js';
@@ -14,7 +16,7 @@ class Auth extends Endpoint {
         super();
         this._router.post(config.routes.auth.endpoints.login, this.login);
         this._router.post(config.routes.auth.endpoints.logout, authMiddleware, this.logout);
-        this._router.post(config.routes.auth.endpoints.refresh, authMiddleware, this.refresh);
+        this._router.post(config.routes.auth.endpoints.refresh, refreshMiddleware, this.refresh);
         this._router.get(config.routes.auth.endpoints.me, authMiddleware, this.getMe);
     }
 
@@ -35,20 +37,25 @@ class Auth extends Endpoint {
                 return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notFound);
             }
 
-            // const isPasswordCorrect = await user.checkPassword(password);
-            // if (!isPasswordCorrect) {
-            //     return response
-            //         .status(StatusCodes.UNAUTHORIZED)
-            //         .send(ConstMessages.invalidCredentials);
-            // }
-
-            const { _id, id, role } = user;
-            const access_token = Token.generateAccessToken(_id);
-            if (isRemembered) {
-                await Users.findOneAndUpdate({ _id } ,{ $set: { isRemembered: true } });
+            const isPasswordCorrect = await compareData(password, user.password);
+            if (!isPasswordCorrect) {
+                return response
+                    .status(StatusCodes.UNAUTHORIZED)
+                    .send(ConstMessages.invalidCredentials);
             }
 
-            generateCookie(response, ConstMessages.refreshToken, Token.generateRefreshToken(_id, isRemembered), isRemembered ? ConstatsValues.thirtyDays : ConstatsValues.sevenDays);
+            const { _id, id, role } = user;
+            const access_token = Token.generateAccessToken(_id, isRemembered);
+            if (isRemembered) {
+                await Users.findOneAndUpdate({ _id }, { $set: { isRemembered: true } });
+            }
+
+            generateCookie(
+                response,
+                ConstMessages.refreshToken,
+                Token.generateRefreshToken(_id),
+                ConstatsValues.thirtyDays,
+            );
             response.status(StatusCodes.OK).json({ user: { id, username, role }, access_token });
         } catch (error) {
             response
@@ -81,8 +88,13 @@ class Auth extends Endpoint {
     async refresh(request, response) {
         try {
             const { _id, isRemembered } = request.user;
-            const access_token = Token.generateAccessToken(_id);
-            generateCookie(response, ConstMessages.refreshToken, Token.generateRefreshToken(_id, isRemembered), isRemembered ? ConstatsValues.thirtyDays : ConstatsValues.sevenDays);
+            const access_token = Token.generateAccessToken(_id, isRemembered);
+            generateCookie(
+                response,
+                ConstMessages.refreshToken,
+                Token.generateRefreshToken(_id),
+                ConstatsValues.thirtyDays,
+            );
             response.status(StatusCodes.OK).json(access_token);
         } catch (error) {
             response

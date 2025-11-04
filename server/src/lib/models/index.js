@@ -6,10 +6,7 @@ export const Accessories = mongoose.model(
     CollectionNames.accessories,
     Collections[CollectionNames.accessories],
 );
-export const Assets = mongoose.model(
-    CollectionNames.assets, 
-    Collections[CollectionNames.assets]
-);
+export const Assets = mongoose.model(CollectionNames.assets, Collections[CollectionNames.assets]);
 export const Companies = mongoose.model(
     CollectionNames.companies,
     Collections[CollectionNames.companies],
@@ -35,5 +32,5 @@ export const models = {
     Departments,
     Licenses,
     Locations,
-    Users
+    Users,
 };

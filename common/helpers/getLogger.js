@@ -2,6 +2,10 @@ import { createLogger, format, transports } from 'winston';
 
 const { combine, timestamp, printf, colorize } = format;
 const logFormat = printf(({ level, message, timestamp, prefix }) => `[${timestamp}] [${level}]${prefix ? ` [${prefix}]` : ''} ${message}`);
+
+/**
+ * @param {String} prefix
+ */
 const getLogger = prefix => {
     return createLogger({
         level: 'silly',

@@ -13,7 +13,7 @@ const generateCookie = (response, name, value, maxAge) => {
         secure: config.ENVIRONMENT === EnvironmentNames.production,
         sameSite: 'strict',
         maxAge,
-        path: '/'
+        path: '/',
     });
 };
 

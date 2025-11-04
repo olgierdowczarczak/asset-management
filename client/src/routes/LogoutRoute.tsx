@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import config from '@/config';
-import { useAuth } from '@/hooks';
-import { validateError } from '@/lib/helpers';
+import useAuth from '@/hooks/useAuth';
+import validateError from '@/lib/helpers/validateError';
 
 function LogoutRoute() {
     const { logout } = useAuth();

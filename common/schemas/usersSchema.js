@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import encryptData from '../helpers/encryptData.js';
 
 const schema = new mongoose.Schema({
     username: {
@@ -73,5 +74,17 @@ const schema = new mongoose.Schema({
         immutable: true,
     }
 }, { versionKey: false });
+
+schema.pre('save', async function save(next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+
+    try {
+        this.password = await encryptData(this.password);
+    } catch (err) {
+        next(err);
+    }
+})
 
 export default schema;

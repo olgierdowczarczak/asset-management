@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { validateError } from '@/lib/helpers';
+import validateError from '@/lib/helpers/validateError';
 
 interface RegisteredRoute {
     path: string;

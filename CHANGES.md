@@ -146,5 +146,11 @@
 **OO-0030**
 * Update frontend structure<br>
 
+**OO-0031**
+* Update frontend structure<br>
+* Update backend structure<br>
+* Update common structure<br>
+* Add refresh token<br>
+
 **TODO**
 #

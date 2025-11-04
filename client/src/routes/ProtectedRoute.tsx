@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import config from '@/config';
-import { useAuth } from '@/hooks';
+import useAuth from '@/hooks/useAuth';
 
 function ProtectedRoute() {
     const { loading, isAuthenticated } = useAuth();

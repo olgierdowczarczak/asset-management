@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         AuthService.getMe()
-            .then(dbUser => setUser(dbUser))
+            .then((dbUser) => setUser(dbUser))
             .catch(() => {
                 if (user) {
                     logout();

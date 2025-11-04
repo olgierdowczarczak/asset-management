@@ -6,21 +6,21 @@ import config from '../../config/index.js';
  * @param {string} expiresIn
  * @param {string} key
  */
-export const generateToken = (id, expiresIn, key=config.JWT_SECRET) => {
+export const generateToken = (id, expiresIn, key = config.JWT_SECRET) => {
     return jsonwebtoken.sign({ id }, key, { expiresIn });
 };
 
 /**
  * @param {any} id
+ * @param {boolean} isRemembered
  */
-export const generateAccessToken = (id) => {
-    return generateToken(id, '15m', config.JWT_SECRET);
-}
+export const generateAccessToken = (id, isRemembered) => {
+    return generateToken(id, isRemembered ? '30d' : '15m', config.JWT_SECRET);
+};
 
 /**
  * @param {any} id
- * @param {boolean} isRemembered
  */
-export const generateRefreshToken = (id, isRemembered) => {
-    return generateToken(id, isRemembered ? '30d' : '7d', config.JWT_REFRESH_SECRET);
-}
+export const generateRefreshToken = (id) => {
+    return generateToken(id, '7d', config.JWT_REFRESH_SECRET);
+};

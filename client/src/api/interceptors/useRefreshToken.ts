@@ -4,10 +4,14 @@ import { AuthService } from '@/services';
 
 function useRefreshToken(api: AxiosInstance) {
     api.interceptors.response.use(
-        res => res,
+        (res) => res,
         async (error) => {
             const originalRequest = error.config;
-            if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth')) {
+            if (
+                error.response?.status === 401 &&
+                !originalRequest._retry &&
+                !originalRequest.url.includes('/auth/me')
+            ) {
                 try {
                     const newToken = await AuthService.refresh();
                     localStorage.setItem('access_token', newToken);
@@ -18,11 +22,10 @@ function useRefreshToken(api: AxiosInstance) {
                     localStorage.removeItem('access_token');
                     window.location.href = config.routes.login;
                 }
-
                 return Promise.reject(error);
             }
-        }
-    )
+        },
+    );
 }
 
 export default useRefreshToken;
