@@ -1,4 +1,4 @@
-import { Models } from '../models/index.js';
+import { models } from '../models/index.js';
 
 /**
  * @param {String} collectionName
@@ -10,7 +10,7 @@ const getModelByName = (collectionName) => {
         }
         return collectionName.charAt(0).toUpperCase() + collectionName.slice(1).toLowerCase();
     };
-    return Models[capitalizeFirstLetter()];
+    return models[capitalizeFirstLetter()];
 };
 
 export default getModelByName;

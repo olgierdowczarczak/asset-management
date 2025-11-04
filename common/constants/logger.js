@@ -1,3 +1,3 @@
-import { getLogger } from '../helpers/index.js';
+import getLogger from '../helpers/getLogger.js';
 
 export default getLogger();

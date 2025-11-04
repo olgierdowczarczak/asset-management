@@ -1,4 +1,5 @@
-export type { default as ILoginFormData } from './forms/LoginFormData';
+export type { default as ILoginForm } from './forms/LoginForm';
+export type { default as ILoginResponse } from './responses/LoginResponse';
 
 export type { default as IAuthContextType } from './contexts/AuthContextType';
 

@@ -1,12 +1,13 @@
-import { ConstMessages } from 'asset-management-common/constants/index.js';
+import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
-import { Users } from '../lib/models/index.js';
-import generateCookie from '../lib/helpers/generateCookie.js';
-import generateToken from '../lib/helpers/generateToken.js';
-import validateError from '../lib/helpers/validateError.js';
-import authMiddleware from '../middleware/auth.middleware.js';
 import config from '../config/index.js';
+import { Users } from '../lib/models/index.js';
+import authMiddleware from '../middleware/auth.middleware.js';
+import generateCookie from '../lib/helpers/generateCookie.js';
+import clearCookie from '../lib/helpers/clearCookie.js';
+import * as Token from '../lib/helpers/generateToken.js';
+import validateError from '../lib/helpers/validateError.js';
 
 class Auth extends Endpoint {
     constructor() {
@@ -24,7 +25,6 @@ class Auth extends Endpoint {
     async login(request, response) {
         try {
             const { username, password, isRemembered } = request.body;
-
             if (!username || !password) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
@@ -41,24 +41,15 @@ class Auth extends Endpoint {
             //         .status(StatusCodes.UNAUTHORIZED)
             //         .send(ConstMessages.invalidCredentials);
             // }
-            if (user.role !== ConstMessages.admin) {
-                return response
-                    .status(StatusCodes.FORBIDDEN)
-                    .send(ConstMessages.invalidPermissions);
-            }
+
             const { _id, id, role } = user;
+            const access_token = Token.generateAccessToken(_id);
             if (isRemembered) {
-                await Users.findOneAndUpdate(
-                    { _id },
-                    { $set: { isRemembered: true } },
-                    { new: true, runValidators: true },
-                );
-                generateCookie(response, 'access_token', generateToken(user), 1);
-            } else {
-                generateCookie(response, 'access_token', generateToken(user), 1000000);
+                await Users.findOneAndUpdate({ _id } ,{ $set: { isRemembered: true } });
             }
 
-            response.status(StatusCodes.OK).json({ id, username, role });
+            generateCookie(response, ConstMessages.refreshToken, Token.generateRefreshToken(_id, isRemembered), isRemembered ? ConstatsValues.thirtyDays : ConstatsValues.sevenDays);
+            response.status(StatusCodes.OK).json({ user: { id, username, role }, access_token });
         } catch (error) {
             response
                 .status(StatusCodes.BAD_REQUEST)
@@ -74,11 +65,7 @@ class Auth extends Endpoint {
         try {
             const { _id } = request.user;
             await Users.findOneAndUpdate({ _id }, { $unset: { isRemembered: '' } });
-            response.clearCookie(ConstMessages.token, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'strict',
-            });
+            clearCookie(response, ConstMessages.refreshToken);
             response.status(StatusCodes.OK).send(ConstMessages.actionSucceed);
         } catch (error) {
             response
@@ -93,8 +80,10 @@ class Auth extends Endpoint {
      */
     async refresh(request, response) {
         try {
-            generateCookie(response, request.user);
-            response.status(StatusCodes.OK).send(ConstMessages.actionSucceed);
+            const { _id, isRemembered } = request.user;
+            const access_token = Token.generateAccessToken(_id);
+            generateCookie(response, ConstMessages.refreshToken, Token.generateRefreshToken(_id, isRemembered), isRemembered ? ConstatsValues.thirtyDays : ConstatsValues.sevenDays);
+            response.status(StatusCodes.OK).json(access_token);
         } catch (error) {
             response
                 .status(StatusCodes.BAD_REQUEST)

@@ -1,5 +1,6 @@
 const environmentNames = {
-    dev: 'dev'
+    dev: 'dev',
+    production: 'production'
 };
 
 export default environmentNames;

@@ -5,6 +5,7 @@ const endpoints = {
             login: '/login',
             logout: '/logout',
             getMe: '/me',
+            refresh: '/refresh'
         },
     },
     accessories: {

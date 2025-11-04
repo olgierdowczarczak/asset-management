@@ -1,8 +1,7 @@
-import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
+import { ConstMessages } from 'asset-management-common/constants/index.js';
 import jsonwebtoken from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import { Users } from '../lib/models/index.js';
-import generateCookie from '../lib/helpers/generateCookie.js';
 import validateError from '../lib/helpers/validateError.js';
 import config from '../config/index.js';
 
@@ -10,8 +9,13 @@ import config from '../config/index.js';
  * @param {Request} request
  * @param {Response} response
  */
-const handleAuthHeader = async (request, response) => {
-    const token = request.cookies.access_token;
+const handleAuthHeader = async (request) => {
+    const authorization = request.headers.authorization;
+    if (!authorization) {
+        throw new Error(ConstMessages.tokenMissing);
+    }
+
+    const token = authorization.split(' ')[1];
     if (!token) {
         throw new Error(ConstMessages.tokenMissing);
     }
@@ -22,14 +26,9 @@ const handleAuthHeader = async (request, response) => {
         throw new Error(ConstMessages.notExists);
     }
 
-    const user = await Users.findOne({ id });
+    const user = await Users.findOne({ _id: id });
     if (!user) {
         throw new Error(ConstMessages.notExists);
-    }
-
-    const now = Math.floor(Date.now() / ConstatsValues.oneSecond);
-    if (decoded.exp - now < ConstatsValues.tenSeconds) {
-        generateCookie(response, user);
     }
 
     return user;
@@ -42,7 +41,7 @@ const handleAuthHeader = async (request, response) => {
  */
 export default async function (request, response, next) {
     try {
-        const user = await handleAuthHeader(request, response);
+        const user = await handleAuthHeader(request);
         request.user = user;
         next();
     } catch (err) {

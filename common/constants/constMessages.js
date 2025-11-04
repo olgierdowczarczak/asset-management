@@ -10,7 +10,8 @@ const constMessages = {
     invalidCredentials: 'Invalid credentials',
     invalidPermissions: 'Invalid permissions',
     notExists: 'Not exists',
-    token: 'token',
+    refreshToken: 'refresh_token',
+    accessToken: 'access_token',
     tokenMissing: 'Token missing',
     usernameAndPasswordAreRequired: 'Username and password are required'
 };
