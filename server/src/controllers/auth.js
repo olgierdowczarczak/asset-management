@@ -1,4 +1,4 @@
-import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
+import { ConstMessages, ConstantsValues } from 'asset-management-common/constants/index.js';
 import compareData from 'asset-management-common/helpers/compareData.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
@@ -54,7 +54,7 @@ class Auth extends Endpoint {
                 response,
                 ConstMessages.refreshToken,
                 Token.generateRefreshToken(_id),
-                ConstatsValues.thirtyDays,
+                ConstantsValues.thirtyDays,
             );
             response.status(StatusCodes.OK).json({ user: { id, username, role }, access_token });
         } catch (error) {
@@ -93,7 +93,7 @@ class Auth extends Endpoint {
                 response,
                 ConstMessages.refreshToken,
                 Token.generateRefreshToken(_id),
-                ConstatsValues.thirtyDays,
+                ConstantsValues.thirtyDays,
             );
             response.status(StatusCodes.OK).json(access_token);
         } catch (error) {

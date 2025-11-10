@@ -1,4 +1,4 @@
-import { ConstMessages, ConstatsValues } from 'asset-management-common/constants/index.js';
+import { ConstMessages, ConstantsValues } from 'asset-management-common/constants/index.js';
 import config from '../../config/index.js';
 
 /**
@@ -7,7 +7,7 @@ import config from '../../config/index.js';
 const handleErrorMessage = (error) => {
     switch (error.name) {
         case 'MongoServerError': {
-            if (error.code === ConstatsValues.duplicatedField) {
+            if (error.code === ConstantsValues.duplicatedField) {
                 return ConstMessages.duplicatedField;
             }
             return error.message || '';

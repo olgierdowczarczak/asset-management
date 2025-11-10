@@ -14,7 +14,7 @@ export default async () => {
             lastName: ConstMessages.admin,
             role: ConstMessages.admin,
         });
-        user.save();
+        await user.save();
         config.Logger.debug(ConstMessages.adminAdded);
     }
 };

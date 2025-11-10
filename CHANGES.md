@@ -156,5 +156,11 @@
 * Update frontend structure<br>
 * Update backend structure<br>
 
+**OO-0033**
+* Update frontend structure<br>
+* Add css<br>
+* Update backend structure<br>
+* Update common structure<br>
+
 **TODO**
 #

@@ -19,7 +19,7 @@ const endpoints = {
         edit: '/:id/',
         delete: '/:id/',
         history: '/:id/history',
-        historyRecord: '/:id/history/:id',
+        historyRecord: '/:id/history/:recordId',
     },
 };
 

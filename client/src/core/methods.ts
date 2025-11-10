@@ -7,6 +7,6 @@ export class Methods <T> extends PageHandler<IMethods<T>> {
     get = async (id: number) => this.service.get(id);
     edit = async (id: number, data: T) => this.service.edit(id, data);
     delete = async (id: number) => this.service.delete(id);
-    history = async (id: number) => this.service.history(id);
+    historyRecords = async (id: number) => this.service.historyRecords(id);
     historyRecord = async (id: number, recordId: number) => this.service.historyRecord(id, recordId);
 };

@@ -11,12 +11,12 @@ import config from '../config/index.js';
  */
 const handleAuthHeader = async (request) => {
     const authorization = request.headers.authorization;
-    if (!authorization) {
+    if (!authorization || !authorization.startsWith('Bearer ')) {
         throw new Error(ConstMessages.tokenMissing);
     }
 
     const token = authorization.split(' ')[1];
-    if (!token) {
+    if (!token || token.trim() === '') {
         throw new Error(ConstMessages.tokenMissing);
     }
 

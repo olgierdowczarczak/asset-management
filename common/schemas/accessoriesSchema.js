@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 const schema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
-        minlength: 2,
-        maxlength: 31
+        required: [true, 'Name is required'],
+        minlength: [2, 'Name is shorter than the minimum allowed length (2)'],
+        maxlength: [31, 'Name is longer than the maximum allowed length (31)']
     },
     quantity: {
         type: Number,
@@ -13,7 +13,7 @@ const schema = new mongoose.Schema({
     },
     id: {
         type: Number,
-        unique: true,
+        unique: [true, 'Accessory already exists'],
         immutable: true
     },
 }, { versionKey: false });

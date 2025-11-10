@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Password is required'],
-        minlength: [8, 'Password is shorter than the minimum allowed length (2)'],
+        minlength: [8, 'Password is shorter than the minimum allowed length (8)'],
         maxlength: [64, 'Password is longer than the maximum allowed length (64)'],
     },
     email: {
@@ -53,7 +53,7 @@ const schema = new mongoose.Schema({
     },
     company: {
         type: mongoose.Schema.Types.Number,
-        ref: 'departments',
+        ref: 'companies',
     },
     department: {
         type: mongoose.Schema.Types.Number,
@@ -82,8 +82,9 @@ schema.pre('save', async function save(next) {
 
     try {
         this.password = await encryptData(this.password);
+        return next();
     } catch (err) {
-        next(err);
+        return next(err);
     }
 })
 
