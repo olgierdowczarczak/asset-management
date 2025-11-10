@@ -1,4 +1,4 @@
-const constatsValues = {
+const constantsValues = {
     'oneSecond': 1000,
     'tenSeconds': 10000,
     'sevenDays': 1000*60*60*24*7,
@@ -6,4 +6,4 @@ const constatsValues = {
     'duplicatedField': 11000
 };
 
-export default constatsValues;
+export default constantsValues;

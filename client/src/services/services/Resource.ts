@@ -9,22 +9,22 @@ class Resource<T> extends Service implements IMethodsResource<T> {
     }
 
     async create(data: T) {
-        const response = await this.sendRequest('get', config.endpoints.resource.create, { body: data });
+        const response = await this.sendRequest('post', config.endpoints.resource.create, { body: data });
         return response.data;
     }
 
     async get(id: number) {
-        const response = await this.sendRequest('get', config.endpoints.resource.get, { params: [id] });
+        const response = await this.sendRequest('get', config.endpoints.resource.get, { params: { id } });
         return response.data;
     }
 
     async edit(id: number, data: T) {
-        const response = await this.sendRequest('patch', config.endpoints.resource.edit, { params: [id], body: data });
+        const response = await this.sendRequest('patch', config.endpoints.resource.edit, { params: { id }, body: data });
         return response.data;
     }
 
     async delete(id: number) {
-        const response = await this.sendRequest('delete', config.endpoints.resource.delete, { params: [id] });
+        const response = await this.sendRequest('delete', config.endpoints.resource.delete, { params: { id } });
         return response.data;
     }
 }

@@ -27,7 +27,7 @@ class Service {
         }
         const url = `${this.route}${finalEndpoint}`;
         if (method === 'get' || method === 'delete') {
-            return this.client[method](url, { params: options.params });
+            return this.client[method](url);
         }
         return this.client[method](url, options.body);
     }

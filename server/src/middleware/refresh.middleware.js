@@ -21,7 +21,7 @@ const handleAuthCookie = async (request) => {
         throw new Error(ConstMessages.notExists);
     }
 
-    const user = await Users.findOne({ id });
+    const user = await Users.findOne({ _id: id });
     if (!user) {
         throw new Error(ConstMessages.notExists);
     }
