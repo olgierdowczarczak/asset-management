@@ -152,5 +152,9 @@
 * Update common structure<br>
 * Add refresh token<br>
 
+**OO-0032**
+* Update frontend structure<br>
+* Update backend structure<br>
+
 **TODO**
 #

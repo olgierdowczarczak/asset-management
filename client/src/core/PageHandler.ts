@@ -3,23 +3,23 @@ import validateError from '@/lib/helpers/validateError';
 
 interface RegisteredRoute {
     path: string;
-    element: ComponentType;
+    element: ComponentType<any>;
 }
 
-class ResourceHandler<S> {
+class PageHandler<T> {
     readonly resourceName: string;
-    readonly service: S;
+    readonly service: T;
     readonly path: string;
     readonly registeredRoutes: RegisteredRoute[] = [];
 
-    constructor(resourceName: string, service: S) {
+    constructor(resourceName: string, service: T) {
         this.resourceName = resourceName;
         this.path = resourceName.toLowerCase();
         this.service = service;
         this.wrapMethods();
     }
 
-    protected registerRoute(route: string, element: ComponentType) {
+    protected registerRoute(route: string, element: ComponentType<any>) {
         const path = `/${this.path}${route}`.replace(/\/+/g, '/');
         this.registeredRoutes.push({ path, element });
     }
@@ -43,11 +43,10 @@ class ResourceHandler<S> {
             try {
                 return await fn(...args);
             } catch (error: any) {
-                validateError(error, 'Unexpected error');
-                return null;
+                return validateError(error, 'Unexpected error');
             }
         };
     }
 }
 
-export default ResourceHandler;
+export default PageHandler;
