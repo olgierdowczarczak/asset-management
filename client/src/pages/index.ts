@@ -1,2 +1,7 @@
-export { default as HomePage } from './Home/HomePage';
-export { default as LoginPage } from './Login/LoginPage';
+export { default as HomePage } from './pages/home/HomePage';
+export { default as LoginPage } from './pages/login/LoginPage';
+export { default as ResourceCreatePage } from './pages/resource/CreatePage';
+export { default as ResourceEditPage } from './pages/resource/EditPage';
+export { default as ResourceHistoryPage } from './pages/resource/HistoryPage';
+export { default as ResourceMainPage } from './pages/resource/MainPage';
+export { default as ResourceResourcePage } from './pages/resource/ResourcePage';

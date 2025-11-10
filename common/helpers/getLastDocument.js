@@ -1,6 +1,6 @@
 import ConstMessages from '../constants/constMessages.js';
 
-export default async(model) => {
+const getLastDocument = async model => {
     try {
         const lastUser = await model.findOne().sort({ id: -1 });
         return lastUser ? lastUser.id + 1 : 1;
@@ -8,3 +8,5 @@ export default async(model) => {
         throw new Error(ConstMessages.actionFailed);
     }
 };
+
+export default getLastDocument;

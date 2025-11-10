@@ -25,7 +25,7 @@ export const Locations = mongoose.model(
 );
 export const Users = mongoose.model(CollectionNames.users, Collections[CollectionNames.users]);
 
-export const Models = {
+export const models = {
     Accessories,
     Assets,
     Companies,

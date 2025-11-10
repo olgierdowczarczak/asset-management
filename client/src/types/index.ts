@@ -1,10 +1,6 @@
-export type { default as ILoginFormData } from './forms/LoginFormData';
-
-export type { default as IAuthContextType } from './contexts/AuthContextType';
-
-export type { default as IUser } from './resources/user';
-export type { default as IAccessorie } from './resources/accessorie';
-export type { default as IAsset } from './resources/asset';
-export type { default as ILicense } from './resources/license';
-export type { default as IHistoryRecord } from './resources/historyRecord';
-export type { IResource, IMainResource } from './services/service';
+export type { default as ILoginForm } from './types/forms/LoginForm';
+export type { default as ILoginResponse } from './types/responses/LoginResponse';
+export type { default as IAuthContextType } from './types/contexts/AuthContextType';
+export type { default as IUser } from './types/user';
+export type { default as IHistoryRecord } from './types/historyRecord';
+export type { IMethods, IMethodsResource, IMethodsMainResource } from './types/methods';

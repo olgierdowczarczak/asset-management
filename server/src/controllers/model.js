@@ -1,5 +1,6 @@
-import { ConstMessages, ConstCodes } from 'asset-management-common/constants/index.js';
+import { ConstMessages } from 'asset-management-common/constants/index.js';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
+import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
 import getModelByName from '../lib/helpers/getModelByName.js';
@@ -14,6 +15,14 @@ class Model extends Endpoint {
         this.getItem = this.getItem.bind(this);
         this.updateItem = this.updateItem.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
+
+        this._router.route('/').get(this.getItems).post(this.createItem);
+        this._router
+            .route('/:id')
+            .get(this.getItem)
+            .put(this.updateItem)
+            .patch(this.updateItem)
+            .delete(this.deleteItem);
     }
 
     /**
@@ -23,11 +32,10 @@ class Model extends Endpoint {
     async getItems(request, response) {
         try {
             const items = await this._collection.find(request.body);
-
-            response.status(ConstCodes.ok).send(items);
+            response.status(StatusCodes.OK).send(items);
         } catch (error) {
             response
-                .status(ConstCodes.badRequest)
+                .status(StatusCodes.BAD_REQUEST)
                 .send(validateError(error) || ConstMessages.internalServerError);
         }
     }
@@ -40,15 +48,13 @@ class Model extends Endpoint {
         try {
             const { id } = request.params;
             const item = await this._collection.findOne({ id });
-
             if (!item) {
-                return response.status(ConstCodes.notFound).send(ConstMessages.notExists);
+                return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
             }
-
-            response.status(ConstCodes.ok).send(item);
+            response.status(StatusCodes.OK).send(item);
         } catch (err) {
             response
-                .status(ConstCodes.badRequest)
+                .status(StatusCodes.BAD_REQUEST)
                 .send(validateError(err) || ConstMessages.internalServerError);
         }
     }
@@ -65,15 +71,13 @@ class Model extends Endpoint {
                 { $set: request.body },
                 { new: true, runValidators: true },
             );
-
             if (!item) {
-                return response.status(ConstCodes.notFound).send(ConstMessages.notExists);
+                return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
             }
-
-            response.status(ConstCodes.ok).send(item);
+            response.status(StatusCodes.OK).send(item);
         } catch (err) {
             response
-                .status(ConstCodes.badRequest)
+                .status(StatusCodes.BAD_REQUEST)
                 .send(validateError(err) || ConstMessages.internalServerError);
         }
     }
@@ -86,16 +90,14 @@ class Model extends Endpoint {
         try {
             const { id } = request.params;
             const item = await this._collection.findOne({ id });
-
             if (!item) {
-                return response.status(ConstCodes.notFound).send(ConstMessages.notExists);
+                return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
             }
             await this._collection.deleteOne({ id });
-
-            response.status(ConstCodes.deleted).send(ConstMessages.actionSucceed);
+            response.status(StatusCodes.ACCEPTED).send(ConstMessages.actionSucceed);
         } catch (err) {
             response
-                .status(ConstCodes.badRequest)
+                .status(StatusCodes.BAD_REQUEST)
                 .send(validateError(err) || ConstMessages.internalServerError);
         }
     }
@@ -109,13 +111,11 @@ class Model extends Endpoint {
             const lastId = await getLastDocument(this._collection);
             const item = new this._collection(request.body);
             item.id = lastId;
-
             await item.save();
-
-            response.status(ConstCodes.created).send(item);
+            response.status(StatusCodes.CREATED).send(item);
         } catch (err) {
             response
-                .status(ConstCodes.badRequest)
+                .status(StatusCodes.BAD_REQUEST)
                 .send(validateError(err) || ConstMessages.internalServerError);
         }
     }

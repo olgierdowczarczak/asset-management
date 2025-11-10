@@ -1,18 +1,12 @@
 import { CollectionNames } from 'asset-management-common/constants/index.js';
-import Accessories from './accessories.js';
-import Assets from './assets.js';
 import Auth from './auth.js';
-import Companies from './companies.js';
-import Departments from './departments.js';
-import Licenses from './licenses.js';
-import Locations from './locations.js';
-import Users from './users.js';
+import Model from './model.js';
 
-export const accessories = new Accessories(CollectionNames.accessories);
-export const assets = new Assets(CollectionNames.assets);
 export const auth = new Auth();
-export const companies = new Companies(CollectionNames.companies);
-export const departments = new Departments(CollectionNames.departments);
-export const licenses = new Licenses(CollectionNames.licenses);
-export const locations = new Locations(CollectionNames.locations);
-export const users = new Users(CollectionNames.users);
+export const accessories = new Model(CollectionNames.accessories);
+export const assets = new Model(CollectionNames.assets);
+export const companies = new Model(CollectionNames.companies);
+export const departments = new Model(CollectionNames.departments);
+export const licenses = new Model(CollectionNames.licenses);
+export const locations = new Model(CollectionNames.locations);
+export const users = new Model(CollectionNames.users);

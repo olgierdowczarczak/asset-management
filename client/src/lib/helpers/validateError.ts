@@ -1,4 +1,8 @@
-const validateError = (error: any, optionalMessage: string = '', printingError: boolean=false): string => {
+const validateError = (
+    error: any,
+    optionalMessage: string = '',
+    printingError: boolean = false,
+): string => {
     if (printingError) {
         console.log(error);
     }

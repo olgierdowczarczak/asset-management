@@ -1,4 +1,5 @@
-import { Logger, ConstMessages, ConstCodes } from 'asset-management-common/constants/index.js';
+import { ConstMessages, ConstantsValues } from 'asset-management-common/constants/index.js';
+import config from '../../config/index.js';
 
 /**
  * @param {Error} error
@@ -6,7 +7,7 @@ import { Logger, ConstMessages, ConstCodes } from 'asset-management-common/const
 const handleErrorMessage = (error) => {
     switch (error.name) {
         case 'MongoServerError': {
-            if (error.code === ConstCodes.duplicatedField) {
+            if (error.code === ConstantsValues.duplicatedField) {
                 return ConstMessages.duplicatedField;
             }
             return error.message || '';
@@ -24,15 +25,15 @@ const handleErrorMessage = (error) => {
  * @param {Error} error
  * @param {Boolean} printingError
  */
-const validateError = (error, printingError=false) => {
+const validateError = (error, printingError = false) => {
     if (printingError) {
-        console.error(error)
+        console.error(error);
     }
-    
+
     const errorMessage = handleErrorMessage(error);
     if (errorMessage) {
-        Logger.error(errorMessage);
-    };
+        config.Logger.error(errorMessage);
+    }
 
     return errorMessage;
 };
