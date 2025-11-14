@@ -1,6 +1,6 @@
-import type IUser from '../resources/user';
+import type { User } from '@/schemas/usersSchema';
 
 export default interface ILoginResponse {
-    user: IUser;
+    user: User;
     access_token: string;
 }

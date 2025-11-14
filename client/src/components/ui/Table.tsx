@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-interface Column<T> {
+export interface Column<T> {
     header: string;
     accessor: keyof T | ((row: T) => ReactNode);
     className?: string;
@@ -51,9 +51,7 @@ function Table<T extends { id: number }>({ data, columns, onRowClick }: TablePro
                                 key={row.id}
                                 onClick={() => onRowClick?.(row)}
                                 className={`transition-colors ${
-                                    onRowClick
-                                        ? 'cursor-pointer hover:bg-gray-800/50'
-                                        : ''
+                                    onRowClick ? 'cursor-pointer hover:bg-gray-800/50' : ''
                                 }`}
                             >
                                 {columns.map((column, columnIndex) => (

@@ -12,6 +12,18 @@ const schema = new mongoose.Schema({
         type: Number,
         required: [true, 'Quantity is required'],
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
+    assigneeModel: {
+        type: String,
+        enum: ['users', 'locations'],
+    },
+    assignee: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'assigneeModel',
+    },
     id: {
         type: Number,
         unique: [true, 'License already exists'],

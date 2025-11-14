@@ -1,5 +1,1 @@
-export default interface User {
-    id: number;
-    username: string;
-    role: 'admin' | 'user';
-}
+export type { User as default } from '@/schemas/usersSchema';

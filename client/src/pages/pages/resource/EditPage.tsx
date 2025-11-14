@@ -3,53 +3,71 @@ import { useNavigate, useParams } from 'react-router-dom';
 import PageController from '@/core/PageController';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import Label from '@/components/ui/Label';
+import { SchemaForm } from '@/components/forms';
 
 function EditPage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
-    const [formData, setFormData] = useState<any>({});
+    const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    const isMainAdmin = controller.path === 'users' && id === '1';
+
     useEffect(() => {
+        if (isMainAdmin) {
+            navigate(`/${controller.path}/${id}`);
+            return;
+        }
+
+        let isMounted = true;
+
         const fetchData = async () => {
-            if (!id) return;
-            setLoading(true);
+            if (!id) {
+                return;
+            }
+
+            if (isMounted) {
+                setLoading(true);
+                setError(null);
+                setData(null);
+            }
+
             try {
                 const result = await controller.service.get(Number(id));
-                setFormData(result);
+                if (isMounted) {
+                    setData(result);
+                }
             } catch (err: any) {
-                setError(err.message || 'Failed to load resource');
+                if (isMounted) {
+                    setError(err.message || 'Failed to load resource');
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
-        fetchData();
-    }, [id, controller]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        fetchData();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [id, controller, isMainAdmin, navigate]);
+
+    const handleSubmit = async (formData: Record<string, any>) => {
         setSaving(true);
         setError(null);
 
         try {
-            await controller.service.edit(Number(id), formData);
+            await controller.service.edit(Number(id), formData as Partial<T>);
             navigate(`/${controller.path}`);
         } catch (err: any) {
             setError(err.message || 'Failed to update resource');
-        } finally {
             setSaving(false);
         }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData((prev: any) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-        }));
     };
 
     if (loading) {
@@ -64,10 +82,11 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
 
     return (
         <div className="max-w-2xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-100">
-                    Edit {controller.resourceName}
-                </h1>
+            <div className="mb-6 flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-gray-100">Edit {controller.resourceName}</h1>
+                <Button variant="secondary" onClick={() => navigate(`/${controller.path}/${id}`)}>
+                    Back to Details
+                </Button>
             </div>
 
             {error && (
@@ -77,33 +96,20 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
             )}
 
             <Card className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <Label htmlFor="name" required>Name</Label>
-                        <Input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name || ''}
-                            onChange={handleChange}
-                            placeholder="Enter name"
-                            required
-                        />
+                {controller.schema && data ? (
+                    <SchemaForm
+                        key={`${controller.path}-${id}`}
+                        schema={controller.schema}
+                        initialData={data}
+                        onSubmit={handleSubmit}
+                        submitButtonText="Save Changes"
+                        isLoading={saving}
+                    />
+                ) : (
+                    <div className="text-center text-gray-400">
+                        No schema defined for this resource
                     </div>
-
-                    <div className="flex gap-3">
-                        <Button type="submit" variant="primary" disabled={saving}>
-                            {saving ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={() => navigate(`/${controller.path}`)}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                </form>
+                )}
             </Card>
         </div>
     );

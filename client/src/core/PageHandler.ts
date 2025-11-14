@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import validateError from '@/lib/helpers/validateError';
+import type { ResourceSchema } from '@/schemas';
 
 interface RegisteredRoute {
     path: string;
@@ -11,11 +12,13 @@ class PageHandler<T> {
     readonly service: T;
     readonly path: string;
     readonly registeredRoutes: RegisteredRoute[] = [];
+    readonly schema?: ResourceSchema;
 
-    constructor(resourceName: string, service: T) {
+    constructor(resourceName: string, service: T, schema?: ResourceSchema) {
         this.resourceName = resourceName;
         this.path = resourceName.toLowerCase();
         this.service = service;
+        this.schema = schema;
         this.wrapMethods();
     }
 

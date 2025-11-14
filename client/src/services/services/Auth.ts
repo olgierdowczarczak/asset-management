@@ -4,7 +4,9 @@ import Service from './Service';
 
 class AuthService extends Service {
     async loginRequest(credentials: ILoginForm): Promise<ILoginResponse> {
-        const response = await this.sendRequest('post', config.endpoints.auth.endpoints.login, { body: credentials });
+        const response = await this.sendRequest('post', config.endpoints.auth.endpoints.login, {
+            body: credentials,
+        });
         return response.data;
     }
 

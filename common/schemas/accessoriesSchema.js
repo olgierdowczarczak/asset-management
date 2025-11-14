@@ -11,10 +11,22 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
+    assigneeModel: {
+        type: String,
+        enum: ['users', 'locations'],
+    },
+    assignee: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'assigneeModel',
+    },
     id: {
         type: Number,
         unique: [true, 'Accessory already exists'],
-        immutable: true
+        immutable: true,
     },
 }, { versionKey: false });
 

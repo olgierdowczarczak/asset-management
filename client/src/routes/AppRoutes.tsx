@@ -6,6 +6,7 @@ import * as Pages from '../pages';
 import ProtectedRoute from './ProtectedRoute';
 import LogoutRoute from './LogoutRoute';
 import LoadingRoute from './LoadingRoute';
+import RouteWrapper from './RouteWrapper';
 
 const AppRoutes = () => {
     return (
@@ -24,8 +25,16 @@ const AppRoutes = () => {
                         {Object.values(Controllers).flatMap((controller) =>
                             controller.registeredRoutes.map((r) => (
                                 <Route
+                                    key={r.path}
                                     path={r.path}
-                                    element={r.element ? <r.element controller={controller} /> : undefined}
+                                    element={
+                                        r.element ? (
+                                            <RouteWrapper
+                                                Component={r.element}
+                                                controller={controller}
+                                            />
+                                        ) : undefined
+                                    }
                                 />
                             )),
                         )}

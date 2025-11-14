@@ -1,15 +1,16 @@
 import { type InputHTMLAttributes, forwardRef } from 'react';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
     error?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     ({ error, className = '', ...props }, ref) => {
         return (
             <div className="w-full">
                 <input
                     ref={ref}
+                    type="number"
                     className={`w-full px-3 py-2 bg-gray-900 border ${
                         error
                             ? 'border-red-500 focus:ring-red-500'
@@ -23,6 +24,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
 );
 
-Input.displayName = 'Input';
+NumberInput.displayName = 'NumberInput';
 
-export default Input;
+export default NumberInput;

@@ -44,7 +44,7 @@ class Auth extends Endpoint {
                     .send(ConstMessages.invalidCredentials);
             }
 
-            const { _id, id, role } = user;
+            const { _id } = user;
             const access_token = Token.generateAccessToken(_id, isRemembered);
             if (isRemembered) {
                 await Users.findOneAndUpdate({ _id }, { $set: { isRemembered: true } });
@@ -56,7 +56,7 @@ class Auth extends Endpoint {
                 Token.generateRefreshToken(_id),
                 ConstantsValues.thirtyDays,
             );
-            response.status(StatusCodes.OK).json({ user: { id, username, role }, access_token });
+            response.status(StatusCodes.OK).json({ user, access_token });
         } catch (error) {
             response
                 .status(StatusCodes.BAD_REQUEST)
@@ -109,8 +109,7 @@ class Auth extends Endpoint {
      */
     async getMe(request, response) {
         try {
-            const { id, username, role } = request.user;
-            response.status(StatusCodes.OK).json({ id, username, role });
+            response.status(StatusCodes.OK).json(request.user);
         } catch (error) {
             response
                 .status(StatusCodes.BAD_REQUEST)

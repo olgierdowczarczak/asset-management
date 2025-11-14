@@ -17,7 +17,6 @@ function LoginForm() {
     });
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
@@ -57,7 +56,9 @@ function LoginForm() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <Label htmlFor="username" required>Username</Label>
+                    <Label htmlFor="username" required>
+                        Username
+                    </Label>
                     <Input
                         id="username"
                         type="text"
@@ -68,9 +69,10 @@ function LoginForm() {
                         required
                     />
                 </div>
-
                 <div>
-                    <Label htmlFor="password" required>Password</Label>
+                    <Label htmlFor="password" required>
+                        Password
+                    </Label>
                     <Input
                         id="password"
                         type="password"
@@ -81,7 +83,6 @@ function LoginForm() {
                         required
                     />
                 </div>
-
                 <div className="flex items-center">
                     <input
                         id="isRemembered"
@@ -91,9 +92,10 @@ function LoginForm() {
                         onChange={handleValueChange}
                         className="w-4 h-4 text-primary-600 bg-gray-800 border-gray-700 rounded focus:ring-primary-500 focus:ring-2"
                     />
-                    <Label htmlFor="isRemembered" className="ml-2 mb-0">Remember me</Label>
+                    <Label htmlFor="isRemembered" className="ml-2 mb-0">
+                        Remember me
+                    </Label>
                 </div>
-
                 <Button type="submit" variant="primary" className="w-full">
                     Sign in
                 </Button>
