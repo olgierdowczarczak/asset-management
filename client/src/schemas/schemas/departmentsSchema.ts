@@ -24,7 +24,7 @@ const departmentsSchema: IResourceSchema = {
         type: 'reference',
         label: 'Manager',
         referencedCollection: 'users',
-        displayField: 'username',
+        displayField: 'fullName',
         showInTable: true,
         showInForm: true,
         showInDetail: true,

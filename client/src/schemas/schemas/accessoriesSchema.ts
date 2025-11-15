@@ -34,8 +34,11 @@ const accessoriesSchema: IResourceSchema = {
         type: 'enum',
         label: 'Assignee Type',
         enumValues: ['users', 'locations'] as const,
+        required: true,
         showInTable: true,
         showInForm: true,
+        showInCreate: true,
+        showInEdit: false,
         showInDetail: true,
     },
     assignee: {
@@ -45,6 +48,8 @@ const accessoriesSchema: IResourceSchema = {
         displayField: 'name',
         showInTable: true,
         showInForm: true,
+        showInCreate: false,
+        showInEdit: true,
         showInDetail: true,
     },
 };

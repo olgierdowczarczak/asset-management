@@ -24,7 +24,8 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     } rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${className}`}
                     {...props}
                 >
-                    {placeholder && (
+                    {placeholder && !props.required && <option value="">{placeholder}</option>}
+                    {placeholder && props.required && (
                         <option value="" disabled>
                             {placeholder}
                         </option>

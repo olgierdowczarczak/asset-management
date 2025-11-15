@@ -24,7 +24,7 @@ const companiesSchema: IResourceSchema = {
         type: 'reference',
         label: 'Owner',
         referencedCollection: 'users',
-        displayField: 'username',
+        displayField: 'fullName',
         showInTable: true,
         showInForm: true,
         showInDetail: true,

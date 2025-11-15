@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { IResourceSchema, IColumn } from '@/types';
-import { getDisplayValue } from '@/lib/schemaHelpers';
-import { Table } from '@/components';
+import { getDisplayValue, getCollectionPath } from '@/lib/schemaHelpers';
+import { Table, ReferenceLink } from '@/components';
 
 interface SchemaTableProps<T extends Record<string, any> & { id: number }> {
     schema: IResourceSchema;
@@ -36,9 +36,37 @@ const SchemaTable = <T extends Record<string, any> & { id: number }>({
                         case 'boolean':
                             return value ? 'Yes' : 'No';
 
-                        case 'reference':
-                        case 'polymorphicReference':
-                            return getDisplayValue(value, fieldSchema.displayField);
+                        case 'reference': {
+                            const collection = fieldSchema.referencedCollection;
+                            if (!collection) {
+                                return getDisplayValue(value, fieldSchema.displayField);
+                            }
+                            return (
+                                <ReferenceLink
+                                    value={value}
+                                    collection={getCollectionPath(collection)}
+                                    displayField={fieldSchema.displayField}
+                                />
+                            );
+                        }
+
+                        case 'polymorphicReference': {
+                            const modelField = fieldSchema.modelField;
+                            if (!modelField) {
+                                return getDisplayValue(value, fieldSchema.displayField);
+                            }
+                            const collection = row[modelField];
+                            if (!collection) {
+                                return getDisplayValue(value, fieldSchema.displayField);
+                            }
+                            return (
+                                <ReferenceLink
+                                    value={value}
+                                    collection={getCollectionPath(collection)}
+                                    displayField={fieldSchema.displayField}
+                                />
+                            );
+                        }
 
                         case 'enum':
                             return typeof value === 'string'

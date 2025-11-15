@@ -25,6 +25,7 @@ const locationsSchema: IResourceSchema = {
         label: 'Parent Location',
         referencedCollection: 'locations',
         displayField: 'name',
+        excludeSelfFromOptions: true,
         showInTable: true,
         showInForm: true,
         showInDetail: true,

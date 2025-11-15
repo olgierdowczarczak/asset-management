@@ -14,6 +14,7 @@ export default interface FieldSchema {
     required?: boolean;
     requiredIf?: { field: string; value: any };
     readonly?: boolean;
+    readonlyOnEdit?: boolean;
     minLength?: number;
     maxLength?: number;
     min?: number;
@@ -23,8 +24,11 @@ export default interface FieldSchema {
     referencedCollection?: string;
     displayField?: string;
     modelField?: string;
+    excludeSelfFromOptions?: boolean;
     showInTable?: boolean;
     showInForm?: boolean;
+    showInCreate?: boolean;
+    showInEdit?: boolean;
     showInDetail?: boolean;
     placeholder?: string;
 }

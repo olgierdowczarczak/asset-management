@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageController } from '@/core';
-import { Card, Button } from '@/components';
-import { getDisplayValue } from '@/lib/schemaHelpers';
+import { Card, Button, ReferenceLink, CheckInOutModal } from '@/components';
+import { getDisplayValue, getCollectionPath } from '@/lib/schemaHelpers';
 
 function ResourcePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -10,40 +10,29 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [checkInOutModalOpen, setCheckInOutModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    const fetchData = async () => {
+        if (!id) {
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const result = await controller.service.get(Number(id));
+            setData(result);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load resource');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        let isMounted = true;
-        const fetchData = async () => {
-            if (!id) {
-                return;
-            }
-
-            if (isMounted) {
-                setLoading(true);
-                setError(null);
-            }
-
-            try {
-                const result = await controller.service.get(Number(id));
-                if (isMounted) {
-                    setData(result);
-                }
-            } catch (err: any) {
-                if (isMounted) {
-                    setError(err.message || 'Failed to load resource');
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
         fetchData();
-        return () => {
-            isMounted = false;
-        };
     }, [id, controller]);
 
     const handleDelete = async () => {
@@ -69,7 +58,7 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
         }
     };
 
-    const renderFieldValue = (_fieldName: string, value: any, fieldSchema: any) => {
+    const renderFieldValue = (fieldName: string, value: any, fieldSchema: any) => {
         if (value === undefined || value === null) {
             return <span className="text-gray-500">-</span>;
         }
@@ -82,10 +71,40 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     </span>
                 );
 
-            case 'reference':
-            case 'polymorphicReference':
-                const displayValue = getDisplayValue(value, fieldSchema.displayField);
-                return <span className="text-blue-400">{displayValue}</span>;
+            case 'reference': {
+                const collection = fieldSchema.referencedCollection;
+                if (!collection) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                return (
+                    <ReferenceLink
+                        value={value}
+                        collection={getCollectionPath(collection)}
+                        displayField={fieldSchema.displayField}
+                    />
+                );
+            }
+
+            case 'polymorphicReference': {
+                const modelField = fieldSchema.modelField;
+                if (!modelField) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                const collection = data[modelField];
+                if (!collection) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                return (
+                    <ReferenceLink
+                        value={value}
+                        collection={getCollectionPath(collection)}
+                        displayField={fieldSchema.displayField}
+                    />
+                );
+            }
 
             case 'enum':
                 return (
@@ -129,6 +148,8 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
     }
 
     const isMainAdmin = controller.path === 'users' && id === '1';
+    const supportsCheckInOut = ['assets', 'accessories', 'licenses'].includes(controller.path);
+    const hasAssignee = data?.assignee;
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -137,6 +158,11 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     {controller.resourceName} Details
                 </h1>
                 <div className="flex gap-2">
+                    {supportsCheckInOut && (
+                        <Button onClick={() => setCheckInOutModalOpen(true)} disabled={loading}>
+                            {hasAssignee ? 'Check In' : 'Check Out'}
+                        </Button>
+                    )}
                     {!isMainAdmin && (
                         <>
                             <Button
@@ -189,6 +215,21 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     </div>
                 )}
             </Card>
+
+            {supportsCheckInOut && (
+                <CheckInOutModal
+                    isOpen={checkInOutModalOpen}
+                    onClose={() => setCheckInOutModalOpen(false)}
+                    onSuccess={() => {
+                        fetchData();
+                    }}
+                    resourceId={Number(id)}
+                    resourceName={data?.name || controller.resourceName}
+                    resourceType={controller.path}
+                    currentAssignee={data?.assignee}
+                    currentAssigneeModel={data?.assigneeModel}
+                />
+            )}
         </div>
     );
 }

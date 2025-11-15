@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import type { IResourceSchema, IFieldSchema } from '@/types';
-import { extractId } from '@/lib/schemaHelpers';
+import { extractId, getDisplayValue } from '@/lib/schemaHelpers';
 import {
-    Input, NumberInput, Select, Checkbox, Label, Button
+    Input,
+    NumberInput,
+    Select,
+    Checkbox,
+    Label,
+    Button,
+    SearchableSelect,
 } from '@/components';
 import { client } from '@/api';
 
@@ -26,6 +32,20 @@ const SchemaForm = ({
     const [referenceOptions, setReferenceOptions] = useState<Record<string, any[]>>({});
     const [loadingReferences, setLoadingReferences] = useState<Set<string>>(new Set());
     const initialDataRef = useRef(initialData);
+    const isEditMode = Boolean(initialData?.id);
+    const isCreateMode = !isEditMode;
+    const shouldShowField = (fieldSchema: IFieldSchema): boolean => {
+        if (fieldSchema.showInForm === false) return false;
+        if (fieldSchema.showInCreate !== undefined && isCreateMode) return fieldSchema.showInCreate;
+        if (fieldSchema.showInEdit !== undefined && isEditMode) return fieldSchema.showInEdit;
+        return true;
+    };
+
+    const isFieldReadonly = (fieldSchema: IFieldSchema): boolean => {
+        if (fieldSchema.readonly) return true;
+        if (fieldSchema.readonlyOnEdit && isEditMode) return true;
+        return false;
+    };
 
     useEffect(() => {
         initialDataRef.current = initialData;
@@ -34,7 +54,7 @@ const SchemaForm = ({
     useEffect(() => {
         const initialFormData: Record<string, any> = {};
         Object.entries(schema).forEach(([fieldName, fieldSchema]) => {
-            if (fieldSchema.showInForm === false) {
+            if (!shouldShowField(fieldSchema)) {
                 return;
             }
 
@@ -49,7 +69,7 @@ const SchemaForm = ({
         setErrors({});
         setReferenceOptions({});
         setLoadingReferences(new Set());
-    }, [schema]);
+    }, [schema, isEditMode]);
 
     useEffect(() => {
         let isMounted = true;
@@ -59,7 +79,7 @@ const SchemaForm = ({
             const fieldsByCollection = new Map<string, string[]>();
             Object.entries(schema).forEach(([fieldName, fieldSchema]) => {
                 if (
-                    fieldSchema.showInForm !== false &&
+                    shouldShowField(fieldSchema) &&
                     (fieldSchema.type === 'reference' ||
                         fieldSchema.type === 'polymorphicReference') &&
                     fieldSchema.referencedCollection
@@ -128,7 +148,7 @@ const SchemaForm = ({
             isMounted = false;
             abortController.abort();
         };
-    }, [schema]);
+    }, [schema, isEditMode]);
 
     useEffect(() => {
         let isMounted = true;
@@ -187,10 +207,26 @@ const SchemaForm = ({
     }, [schema, formData, referenceOptions]);
 
     const handleChange = (fieldName: string, value: any) => {
-        setFormData((prev) => ({
-            ...prev,
-            [fieldName]: value,
-        }));
+        setFormData((prev) => {
+            const newData = {
+                ...prev,
+                [fieldName]: value,
+            };
+
+            const polymorphicFields = Object.entries(schema).filter(
+                ([, fieldSchema]) =>
+                    fieldSchema.type === 'polymorphicReference' &&
+                    fieldSchema.modelField === fieldName,
+            );
+
+            polymorphicFields.forEach(([polyFieldName]) => {
+                if (prev[fieldName] !== value) {
+                    newData[polyFieldName] = undefined;
+                }
+            });
+
+            return newData;
+        });
 
         if (errors[fieldName]) {
             setErrors((prev) => {
@@ -205,7 +241,7 @@ const SchemaForm = ({
         const newErrors: Record<string, string> = {};
 
         Object.entries(schema).forEach(([fieldName, fieldSchema]) => {
-            if (fieldSchema.showInForm === false || fieldSchema.readonly) {
+            if (!shouldShowField(fieldSchema) || isFieldReadonly(fieldSchema)) {
                 return;
             }
 
@@ -279,7 +315,7 @@ const SchemaForm = ({
         const dataToSubmit: Record<string, any> = {};
         Object.entries(formData).forEach(([key, value]) => {
             const fieldSchema = schema[key];
-            if (fieldSchema && !fieldSchema.readonly && fieldSchema.showInForm !== false) {
+            if (fieldSchema && !isFieldReadonly(fieldSchema) && shouldShowField(fieldSchema)) {
                 if (value === '' && !fieldSchema.required) {
                     dataToSubmit[key] = undefined;
                 } else if (fieldSchema.type === 'number' && value !== '') {
@@ -294,17 +330,18 @@ const SchemaForm = ({
     };
 
     const renderField = (fieldName: string, fieldSchema: IFieldSchema) => {
-        if (fieldSchema.showInForm === false || fieldSchema.readonly) {
+        if (!shouldShowField(fieldSchema) || fieldSchema.readonly) {
             return null;
         }
 
         const value = formData[fieldName] ?? '';
         const error = errors[fieldName];
+        const fieldReadonly = isFieldReadonly(fieldSchema);
         const commonProps = {
             id: fieldName,
             name: fieldName,
             error,
-            disabled: isLoading,
+            disabled: isLoading || fieldReadonly,
         };
 
         switch (fieldSchema.type) {
@@ -354,6 +391,12 @@ const SchemaForm = ({
                 );
 
             case 'enum':
+                const enumOptions =
+                    fieldSchema.enumValues?.map((val) => ({
+                        value: val,
+                        label: val.charAt(0).toUpperCase() + val.slice(1),
+                    })) || [];
+
                 return (
                     <div className="flex gap-2">
                         <div className="flex-1">
@@ -363,12 +406,7 @@ const SchemaForm = ({
                                 onChange={(e) =>
                                     handleChange(fieldName, e.target.value || undefined)
                                 }
-                                options={
-                                    fieldSchema.enumValues?.map((val) => ({
-                                        value: val,
-                                        label: val.charAt(0).toUpperCase() + val.slice(1),
-                                    })) || []
-                                }
+                                options={enumOptions}
                                 placeholder={`Select ${fieldSchema.label}`}
                                 required={fieldSchema.required}
                             />
@@ -390,43 +428,31 @@ const SchemaForm = ({
                 const collection = fieldSchema.referencedCollection!;
                 const options = referenceOptions[collection] || [];
                 const isLoadingRef = loadingReferences.has(fieldName);
-                const filteredOptions = options.filter(
-                    (item) => !initialData.id || item.id !== initialData.id,
-                );
+                const filteredRefOptions =
+                    fieldSchema.excludeSelfFromOptions && initialData.id
+                        ? options.filter((item) => item.id !== initialData.id)
+                        : options;
+                const refOptions = filteredRefOptions.map((item) => ({
+                    value: item.id,
+                    label: getDisplayValue(item, fieldSchema.displayField),
+                }));
+
                 return (
-                    <div className="flex gap-2">
-                        <div className="flex-1">
-                            <Select
-                                {...commonProps}
-                                value={value ?? ''}
-                                onChange={(e) =>
-                                    handleChange(
-                                        fieldName,
-                                        e.target.value ? Number(e.target.value) : undefined,
-                                    )
-                                }
-                                options={filteredOptions.map((item) => ({
-                                    value: item.id,
-                                    label: item[fieldSchema.displayField || 'name'] || item.id,
-                                }))}
-                                placeholder={
-                                    isLoadingRef ? 'Loading...' : `Select ${fieldSchema.label}`
-                                }
-                                disabled={isLoadingRef || isLoading}
-                                required={fieldSchema.required}
-                            />
-                        </div>
-                        {!fieldSchema.required && value && (
-                            <button
-                                type="button"
-                                onClick={() => handleChange(fieldName, undefined)}
-                                className="px-3 py-2 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded border border-gray-700 transition-colors"
-                                title="Clear selection"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
+                    <SearchableSelect
+                        {...commonProps}
+                        value={value ?? ''}
+                        onChange={(newValue) =>
+                            handleChange(fieldName, newValue ? Number(newValue) : undefined)
+                        }
+                        options={refOptions}
+                        placeholder={
+                            isLoadingRef ? 'Loading...' : `Select or search ${fieldSchema.label}`
+                        }
+                        disabled={isLoadingRef || isLoading}
+                        required={fieldSchema.required}
+                        allowClear={!fieldSchema.required}
+                        onClear={() => handleChange(fieldName, undefined)}
+                    />
                 );
 
             case 'polymorphicReference':
@@ -434,52 +460,43 @@ const SchemaForm = ({
                 const modelValue = modelFieldName ? formData[modelFieldName] : null;
                 if (!modelValue) {
                     return (
-                        <div className="text-sm text-gray-500">
-                            Please select {modelFieldName} first
-                        </div>
+                        <SearchableSelect
+                            {...commonProps}
+                            value=""
+                            onChange={() => {}}
+                            options={[]}
+                            placeholder={`Select ${modelFieldName?.replace('Model', ' Type')} first`}
+                            disabled={true}
+                            required={fieldSchema.required}
+                        />
                     );
                 }
 
                 const polyOptions = referenceOptions[modelValue] || [];
                 const isLoadingPoly = loadingReferences.has(fieldName);
-                const filteredPolyOptions = polyOptions.filter(
-                    (item) => !initialData.id || item.id !== initialData.id,
-                );
+                const polyDisplayField =
+                    modelValue === 'users' ? 'fullName' : fieldSchema.displayField || 'name';
+                const polyOptions2 = polyOptions.map((item) => ({
+                    value: item.id,
+                    label: getDisplayValue(item, polyDisplayField),
+                }));
 
                 return (
-                    <div className="flex gap-2">
-                        <div className="flex-1">
-                            <Select
-                                {...commonProps}
-                                value={value ?? ''}
-                                onChange={(e) =>
-                                    handleChange(
-                                        fieldName,
-                                        e.target.value ? Number(e.target.value) : undefined,
-                                    )
-                                }
-                                options={filteredPolyOptions.map((item) => ({
-                                    value: item.id,
-                                    label: item.name || item.username || item.id,
-                                }))}
-                                placeholder={
-                                    isLoadingPoly ? 'Loading...' : `Select ${fieldSchema.label}`
-                                }
-                                disabled={isLoadingPoly || isLoading}
-                                required={fieldSchema.required}
-                            />
-                        </div>
-                        {!fieldSchema.required && value && (
-                            <button
-                                type="button"
-                                onClick={() => handleChange(fieldName, undefined)}
-                                className="px-3 py-2 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded border border-gray-700 transition-colors"
-                                title="Clear selection"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
+                    <SearchableSelect
+                        {...commonProps}
+                        value={value ?? ''}
+                        onChange={(newValue) =>
+                            handleChange(fieldName, newValue ? Number(newValue) : undefined)
+                        }
+                        options={polyOptions2}
+                        placeholder={
+                            isLoadingPoly ? 'Loading...' : `Select or search ${fieldSchema.label}`
+                        }
+                        disabled={isLoadingPoly || isLoading}
+                        required={fieldSchema.required}
+                        allowClear={!fieldSchema.required}
+                        onClear={() => handleChange(fieldName, undefined)}
+                    />
                 );
 
             default:
@@ -490,7 +507,7 @@ const SchemaForm = ({
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             {Object.entries(schema).map(([fieldName, fieldSchema]) => {
-                if (fieldSchema.showInForm === false || fieldSchema.readonly) {
+                if (!shouldShowField(fieldSchema) || fieldSchema.readonly) {
                     return null;
                 }
 
