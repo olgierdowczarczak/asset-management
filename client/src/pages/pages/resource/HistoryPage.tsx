@@ -1,4 +1,4 @@
-import PageController from '@/core/PageController';
+import { PageController } from '@/core';
 
 function HistoryPage<T>({ controller }: { controller: PageController<T> }) {
     return <>create page for {controller.resourceName}</>;

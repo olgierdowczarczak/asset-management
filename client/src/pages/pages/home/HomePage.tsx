@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { AssetService, AccessorieService, LicenseService } from '@/services';
-import Card from '@/components/ui/Card';
+import { Card } from '@/components';
 
 interface Asset {
     id: number;
@@ -64,10 +64,8 @@ function HomePage() {
                 setLoading(true);
 
                 const assets = await fetchAllPages(AssetService);
-
                 const assignedAssets = assets.filter((asset: Asset) => asset.assignee);
                 const unassignedAssets = assets.filter((asset: Asset) => !asset.assignee);
-
                 const assetsTotal = assets.length;
                 const assetsStats =
                     assetsTotal > 0
@@ -94,7 +92,6 @@ function HomePage() {
                 setAssetsData(assetsStats);
 
                 const accessories = await fetchAllPages(AccessorieService);
-
                 let assignedQty = 0;
                 let unassignedQty = 0;
 

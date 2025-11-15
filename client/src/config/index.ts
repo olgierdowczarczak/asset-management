@@ -1,5 +1,5 @@
-import routes from './routes';
-import endpoints from './endpoints';
+import routes from './config/routes';
+import endpoints from './config/endpoints';
 
 const config = {
     routes,

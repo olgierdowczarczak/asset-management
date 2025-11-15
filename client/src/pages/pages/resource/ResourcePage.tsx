@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import PageController from '@/core/PageController';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { getDisplayValue } from '@/schemas/utils';
+import { PageController } from '@/core';
+import { Card, Button } from '@/components';
+import { getDisplayValue } from '@/lib/schemaHelpers';
 
 function ResourcePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -15,7 +14,6 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
 
     useEffect(() => {
         let isMounted = true;
-
         const fetchData = async () => {
             if (!id) {
                 return;
@@ -43,7 +41,6 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
         };
 
         fetchData();
-
         return () => {
             isMounted = false;
         };
