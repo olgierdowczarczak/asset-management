@@ -35,15 +35,25 @@ const SchemaForm = ({
     const isEditMode = Boolean(initialData?.id);
     const isCreateMode = !isEditMode;
     const shouldShowField = (fieldSchema: IFieldSchema): boolean => {
-        if (fieldSchema.showInForm === false) return false;
-        if (fieldSchema.showInCreate !== undefined && isCreateMode) return fieldSchema.showInCreate;
-        if (fieldSchema.showInEdit !== undefined && isEditMode) return fieldSchema.showInEdit;
+        if (fieldSchema.showInForm === false) {
+            return false;
+        }
+        if (fieldSchema.showInCreate !== undefined && isCreateMode) {
+            return fieldSchema.showInCreate;
+        }
+        if (fieldSchema.showInEdit !== undefined && isEditMode) {
+            return fieldSchema.showInEdit;
+        }
         return true;
     };
 
     const isFieldReadonly = (fieldSchema: IFieldSchema): boolean => {
-        if (fieldSchema.readonly) return true;
-        if (fieldSchema.readonlyOnEdit && isEditMode) return true;
+        if (fieldSchema.readonly) {
+            return true;
+        }
+        if (fieldSchema.readonlyOnEdit && isEditMode) {
+            return true;
+        }
         return false;
     };
 
@@ -161,7 +171,51 @@ const SchemaForm = ({
             for (const [fieldName, fieldSchema] of polymorphicFields) {
                 const modelFieldName = fieldSchema.modelField!;
                 const modelValue = formData[modelFieldName];
-                if (modelValue && !referenceOptions[modelValue]) {
+
+                if (!modelValue) {
+                    continue;
+                }
+
+                if (modelValue === 'common') {
+                    const collectionsToLoad = ['users', 'locations'];
+                    for (const collection of collectionsToLoad) {
+                        if (!referenceOptions[collection]) {
+                            setLoadingReferences((prev) => new Set(prev).add(fieldName));
+
+                            try {
+                                const response = await client.get(`/${collection}/`, {
+                                    signal: abortController.signal,
+                                    params: { limit: 1000 },
+                                });
+
+                                if (isMounted) {
+                                    const data = response.data?.items || response.data || [];
+                                    setReferenceOptions((prev) => ({
+                                        ...prev,
+                                        [collection]: Array.isArray(data) ? data : [],
+                                    }));
+                                }
+                            } catch (error: any) {
+                                if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+                                    if (isMounted) {
+                                        setReferenceOptions((prev) => ({
+                                            ...prev,
+                                            [collection]: [],
+                                        }));
+                                    }
+                                }
+                            } finally {
+                                if (isMounted) {
+                                    setLoadingReferences((prev) => {
+                                        const newSet = new Set(prev);
+                                        newSet.delete(fieldName);
+                                        return newSet;
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } else if (!referenceOptions[modelValue]) {
                     setLoadingReferences((prev) => new Set(prev).add(fieldName));
 
                     try {
@@ -239,7 +293,6 @@ const SchemaForm = ({
 
     const validate = (): boolean => {
         const newErrors: Record<string, string> = {};
-
         Object.entries(schema).forEach(([fieldName, fieldSchema]) => {
             if (!shouldShowField(fieldSchema) || isFieldReadonly(fieldSchema)) {
                 return;
@@ -458,6 +511,7 @@ const SchemaForm = ({
             case 'polymorphicReference':
                 const modelFieldName = fieldSchema.modelField;
                 const modelValue = modelFieldName ? formData[modelFieldName] : null;
+
                 if (!modelValue) {
                     return (
                         <SearchableSelect
@@ -472,8 +526,57 @@ const SchemaForm = ({
                     );
                 }
 
-                const polyOptions = referenceOptions[modelValue] || [];
                 const isLoadingPoly = loadingReferences.has(fieldName);
+
+                if (modelValue === 'common') {
+                    const users = referenceOptions['users'] || [];
+                    const locations = referenceOptions['locations'] || [];
+                    const combinedOptions = [
+                        ...users.map((item) => ({
+                            value: `users:${item.id}`,
+                            label: `User: ${getDisplayValue(item, 'fullName')}`,
+                        })),
+                        ...locations.map((item) => ({
+                            value: `locations:${item.id}`,
+                            label: `Location: ${getDisplayValue(item, 'name')}`,
+                        })),
+                    ];
+
+                    const actualType = formData['actualAssigneeModel'];
+                    const currentValue = value && actualType ? `${actualType}:${value}` : '';
+
+                    return (
+                        <SearchableSelect
+                            {...commonProps}
+                            value={currentValue}
+                            onChange={(newValue) => {
+                                if (!newValue) {
+                                    handleChange(fieldName, undefined);
+                                    handleChange('actualAssigneeModel', undefined);
+                                } else {
+                                    const [type, id] = newValue.split(':');
+                                    handleChange(fieldName, Number(id));
+                                    handleChange('actualAssigneeModel', type);
+                                }
+                            }}
+                            options={combinedOptions}
+                            placeholder={
+                                isLoadingPoly
+                                    ? 'Loading...'
+                                    : `Select or search ${fieldSchema.label}`
+                            }
+                            disabled={isLoadingPoly || isLoading}
+                            required={fieldSchema.required}
+                            allowClear={!fieldSchema.required}
+                            onClear={() => {
+                                handleChange(fieldName, undefined);
+                                handleChange('actualAssigneeModel', undefined);
+                            }}
+                        />
+                    );
+                }
+
+                const polyOptions = referenceOptions[modelValue] || [];
                 const polyDisplayField =
                     modelValue === 'users' ? 'fullName' : fieldSchema.displayField || 'name';
                 const polyOptions2 = polyOptions.map((item) => ({
@@ -485,9 +588,10 @@ const SchemaForm = ({
                     <SearchableSelect
                         {...commonProps}
                         value={value ?? ''}
-                        onChange={(newValue) =>
-                            handleChange(fieldName, newValue ? Number(newValue) : undefined)
-                        }
+                        onChange={(newValue) => {
+                            handleChange(fieldName, newValue ? Number(newValue) : undefined);
+                            handleChange('actualAssigneeModel', modelValue);
+                        }}
                         options={polyOptions2}
                         placeholder={
                             isLoadingPoly ? 'Loading...' : `Select or search ${fieldSchema.label}`
@@ -495,7 +599,10 @@ const SchemaForm = ({
                         disabled={isLoadingPoly || isLoading}
                         required={fieldSchema.required}
                         allowClear={!fieldSchema.required}
-                        onClear={() => handleChange(fieldName, undefined)}
+                        onClear={() => {
+                            handleChange(fieldName, undefined);
+                            handleChange('actualAssigneeModel', undefined);
+                        }}
                     />
                 );
 

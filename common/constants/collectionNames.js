@@ -3,6 +3,7 @@ const collectionNames = {
     assets: 'assets',
     companies: 'companies',
     departments: 'departments',
+    history: 'history',
     licenses: 'licenses',
     locations: 'locations',
     users: 'users'

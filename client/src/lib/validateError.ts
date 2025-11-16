@@ -1,12 +1,19 @@
 const validateError = (
     error: any,
     optionalMessage: string = '',
-    printingError: boolean = false,
+    printingError: boolean = true,
 ): string => {
     if (printingError) {
-        console.log(error);
+        console.error('Error:', error);
     }
-    return error.response?.data?.message || optionalMessage;
+
+    if (error.response) {
+        return error.response.data?.message || error.response.data || optionalMessage;
+    } else if (error.request) {
+        return 'No response from server';
+    } else {
+        return error.message || optionalMessage;
+    }
 };
 
 export default validateError;

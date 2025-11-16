@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const PORT = process.env.PORT | 3000;
+const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const JWT_SALT = process.env.JWT_SALT;
 const JWT_SECRET = process.env.JWT_SECRET;

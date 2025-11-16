@@ -59,10 +59,15 @@ const SchemaTable = <T extends Record<string, any> & { id: number }>({
                             if (!collection) {
                                 return getDisplayValue(value, fieldSchema.displayField);
                             }
+                            const actualCollection =
+                                collection === 'common' ? row['actualAssigneeModel'] : collection;
+                            if (!actualCollection) {
+                                return '-';
+                            }
                             return (
                                 <ReferenceLink
                                     value={value}
-                                    collection={getCollectionPath(collection)}
+                                    collection={getCollectionPath(actualCollection)}
                                     displayField={fieldSchema.displayField}
                                 />
                             );

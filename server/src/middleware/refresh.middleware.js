@@ -10,12 +10,12 @@ import config from '../config/index.js';
  * @param {Response} response
  */
 const handleAuthCookie = async (request) => {
-    const token = request.cookies.token;
+    const token = request.cookies[ConstMessages.refreshToken];
     if (!token) {
         throw new Error(ConstMessages.tokenMissing);
     }
 
-    const decoded = jsonwebtoken.verify(token, config.JWT_SECRET);
+    const decoded = jsonwebtoken.verify(token, config.JWT_REFRESH_SECRET);
     const { id } = decoded;
     if (!id) {
         throw new Error(ConstMessages.notExists);
@@ -40,8 +40,9 @@ export default async function (request, response, next) {
         request.user = user;
         next();
     } catch (err) {
+        const errorMessage = validateError(err) || ConstMessages.internalServerError;
         response
             .status(StatusCodes.UNAUTHORIZED)
-            .send(validateError(err) || ConstMessages.internalServerError);
+            .send({ message: errorMessage });
     }
 }

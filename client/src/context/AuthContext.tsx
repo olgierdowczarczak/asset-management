@@ -22,14 +22,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
         AuthService.getMe()
-            .then((dbUser) => setUser(dbUser))
-            .catch(() => {
-                if (user) {
-                    return logout();
+            .then((dbUser) => {
+                if (isMounted) {
+                    setUser(dbUser);
                 }
             })
-            .finally(() => setLoading(false));
+            .catch(() => {
+                if (isMounted) {
+                    setUser(null);
+                    localStorage.removeItem('access_token');
+                }
+            })
+            .finally(() => {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (

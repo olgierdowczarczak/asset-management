@@ -8,7 +8,7 @@ const getModelByName = (collectionName) => {
         if (!collectionName) {
             return '';
         }
-        return collectionName.charAt(0).toUpperCase() + collectionName.slice(1).toLowerCase();
+        return collectionName.charAt(0).toUpperCase() + collectionName.slice(1);
     };
     return models[capitalizeFirstLetter()];
 };

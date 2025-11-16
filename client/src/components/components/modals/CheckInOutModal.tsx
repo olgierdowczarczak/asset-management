@@ -12,6 +12,7 @@ interface CheckInOutModalProps {
     resourceType: string;
     currentAssignee?: any;
     currentAssigneeModel?: string;
+    currentActualAssigneeModel?: string;
 }
 
 const CheckInOutModal = ({
@@ -23,6 +24,7 @@ const CheckInOutModal = ({
     resourceType,
     currentAssignee,
     currentAssigneeModel,
+    currentActualAssigneeModel,
 }: CheckInOutModalProps) => {
     const [selectedAssignee, setSelectedAssignee] = useState<number | string>('');
     const [users, setUsers] = useState<any[]>([]);
@@ -30,7 +32,8 @@ const CheckInOutModal = ({
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const isCheckIn = !!currentAssignee;
-    const assigneeType = (currentAssigneeModel as 'users' | 'locations') || 'users';
+    const assigneeType = (currentAssigneeModel as 'users' | 'locations' | 'common') || 'common';
+    const isCommon = assigneeType === 'common';
 
     useEffect(() => {
         if (isOpen) {
@@ -59,7 +62,7 @@ const CheckInOutModal = ({
             await handleCheckIn();
         } else {
             if (!selectedAssignee) {
-                alert('Please select a user or location');
+                console.error('Please select a user or location');
                 return;
             }
             await handleCheckOut();
@@ -69,14 +72,13 @@ const CheckInOutModal = ({
     const handleCheckIn = async () => {
         setSubmitting(true);
         try {
-            await client.patch(`/${resourceType}/${resourceId}`, {
-                assigneeModel: undefined,
-                assignee: undefined,
-            });
+            await client.post(`/${resourceType}/${resourceId}/checkin`);
             onSuccess();
             onClose();
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to check in');
+            const errorMsg =
+                error.response?.data?.message || error.response?.data || 'Failed to check in';
+            console.error('Check-in error:', errorMsg);
         } finally {
             setSubmitting(false);
         }
@@ -85,26 +87,52 @@ const CheckInOutModal = ({
     const handleCheckOut = async () => {
         setSubmitting(true);
         try {
-            await client.patch(`/${resourceType}/${resourceId}`, {
-                assigneeModel: assigneeType,
-                assignee: Number(selectedAssignee),
-            });
+            let payload: any = {};
+
+            if (isCommon) {
+                const [type, id] = String(selectedAssignee).split(':');
+                payload = {
+                    assigneeModel: 'common',
+                    actualAssigneeModel: type,
+                    assignee: Number(id),
+                };
+            } else {
+                payload = {
+                    assigneeModel: assigneeType,
+                    actualAssigneeModel: assigneeType,
+                    assignee: Number(selectedAssignee),
+                };
+            }
+
+            await client.post(`/${resourceType}/${resourceId}/checkout`, payload);
             onSuccess();
             onClose();
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to check out');
+            const errorMsg =
+                error.response?.data?.message || error.response?.data || 'Failed to check out';
+            console.error('Check-out error:', errorMsg);
         } finally {
             setSubmitting(false);
         }
     };
 
-    const options = assigneeType === 'users' ? users : locations;
-    const displayField = assigneeType === 'users' ? 'fullName' : 'name';
-
-    const formattedOptions = options.map((item) => ({
-        value: item.id,
-        label: getDisplayValue(item, displayField),
-    }));
+    const actualType = isCommon ? currentActualAssigneeModel : assigneeType;
+    const displayField = actualType === 'users' ? 'fullName' : 'name';
+    const formattedOptions = isCommon
+        ? [
+              ...users.map((item) => ({
+                  value: `users:${item.id}`,
+                  label: `User: ${getDisplayValue(item, 'fullName')}`,
+              })),
+              ...locations.map((item) => ({
+                  value: `locations:${item.id}`,
+                  label: `Location: ${getDisplayValue(item, 'name')}`,
+              })),
+          ]
+        : (assigneeType === 'users' ? users : locations).map((item) => ({
+              value: item.id,
+              label: getDisplayValue(item, assigneeType === 'users' ? 'fullName' : 'name'),
+          }));
 
     return (
         <Modal
@@ -130,13 +158,19 @@ const CheckInOutModal = ({
                 ) : (
                     <div>
                         <Label required>
-                            Select {assigneeType === 'users' ? 'User' : 'Location'}
+                            {isCommon
+                                ? 'Select User or Location'
+                                : `Select ${assigneeType === 'users' ? 'User' : 'Location'}`}
                         </Label>
                         <SearchableSelect
                             value={selectedAssignee}
                             onChange={setSelectedAssignee}
                             options={formattedOptions}
-                            placeholder={`Search ${assigneeType === 'users' ? 'users' : 'locations'}...`}
+                            placeholder={
+                                isCommon
+                                    ? 'Search users or locations...'
+                                    : `Search ${assigneeType === 'users' ? 'users' : 'locations'}...`
+                            }
                             disabled={loading}
                             required
                         />
