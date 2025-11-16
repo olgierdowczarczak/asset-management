@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
-import type PageController from '@/core/PageController';
+import type { PageController } from '@/core';
+import * as React from 'react';
 
 interface RouteWrapperProps {
     Component: React.ComponentType<{ controller: PageController<any> }>;

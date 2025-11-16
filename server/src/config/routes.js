@@ -14,6 +14,7 @@ const routes = {
     assets: `/api/${CollectionNames.assets}`,
     companies: `/api/${CollectionNames.companies}`,
     departments: `/api/${CollectionNames.departments}`,
+    history: `/api/${CollectionNames.history}`,
     licenses: `/api/${CollectionNames.licenses}`,
     locations: `/api/${CollectionNames.locations}`,
     users: `/api/${CollectionNames.users}`,

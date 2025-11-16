@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageController from '@/core/PageController';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import SchemaTable from '@/components/tables/SchemaTable';
-import { getDisplayValue } from '@/schemas/utils';
+import { PageController } from '@/core';
+import { Card, Button, Input, SchemaTable } from '@/components';
+import { getDisplayValue } from '@/lib/schemaHelpers';
 
 interface PaginationInfo {
     page: number;
@@ -26,7 +23,6 @@ function MainPage<T extends { id: number }>({ controller }: { controller: PageCo
 
     useEffect(() => {
         let isMounted = true;
-
         const fetchData = async () => {
             if (isMounted) {
                 setLoading(true);
@@ -66,7 +62,6 @@ function MainPage<T extends { id: number }>({ controller }: { controller: PageCo
         }
 
         const searchLower = search.toLowerCase();
-
         return Object.entries(item).some(([_key, value]) => {
             if (value === null || value === undefined) {
                 return false;
@@ -76,7 +71,6 @@ function MainPage<T extends { id: number }>({ controller }: { controller: PageCo
                 const displayValue = getDisplayValue(value as any);
                 return displayValue.toLowerCase().includes(searchLower);
             }
-
             return value.toString().toLowerCase().includes(searchLower);
         });
     });

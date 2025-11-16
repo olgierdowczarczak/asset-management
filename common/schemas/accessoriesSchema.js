@@ -17,11 +17,15 @@ const schema = new mongoose.Schema({
     },
     assigneeModel: {
         type: String,
+        enum: ['users', 'locations', 'common'],
+    },
+    actualAssigneeModel: {
+        type: String,
         enum: ['users', 'locations'],
     },
     assignee: {
         type: mongoose.Schema.Types.Number,
-        ref: 'assigneeModel',
+        ref: 'actualAssigneeModel',
     },
     id: {
         type: Number,

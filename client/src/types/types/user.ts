@@ -1,1 +1,17 @@
-export type { User as default } from '@/schemas/usersSchema';
+import type PopulatedReference from './populatedReference';
+
+export default interface User {
+    id: number;
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    role: 'user' | 'admin';
+    location?: number | PopulatedReference;
+    company?: number | PopulatedReference;
+    department?: number | PopulatedReference;
+    isRemote?: boolean;
+    isRemembered?: boolean;
+    isDeleted?: boolean;
+}

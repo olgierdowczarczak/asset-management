@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { AssetService, AccessorieService, LicenseService } from '@/services';
-import Card from '@/components/ui/Card';
+import { StatisticsChart } from '@/components';
 
 interface Asset {
     id: number;
@@ -22,12 +21,6 @@ interface License {
     quantity: number;
     assignee?: number | object;
 }
-
-const COLORS = {
-    assigned: '#ef4444',
-    unassigned: '#10b981',
-    noData: '#6b7280',
-};
 
 interface ChartData {
     name: string;
@@ -64,10 +57,8 @@ function HomePage() {
                 setLoading(true);
 
                 const assets = await fetchAllPages(AssetService);
-
                 const assignedAssets = assets.filter((asset: Asset) => asset.assignee);
                 const unassignedAssets = assets.filter((asset: Asset) => !asset.assignee);
-
                 const assetsTotal = assets.length;
                 const assetsStats =
                     assetsTotal > 0
@@ -82,7 +73,7 @@ function HomePage() {
                                   value: Math.round((assignedAssets.length / assetsTotal) * 100),
                                   count: assignedAssets.length,
                               },
-                          ]
+                          ].filter((item) => item.count > 0)
                         : [
                               {
                                   name: 'No data',
@@ -94,7 +85,6 @@ function HomePage() {
                 setAssetsData(assetsStats);
 
                 const accessories = await fetchAllPages(AccessorieService);
-
                 let assignedQty = 0;
                 let unassignedQty = 0;
 
@@ -120,7 +110,7 @@ function HomePage() {
                                   value: Math.round((assignedQty / totalQty) * 100),
                                   count: assignedQty,
                               },
-                          ]
+                          ].filter((item) => item.count > 0)
                         : [
                               {
                                   name: 'No data',
@@ -158,7 +148,7 @@ function HomePage() {
                                   value: Math.round((assignedLicenseQty / totalLicenseQty) * 100),
                                   count: assignedLicenseQty,
                               },
-                          ]
+                          ].filter((item) => item.count > 0)
                         : [
                               {
                                   name: 'No data',
@@ -194,121 +184,9 @@ function HomePage() {
             <h1 className="text-3xl font-bold text-gray-100">Welcome to Asset Management</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <Card className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-100 mb-4">Assets Statistics</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={assetsData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ value }) => `${value}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                startAngle={180}
-                                endAngle={-180}
-                            >
-                                {assetsData.length === 1 && assetsData[0].name === 'No data' ? (
-                                    <Cell fill={COLORS.noData} />
-                                ) : (
-                                    <>
-                                        <Cell fill={COLORS.unassigned} />
-                                        <Cell fill={COLORS.assigned} />
-                                    </>
-                                )}
-                            </Pie>
-                            <Tooltip formatter={(value) => `${value}%`} />
-                            <Legend
-                                formatter={(value, entry: any) =>
-                                    value === 'No data'
-                                        ? value
-                                        : `${value} - ${entry.payload.count}`
-                                }
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
-
-                <Card className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-100 mb-4">
-                        Accessories Statistics
-                    </h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={accessoriesData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ value }) => `${value}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                startAngle={180}
-                                endAngle={-180}
-                            >
-                                {accessoriesData.length === 1 &&
-                                accessoriesData[0].name === 'No data' ? (
-                                    <Cell fill={COLORS.noData} />
-                                ) : (
-                                    <>
-                                        <Cell fill={COLORS.unassigned} />
-                                        <Cell fill={COLORS.assigned} />
-                                    </>
-                                )}
-                            </Pie>
-                            <Tooltip formatter={(value) => `${value}%`} />
-                            <Legend
-                                formatter={(value, entry: any) =>
-                                    value === 'No data'
-                                        ? value
-                                        : `${value} - ${entry.payload.count}`
-                                }
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
-
-                <Card className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-100 mb-4">
-                        Licenses Statistics
-                    </h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={licensesData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ value }) => `${value}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                startAngle={180}
-                                endAngle={-180}
-                            >
-                                {licensesData.length === 1 && licensesData[0].name === 'No data' ? (
-                                    <Cell fill={COLORS.noData} />
-                                ) : (
-                                    <>
-                                        <Cell fill={COLORS.unassigned} />
-                                        <Cell fill={COLORS.assigned} />
-                                    </>
-                                )}
-                            </Pie>
-                            <Tooltip formatter={(value) => `${value}%`} />
-                            <Legend
-                                formatter={(value, entry: any) =>
-                                    value === 'No data'
-                                        ? value
-                                        : `${value} - ${entry.payload.count}`
-                                }
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </Card>
+                <StatisticsChart title="Assets Statistics" data={assetsData} />
+                <StatisticsChart title="Accessories Statistics" data={accessoriesData} />
+                <StatisticsChart title="Licenses Statistics" data={licensesData} />
             </div>
         </div>
     );

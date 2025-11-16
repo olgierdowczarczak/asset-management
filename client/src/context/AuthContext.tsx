@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import type { IAuthContextType, IUser, ILoginForm } from '@/types';
 import { AuthService } from '@/services';
+import * as React from 'react';
 
 const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
@@ -21,14 +22,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
         AuthService.getMe()
-            .then((dbUser) => setUser(dbUser))
-            .catch(() => {
-                if (user) {
-                    logout();
+            .then((dbUser) => {
+                if (isMounted) {
+                    setUser(dbUser);
                 }
             })
-            .finally(() => setLoading(false));
+            .catch(() => {
+                if (isMounted) {
+                    setUser(null);
+                    localStorage.removeItem('access_token');
+                }
+            })
+            .finally(() => {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (

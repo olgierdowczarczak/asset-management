@@ -15,7 +15,7 @@ class AuthService extends Service {
     }
 
     async refresh(): Promise<string> {
-        const response = await this.sendRequest('get', config.endpoints.auth.endpoints.refresh);
+        const response = await this.sendRequest('post', config.endpoints.auth.endpoints.refresh);
         return response.data;
     }
 

@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import PageController from '@/core/PageController';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { getDisplayValue } from '@/schemas/utils';
+import { PageController } from '@/core';
+import {
+    Card,
+    Button,
+    Modal,
+    ReferenceLink,
+    CheckInOutModal,
+    HistoryModal,
+    HistoryList,
+    UserHistoryList,
+} from '@/components';
+import { getDisplayValue, getCollectionPath } from '@/lib/schemaHelpers';
 
 function ResourcePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -11,68 +19,54 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [checkInOutModalOpen, setCheckInOutModalOpen] = useState(false);
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchData = async () => {
-            if (!id) {
-                return;
-            }
-
-            if (isMounted) {
-                setLoading(true);
-                setError(null);
-            }
-
-            try {
-                const result = await controller.service.get(Number(id));
-                if (isMounted) {
-                    setData(result);
-                }
-            } catch (err: any) {
-                if (isMounted) {
-                    setError(err.message || 'Failed to load resource');
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        fetchData();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [id, controller]);
-
-    const handleDelete = async () => {
+    const fetchData = async () => {
         if (!id) {
             return;
         }
 
-        const confirmed = window.confirm(
-            `Are you sure you want to delete this ${controller.resourceName}? This action cannot be undone.`,
-        );
+        setLoading(true);
+        setError(null);
 
-        if (!confirmed) {
+        try {
+            const result = await controller.service.get(Number(id));
+            setData(result);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load resource');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [id, controller]);
+
+    const handleDeleteClick = () => {
+        setDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!id) {
             return;
         }
 
         setDeleting(true);
+        setDeleteModalOpen(false);
         try {
             await controller.service.delete(Number(id));
             navigate(`/${controller.path}`);
         } catch (err: any) {
-            alert(err.message || 'Failed to delete resource');
+            console.error('Delete error:', err.message || 'Failed to delete resource');
             setDeleting(false);
         }
     };
 
-    const renderFieldValue = (_fieldName: string, value: any, fieldSchema: any) => {
+    const renderFieldValue = (fieldName: string, value: any, fieldSchema: any) => {
         if (value === undefined || value === null) {
             return <span className="text-gray-500">-</span>;
         }
@@ -85,10 +79,45 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     </span>
                 );
 
-            case 'reference':
-            case 'polymorphicReference':
-                const displayValue = getDisplayValue(value, fieldSchema.displayField);
-                return <span className="text-blue-400">{displayValue}</span>;
+            case 'reference': {
+                const collection = fieldSchema.referencedCollection;
+                if (!collection) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                return (
+                    <ReferenceLink
+                        value={value}
+                        collection={getCollectionPath(collection)}
+                        displayField={fieldSchema.displayField}
+                    />
+                );
+            }
+
+            case 'polymorphicReference': {
+                const modelField = fieldSchema.modelField;
+                if (!modelField) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                const collection = data[modelField];
+                if (!collection) {
+                    const displayValue = getDisplayValue(value, fieldSchema.displayField);
+                    return <span className="text-blue-400">{displayValue}</span>;
+                }
+                const actualCollection =
+                    collection === 'common' ? data['actualAssigneeModel'] : collection;
+                if (!actualCollection) {
+                    return <span className="text-gray-500">-</span>;
+                }
+                return (
+                    <ReferenceLink
+                        value={value}
+                        collection={getCollectionPath(actualCollection)}
+                        displayField={fieldSchema.displayField}
+                    />
+                );
+            }
 
             case 'enum':
                 return (
@@ -132,6 +161,8 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
     }
 
     const isMainAdmin = controller.path === 'users' && id === '1';
+    const supportsCheckInOut = ['assets', 'accessories', 'licenses'].includes(controller.path);
+    const hasAssignee = data?.assignee;
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -140,6 +171,13 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     {controller.resourceName} Details
                 </h1>
                 <div className="flex gap-2">
+                    {supportsCheckInOut && (
+                        <>
+                            <Button onClick={() => setCheckInOutModalOpen(true)} disabled={loading}>
+                                {hasAssignee ? 'Check In' : 'Check Out'}
+                            </Button>
+                        </>
+                    )}
                     {!isMainAdmin && (
                         <>
                             <Button
@@ -148,7 +186,18 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                             >
                                 Edit
                             </Button>
-                            <Button variant="secondary" onClick={handleDelete} disabled={deleting}>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setHistoryModalOpen(true)}
+                                disabled={loading}
+                            >
+                                History
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={handleDeleteClick}
+                                disabled={deleting}
+                            >
                                 {deleting ? 'Deleting...' : 'Delete'}
                             </Button>
                         </>
@@ -192,6 +241,67 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     </div>
                 )}
             </Card>
+
+            <Modal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Deletion"
+                size="sm"
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-300">
+                        Are you sure you want to delete this {controller.resourceName}?
+                    </p>
+                    <p className="text-sm text-gray-400">This action cannot be undone.</p>
+                    <div className="flex gap-2 pt-4">
+                        <Button
+                            variant="secondary"
+                            onClick={() => setDeleteModalOpen(false)}
+                            disabled={deleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteConfirm} disabled={deleting}>
+                            {deleting ? 'Deleting...' : 'Delete'}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {supportsCheckInOut && (
+                <>
+                    <CheckInOutModal
+                        isOpen={checkInOutModalOpen}
+                        onClose={() => setCheckInOutModalOpen(false)}
+                        onSuccess={() => {
+                            fetchData();
+                        }}
+                        resourceId={Number(id)}
+                        resourceName={data?.name || controller.resourceName}
+                        resourceType={controller.path}
+                        currentAssignee={data?.assignee}
+                        currentAssigneeModel={data?.assigneeModel}
+                        currentActualAssigneeModel={data?.actualAssigneeModel}
+                    />
+                    <HistoryModal
+                        isOpen={historyModalOpen}
+                        onClose={() => setHistoryModalOpen(false)}
+                        resourceType={controller.path}
+                        resourceId={Number(id)}
+                        resourceName={data?.name || controller.resourceName}
+                    />
+                </>
+            )}
+
+            <div className="mt-6">
+                <HistoryList resourceType={controller.path} resourceId={Number(id)} />
+            </div>
+
+            {controller.path === 'users' && (
+                <div className="mt-6">
+                    <UserHistoryList userId={Number(id)} />
+                </div>
+            )}
         </div>
     );
 }

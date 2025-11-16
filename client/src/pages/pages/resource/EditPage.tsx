@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import PageController from '@/core/PageController';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { SchemaForm } from '@/components/forms';
+import { PageController } from '@/core';
+import { Card, Button, SchemaForm } from '@/components';
 
 function EditPage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -12,7 +10,6 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-
     const isMainAdmin = controller.path === 'users' && id === '1';
 
     useEffect(() => {
@@ -22,7 +19,6 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
         }
 
         let isMounted = true;
-
         const fetchData = async () => {
             if (!id) {
                 return;
@@ -51,7 +47,6 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
         };
 
         fetchData();
-
         return () => {
             isMounted = false;
         };

@@ -29,6 +29,16 @@ const getPopulateFields = (collectionName) => {
                 model: CollectionNames.locations,
                 select: 'id name',
             },
+            {
+                path: 'manager',
+                model: CollectionNames.users,
+                select: 'id username firstName lastName email',
+            },
+            {
+                path: 'company',
+                model: CollectionNames.companies,
+                select: 'id name',
+            },
         ],
         [CollectionNames.users]: [
             {
@@ -45,6 +55,13 @@ const getPopulateFields = (collectionName) => {
                 path: 'department',
                 model: CollectionNames.departments,
                 select: 'id name',
+            },
+        ],
+        [CollectionNames.history]: [
+            {
+                path: 'performedBy',
+                model: CollectionNames.users,
+                select: 'id username firstName lastName email',
             },
         ],
     };

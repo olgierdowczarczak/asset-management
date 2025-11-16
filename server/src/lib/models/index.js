@@ -15,6 +15,10 @@ export const Departments = mongoose.model(
     CollectionNames.departments,
     Collections[CollectionNames.departments],
 );
+export const History = mongoose.model(
+    CollectionNames.history,
+    Collections[CollectionNames.history],
+);
 export const Licenses = mongoose.model(
     CollectionNames.licenses,
     Collections[CollectionNames.licenses],
@@ -30,6 +34,7 @@ export const models = {
     Assets,
     Companies,
     Departments,
+    History,
     Licenses,
     Locations,
     Users,

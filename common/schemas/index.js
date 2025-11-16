@@ -2,6 +2,7 @@ import AccessoriesSchema from './accessoriesSchema.js';
 import AssetsSchema from './assetsSchema.js';
 import CompaniesSchema from './companiesSchema.js';
 import DepartmentsSchema from './departmentsSchema.js';
+import HistorySchema from './historySchema.js';
 import LicensesSchema from './licensesSchema.js';
 import LocationsSchema from './locationsSchema.js';
 import UsersSchema from './usersSchema.js';
@@ -12,6 +13,7 @@ export default {
     [CollectionNames.assets]: AssetsSchema,
     [CollectionNames.companies]: CompaniesSchema,
     [CollectionNames.departments]: DepartmentsSchema,
+    [CollectionNames.history]: HistorySchema,
     [CollectionNames.licenses]: LicensesSchema,
     [CollectionNames.locations]: LocationsSchema,
     [CollectionNames.users]: UsersSchema

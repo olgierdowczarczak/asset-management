@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageController from '@/core/PageController';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { SchemaForm } from '@/components/forms';
+import { PageController } from '@/core';
+import { Card, Button, SchemaForm } from '@/components';
 
 function CreatePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-
     const handleSubmit = async (data: Record<string, any>) => {
         setLoading(true);
         setError(null);

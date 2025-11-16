@@ -3,8 +3,10 @@ import config from '@/config';
 import Service from './Service';
 
 class Resource<T> extends Service implements IMethodsResource<T> {
-    async getAll() {
-        const response = await this.sendRequest('get', config.endpoints.resource.getAll);
+    async getAll(page = 1, limit = 10) {
+        const response = await this.sendRequest('get', config.endpoints.resource.getAll, {
+            query: { page, limit },
+        });
         return response.data;
     }
 

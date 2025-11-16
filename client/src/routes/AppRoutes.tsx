@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import config from '@/config';
-import * as Layouts from '@/components/layouts';
-import * as Controllers from '@/core';
-import * as Pages from '../pages';
+import { Controllers } from '@/core';
+import * as Layouts from '@/components';
+import * as Pages from '@/pages';
 import ProtectedRoute from './ProtectedRoute';
 import LogoutRoute from './LogoutRoute';
 import LoadingRoute from './LoadingRoute';
@@ -16,7 +16,6 @@ const AppRoutes = () => {
                     <Route path={config.routes.login} element={<Pages.LoginPage />} />
                 </Route>
             </Route>
-
             <Route element={<ProtectedRoute />}>
                 <Route element={<LoadingRoute />}>
                     <Route path={config.routes.logout} element={<LogoutRoute />} />
