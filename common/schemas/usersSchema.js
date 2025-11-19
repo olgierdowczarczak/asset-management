@@ -33,11 +33,6 @@ const schema = new mongoose.Schema({
         minlength: [2, 'Lastname is shorter than the minimum allowed length (2)'],
         maxlength: [31, 'Lastname is longer than the maximum allowed length (31)'],
     },
-    middleName: {
-        type: String,
-        minlength: [2, 'Middlename is shorter than the minimum allowed length (2)'],
-        maxlength: [31, 'Middlename is longer than the maximum allowed length (31)'],
-    },
     role: {
         type: String,
         enum: {

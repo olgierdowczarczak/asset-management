@@ -31,37 +31,6 @@ const licensesSchema: IResourceSchema = {
         showInDetail: true,
         placeholder: 'Enter quantity',
     },
-    assigneeModel: {
-        type: 'enum',
-        label: 'Assignee Type',
-        enumValues: ['common', 'users', 'locations'] as const,
-        default: 'common',
-        required: true,
-        showInTable: true,
-        showInForm: true,
-        showInCreate: true,
-        showInEdit: false,
-        showInDetail: true,
-    },
-    actualAssigneeModel: {
-        type: 'enum',
-        label: 'Actual Assignee Type',
-        enumValues: ['users', 'locations'] as const,
-        showInTable: false,
-        showInForm: false,
-        showInDetail: false,
-    },
-    assignee: {
-        type: 'polymorphicReference',
-        label: 'Assigned To',
-        modelField: 'assigneeModel',
-        displayField: 'name',
-        showInTable: true,
-        showInForm: true,
-        showInCreate: false,
-        showInEdit: true,
-        showInDetail: true,
-    },
 };
 
 export default licensesSchema;

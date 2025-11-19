@@ -3,6 +3,5 @@ export default interface PopulatedReference {
     name?: string;
     username?: string;
     firstName?: string;
-    middleName?: string;
     lastName?: string;
 }

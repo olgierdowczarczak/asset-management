@@ -15,18 +15,6 @@ const schema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    assigneeModel: {
-        type: String,
-        enum: ['users', 'locations', 'common'],
-    },
-    actualAssigneeModel: {
-        type: String,
-        enum: ['users', 'locations'],
-    },
-    assignee: {
-        type: mongoose.Schema.Types.Number,
-        ref: 'actualAssigneeModel',
-    },
     id: {
         type: Number,
         unique: [true, 'Accessory already exists'],

@@ -13,6 +13,8 @@ interface CheckInOutModalProps {
     currentAssignee?: any;
     currentAssigneeModel?: string;
     currentActualAssigneeModel?: string;
+    instanceMode?: boolean;
+    parentId?: number;
 }
 
 const CheckInOutModal = ({
@@ -25,6 +27,8 @@ const CheckInOutModal = ({
     currentAssignee,
     currentAssigneeModel,
     currentActualAssigneeModel,
+    instanceMode = false,
+    parentId,
 }: CheckInOutModalProps) => {
     const [selectedAssignee, setSelectedAssignee] = useState<number | string>('');
     const [users, setUsers] = useState<any[]>([]);
@@ -72,7 +76,14 @@ const CheckInOutModal = ({
     const handleCheckIn = async () => {
         setSubmitting(true);
         try {
-            await client.post(`/${resourceType}/${resourceId}/checkin`);
+            let url: string;
+            if (instanceMode && parentId) {
+                const parentType = resourceType.replace('-instances', '');
+                url = `/${parentType}/${parentId}/instances/${resourceId}/checkin`;
+            } else {
+                url = `/${resourceType}/${resourceId}/checkin`;
+            }
+            await client.post(url);
             onSuccess();
             onClose();
         } catch (error: any) {
@@ -104,7 +115,15 @@ const CheckInOutModal = ({
                 };
             }
 
-            await client.post(`/${resourceType}/${resourceId}/checkout`, payload);
+            let url: string;
+            if (instanceMode && parentId) {
+                const parentType = resourceType.replace('-instances', '');
+                url = `/${parentType}/${parentId}/instances/${resourceId}/checkout`;
+            } else {
+                url = `/${resourceType}/${resourceId}/checkout`;
+            }
+
+            await client.post(url, payload);
             onSuccess();
             onClose();
         } catch (error: any) {

@@ -41,8 +41,6 @@ export default async function (request, response, next) {
         next();
     } catch (err) {
         const errorMessage = validateError(err) || ConstMessages.internalServerError;
-        response
-            .status(StatusCodes.UNAUTHORIZED)
-            .send({ message: errorMessage });
+        response.status(StatusCodes.UNAUTHORIZED).send({ message: errorMessage });
     }
 }

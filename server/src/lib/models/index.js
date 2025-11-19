@@ -6,6 +6,10 @@ export const Accessories = mongoose.model(
     CollectionNames.accessories,
     Collections[CollectionNames.accessories],
 );
+export const AccessoryInstances = mongoose.model(
+    CollectionNames.accessoryInstances,
+    Collections[CollectionNames.accessoryInstances],
+);
 export const Assets = mongoose.model(CollectionNames.assets, Collections[CollectionNames.assets]);
 export const Companies = mongoose.model(
     CollectionNames.companies,
@@ -23,6 +27,10 @@ export const Licenses = mongoose.model(
     CollectionNames.licenses,
     Collections[CollectionNames.licenses],
 );
+export const LicenseInstances = mongoose.model(
+    CollectionNames.licenseInstances,
+    Collections[CollectionNames.licenseInstances],
+);
 export const Locations = mongoose.model(
     CollectionNames.locations,
     Collections[CollectionNames.locations],
@@ -31,11 +39,13 @@ export const Users = mongoose.model(CollectionNames.users, Collections[Collectio
 
 export const models = {
     Accessories,
+    AccessoryInstances,
     Assets,
     Companies,
     Departments,
     History,
     Licenses,
+    LicenseInstances,
     Locations,
     Users,
 };

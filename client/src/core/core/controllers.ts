@@ -2,11 +2,14 @@ import config from '@/config';
 import * as Services from '@/services';
 import * as Schemas from '@/schemas';
 import MainResource from './controllers/MainResource';
+import InstanceMasterResource from './controllers/InstanceMasterResource';
 
-export const AccessoriesController = new MainResource(
+export const AccessoriesController = new InstanceMasterResource(
     config.routes.accessories,
     Services.AccessorieService,
     Schemas.AccessoriesSchema,
+    Services.AccessoryInstanceService,
+    Schemas.AccessoryInstancesSchema,
 );
 export const AssetsController = new MainResource(
     config.routes.assets,
@@ -23,10 +26,12 @@ export const DepartmentsController = new MainResource(
     Services.DepartmentService,
     Schemas.DepartmentsSchema,
 );
-export const LicensesController = new MainResource(
+export const LicensesController = new InstanceMasterResource(
     config.routes.licenses,
     Services.LicenseService,
     Schemas.LicensesSchema,
+    Services.LicenseInstanceService,
+    Schemas.LicenseInstancesSchema,
 );
 export const LocationsController = new MainResource(
     config.routes.locations,

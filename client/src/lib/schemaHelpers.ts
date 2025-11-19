@@ -19,9 +19,8 @@ export function getDisplayValue(
     }
     if (displayField === 'fullName' || ('firstName' in value && 'lastName' in value)) {
         const firstName = value.firstName || '';
-        const middleName = value.middleName || '';
         const lastName = value.lastName || '';
-        const parts = [firstName, middleName, lastName].filter(Boolean);
+        const parts = [firstName, lastName].filter(Boolean);
         return parts.length > 0 ? parts.join(' ') : value.id.toString();
     }
 

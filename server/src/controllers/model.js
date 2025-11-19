@@ -28,11 +28,7 @@ class Model extends Endpoint {
             .patch(this.updateItem)
             .delete(this.deleteItem);
 
-        const supportsCheckInOut = [
-            CollectionNames.assets,
-            CollectionNames.accessories,
-            CollectionNames.licenses,
-        ];
+        const supportsCheckInOut = [CollectionNames.assets];
 
         if (supportsCheckInOut.includes(endpoint)) {
             this._router.route('/:id/checkin').post(this.checkIn);
@@ -88,11 +84,7 @@ class Model extends Endpoint {
     }
 
     async _handlePolymorphicPopulate(items) {
-        const collectionsWithPolymorphic = [
-            CollectionNames.assets,
-            CollectionNames.accessories,
-            CollectionNames.licenses,
-        ];
+        const collectionsWithPolymorphic = [CollectionNames.assets];
 
         if (!collectionsWithPolymorphic.includes(this._collectionName)) {
             return items;
@@ -152,12 +144,40 @@ class Model extends Endpoint {
             items = await this._handlePolymorphicPopulate(items);
 
             if (this._collectionName === CollectionNames.users) {
-                items = items.map(item => {
+                items = items.map((item) => {
                     if (item.password) {
                         delete item.password;
                     }
                     return item;
                 });
+            }
+
+            const collectionsWithInstances = [
+                CollectionNames.accessories,
+                CollectionNames.licenses,
+            ];
+            if (collectionsWithInstances.includes(this._collectionName)) {
+                const { models } = await import('../lib/models/index.js');
+                const InstanceModel =
+                    this._collectionName === CollectionNames.accessories
+                        ? models.AccessoryInstances
+                        : models.LicenseInstances;
+
+                if (InstanceModel) {
+                    const itemsWithCounts = await Promise.all(
+                        items.map(async (item) => {
+                            const assignedCount = await InstanceModel.countDocuments({
+                                parentId: item.id,
+                                status: 'assigned',
+                            });
+                            return {
+                                ...item,
+                                assignedCount,
+                            };
+                        }),
+                    );
+                    items = itemsWithCounts;
+                }
             }
 
             response.status(StatusCodes.OK).send({
@@ -173,9 +193,7 @@ class Model extends Endpoint {
             });
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -184,7 +202,9 @@ class Model extends Endpoint {
             const { id } = request.params;
             let item = await this._collection.findOne({ id }).lean();
             if (!item) {
-                return response.status(StatusCodes.NOT_FOUND).send({ message: ConstMessages.notExists });
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
             item = await this._manualPopulate(item);
             item = await this._handlePolymorphicPopulate(item);
@@ -193,12 +213,30 @@ class Model extends Endpoint {
                 delete item.password;
             }
 
+            const collectionsWithInstances = [
+                CollectionNames.accessories,
+                CollectionNames.licenses,
+            ];
+            if (collectionsWithInstances.includes(this._collectionName)) {
+                const { models } = await import('../lib/models/index.js');
+                const InstanceModel =
+                    this._collectionName === CollectionNames.accessories
+                        ? models.AccessoryInstances
+                        : models.LicenseInstances;
+
+                if (InstanceModel) {
+                    const assignedCount = await InstanceModel.countDocuments({
+                        parentId: item.id,
+                        status: 'assigned',
+                    });
+                    item.assignedCount = assignedCount;
+                }
+            }
+
             response.status(StatusCodes.OK).send(item);
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -210,6 +248,21 @@ class Model extends Endpoint {
                 return response
                     .status(StatusCodes.FORBIDDEN)
                     .send({ message: 'Cannot edit the main administrator account' });
+            }
+
+            const collectionsWithInstances = [
+                CollectionNames.accessories,
+                CollectionNames.licenses,
+            ];
+            let oldQuantity = 0;
+            if (
+                collectionsWithInstances.includes(this._collectionName) &&
+                request.body.quantity !== undefined
+            ) {
+                const existingItem = await this._collection.findOne({ id }).lean();
+                if (existingItem) {
+                    oldQuantity = existingItem.quantity || 0;
+                }
             }
 
             let item;
@@ -248,14 +301,48 @@ class Model extends Endpoint {
                 }
 
                 item = await this._collection
-                    .findOneAndUpdate(
-                        { id },
-                        updateQuery,
-                        { new: true, runValidators: true },
-                    )
+                    .findOneAndUpdate({ id }, updateQuery, { new: true, runValidators: true })
                     .lean();
                 if (!item) {
                     return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
+                }
+            }
+
+            if (
+                collectionsWithInstances.includes(this._collectionName) &&
+                request.body.quantity !== undefined
+            ) {
+                const newQuantity = item.quantity || 0;
+                const InstanceModel =
+                    this._collectionName === CollectionNames.accessories
+                        ? models.AccessoryInstances
+                        : models.LicenseInstances;
+
+                if (newQuantity > oldQuantity) {
+                    const instancesToAdd = newQuantity - oldQuantity;
+                    for (let i = 1; i <= instancesToAdd; i++) {
+                        const lastInstanceId = await getLastDocument(InstanceModel);
+                        const instance = new InstanceModel({
+                            id: lastInstanceId,
+                            parentId: Number(id),
+                            instanceNumber: oldQuantity + i,
+                            status: 'available',
+                        });
+                        await instance.save();
+                    }
+                } else if (newQuantity < oldQuantity) {
+                    const instancesToRemove = oldQuantity - newQuantity;
+                    const availableInstances = await InstanceModel.find({
+                        parentId: Number(id),
+                        status: 'available',
+                    })
+                        .sort({ instanceNumber: -1 })
+                        .limit(instancesToRemove)
+                        .lean();
+
+                    for (const instance of availableInstances) {
+                        await InstanceModel.deleteOne({ id: instance.id });
+                    }
                 }
             }
 
@@ -276,9 +363,7 @@ class Model extends Endpoint {
             response.status(StatusCodes.OK).send(item);
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -293,19 +378,8 @@ class Model extends Endpoint {
                     { manager: idNum },
                     { $unset: { manager: '' } },
                 );
-                await models.Locations.updateMany(
-                    { manager: idNum },
-                    { $unset: { manager: '' } },
-                );
+                await models.Locations.updateMany({ manager: idNum }, { $unset: { manager: '' } });
                 await models.Assets.updateMany(
-                    { assigneeModel: 'users', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
-                );
-                await models.Accessories.updateMany(
-                    { assigneeModel: 'users', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
-                );
-                await models.Licenses.updateMany(
                     { assigneeModel: 'users', assignee: idNum },
                     { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
                 );
@@ -313,13 +387,43 @@ class Model extends Endpoint {
                     { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
                     { $unset: { assignee: '', actualAssigneeModel: '' } },
                 );
-                await models.Accessories.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                await models.AccessoryInstances.updateMany(
+                    { assigneeModel: 'users', assignee: idNum },
+                    {
+                        $unset: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        $set: { status: 'available' },
+                    },
                 );
-                await models.Licenses.updateMany(
+                await models.AccessoryInstances.updateMany(
                     { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                    {
+                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
+                        $set: { status: 'available' },
+                    },
+                );
+                await models.LicenseInstances.updateMany(
+                    { assigneeModel: 'users', assignee: idNum },
+                    {
+                        $unset: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        $set: { status: 'available' },
+                    },
+                );
+                await models.LicenseInstances.updateMany(
+                    { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
+                    {
+                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
+                        $set: { status: 'available' },
+                    },
                 );
                 break;
 
@@ -330,25 +434,47 @@ class Model extends Endpoint {
                     { assigneeModel: 'locations', assignee: idNum },
                     { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
                 );
-                await models.Accessories.updateMany(
-                    { assigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
-                );
-                await models.Licenses.updateMany(
-                    { assigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
-                );
                 await models.Assets.updateMany(
                     { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
                     { $unset: { assignee: '', actualAssigneeModel: '' } },
                 );
-                await models.Accessories.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                await models.AccessoryInstances.updateMany(
+                    { assigneeModel: 'locations', assignee: idNum },
+                    {
+                        $unset: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        $set: { status: 'available' },
+                    },
                 );
-                await models.Licenses.updateMany(
+                await models.AccessoryInstances.updateMany(
                     { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                    {
+                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
+                        $set: { status: 'available' },
+                    },
+                );
+                await models.LicenseInstances.updateMany(
+                    { assigneeModel: 'locations', assignee: idNum },
+                    {
+                        $unset: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        $set: { status: 'available' },
+                    },
+                );
+                await models.LicenseInstances.updateMany(
+                    { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
+                    {
+                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
+                        $set: { status: 'available' },
+                    },
                 );
                 break;
 
@@ -378,7 +504,9 @@ class Model extends Endpoint {
 
             const item = await this._collection.findOne({ id });
             if (!item) {
-                return response.status(StatusCodes.NOT_FOUND).send({ message: ConstMessages.notExists });
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
 
             await this._clearReferences(this._collectionName, id);
@@ -387,13 +515,42 @@ class Model extends Endpoint {
                 resourceId: Number(id),
             });
 
+            const collectionsWithInstances = [
+                CollectionNames.accessories,
+                CollectionNames.licenses,
+            ];
+            if (collectionsWithInstances.includes(this._collectionName)) {
+                const InstanceModel =
+                    this._collectionName === CollectionNames.accessories
+                        ? models.AccessoryInstances
+                        : models.LicenseInstances;
+                await InstanceModel.deleteMany({ parentId: Number(id) });
+            }
+
             await this._collection.deleteOne({ id });
             response.status(StatusCodes.ACCEPTED).send({ message: ConstMessages.actionSucceed });
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
+        }
+    }
+
+    async _createInstances(parentId, quantity, collectionName) {
+        const { models } = await import('../lib/models/index.js');
+        const InstanceModel =
+            collectionName === CollectionNames.accessories
+                ? models.AccessoryInstances
+                : models.LicenseInstances;
+
+        for (let i = 1; i <= quantity; i++) {
+            const lastInstanceId = await getLastDocument(InstanceModel);
+            const instance = new InstanceModel({
+                id: lastInstanceId,
+                parentId,
+                instanceNumber: i,
+                status: 'available',
+            });
+            await instance.save();
         }
     }
 
@@ -412,6 +569,14 @@ class Model extends Endpoint {
                 metadata: { name: newItem.name },
             });
 
+            const collectionsWithInstances = [
+                CollectionNames.accessories,
+                CollectionNames.licenses,
+            ];
+            if (collectionsWithInstances.includes(this._collectionName) && newItem.quantity > 0) {
+                await this._createInstances(lastId, newItem.quantity, this._collectionName);
+            }
+
             let item = await this._collection.findOne({ id: lastId }).lean();
             item = await this._manualPopulate(item);
             item = await this._handlePolymorphicPopulate(item);
@@ -423,9 +588,7 @@ class Model extends Endpoint {
             response.status(StatusCodes.CREATED).send(item);
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -435,7 +598,9 @@ class Model extends Endpoint {
             const { id } = request.params;
             const item = await this._collection.findOne({ id });
             if (!item) {
-                return response.status(StatusCodes.NOT_FOUND).send({ message: ConstMessages.notExists });
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
 
             if (!item.assignee) {
@@ -449,15 +614,21 @@ class Model extends Endpoint {
             const previousActualAssigneeModel = item.actualAssigneeModel;
             let previousAssigneeName = '';
             if (previousAssignee) {
-                const actualModel = previousAssigneeModel === 'common' ? previousActualAssigneeModel : previousAssigneeModel;
+                const actualModel =
+                    previousAssigneeModel === 'common'
+                        ? previousActualAssigneeModel
+                        : previousAssigneeModel;
                 if (actualModel) {
-                    const capitalizedModel = actualModel.charAt(0).toUpperCase() + actualModel.slice(1);
+                    const capitalizedModel =
+                        actualModel.charAt(0).toUpperCase() + actualModel.slice(1);
                     const AssigneeModel = models[capitalizedModel];
                     if (AssigneeModel) {
-                        const assigneeDoc = await AssigneeModel.findOne({ id: previousAssignee }).lean();
+                        const assigneeDoc = await AssigneeModel.findOne({
+                            id: previousAssignee,
+                        }).lean();
                         if (assigneeDoc) {
                             if (actualModel === 'users') {
-                                previousAssigneeName = [assigneeDoc.firstName, assigneeDoc.middleName, assigneeDoc.lastName]
+                                previousAssigneeName = [assigneeDoc.firstName, assigneeDoc.lastName]
                                     .filter(Boolean)
                                     .join(' ');
                             } else {
@@ -494,9 +665,7 @@ class Model extends Endpoint {
             response.status(StatusCodes.OK).send(updatedItem);
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -513,10 +682,13 @@ class Model extends Endpoint {
 
             const item = await this._collection.findOne({ id });
             if (!item) {
-                return response.status(StatusCodes.NOT_FOUND).send({ message: ConstMessages.notExists });
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
 
-            const capitalizedModel = actualAssigneeModel.charAt(0).toUpperCase() + actualAssigneeModel.slice(1);
+            const capitalizedModel =
+                actualAssigneeModel.charAt(0).toUpperCase() + actualAssigneeModel.slice(1);
             const AssigneeModel = models[capitalizedModel];
             if (!AssigneeModel) {
                 return response
@@ -526,14 +698,14 @@ class Model extends Endpoint {
 
             const assigneeExists = await AssigneeModel.findOne({ id: Number(assignee) }).lean();
             if (!assigneeExists) {
-                return response
-                    .status(StatusCodes.NOT_FOUND)
-                    .send({ message: `Assignee with id ${assignee} not found in ${actualAssigneeModel}` });
+                return response.status(StatusCodes.NOT_FOUND).send({
+                    message: `Assignee with id ${assignee} not found in ${actualAssigneeModel}`,
+                });
             }
 
             let assigneeName = '';
             if (actualAssigneeModel === 'users') {
-                assigneeName = [assigneeExists.firstName, assigneeExists.middleName, assigneeExists.lastName]
+                assigneeName = [assigneeExists.firstName, assigneeExists.lastName]
                     .filter(Boolean)
                     .join(' ');
             } else {
@@ -572,9 +744,7 @@ class Model extends Endpoint {
             response.status(StatusCodes.OK).send(updatedItem);
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 }

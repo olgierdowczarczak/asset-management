@@ -6,7 +6,6 @@ export default interface User {
     email: string;
     firstName: string;
     lastName: string;
-    middleName?: string;
     role: 'user' | 'admin';
     location?: number | PopulatedReference;
     company?: number | PopulatedReference;

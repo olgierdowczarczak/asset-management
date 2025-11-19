@@ -78,6 +78,13 @@ const SchemaTable = <T extends Record<string, any> & { id: number }>({
                                 ? value.charAt(0).toUpperCase() + value.slice(1)
                                 : value;
 
+                        case 'number':
+                            if (fieldName === 'quantity' && 'assignedCount' in row) {
+                                const assignedCount = (row as any).assignedCount || 0;
+                                return `${assignedCount}/${value}`;
+                            }
+                            return value.toString();
+
                         default:
                             return value.toString();
                     }

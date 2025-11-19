@@ -52,16 +52,6 @@ const usersSchema: IResourceSchema = {
         showInDetail: true,
         placeholder: 'Enter last name',
     },
-    middleName: {
-        type: 'string',
-        label: 'Middle Name',
-        minLength: 2,
-        maxLength: 31,
-        showInTable: false,
-        showInForm: true,
-        showInDetail: true,
-        placeholder: 'Enter middle name (optional)',
-    },
     role: {
         type: 'enum',
         label: 'Role',

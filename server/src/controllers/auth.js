@@ -34,7 +34,9 @@ class Auth extends Endpoint {
             }
             const user = await Users.findOne({ username });
             if (!user) {
-                return response.status(StatusCodes.NOT_FOUND).send({ message: ConstMessages.notExists });
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
 
             const isPasswordCorrect = await compareData(password, user.password);
@@ -62,9 +64,7 @@ class Auth extends Endpoint {
             response.status(StatusCodes.OK).json({ user: userResponse, access_token });
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -80,9 +80,7 @@ class Auth extends Endpoint {
             response.status(StatusCodes.OK).send({ message: ConstMessages.actionSucceed });
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -103,9 +101,7 @@ class Auth extends Endpoint {
             response.status(StatusCodes.OK).json(access_token);
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -115,14 +111,14 @@ class Auth extends Endpoint {
      */
     async getMe(request, response) {
         try {
-            const userResponse = request.user.toObject ? request.user.toObject() : { ...request.user };
+            const userResponse = request.user.toObject
+                ? request.user.toObject()
+                : { ...request.user };
             delete userResponse.password;
             response.status(StatusCodes.OK).json(userResponse);
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send({ message: errorMessage });
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 }
