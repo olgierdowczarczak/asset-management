@@ -86,11 +86,10 @@ function Table<T extends { id: number }>({ data, columns, onRowClick }: TablePro
                             >
                                 <div className="flex items-center gap-2">
                                     {column.header}
-                                    {sortColumn === index && (
-                                        <span className="text-blue-400">
-                                            {sortDirection === 'asc' ? '↑' : '↓'}
-                                        </span>
-                                    )}
+                                    <span className="text-blue-400 w-4 inline-block text-center">
+                                        {sortColumn === index && sortDirection === 'asc' && '↑'}
+                                        {sortColumn === index && sortDirection === 'desc' && '↓'}
+                                    </span>
                                 </div>
                             </th>
                         ))}

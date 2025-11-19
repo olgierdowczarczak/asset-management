@@ -304,7 +304,9 @@ const SchemaForm = ({
                 const { field, value: requiredValue } = fieldSchema.requiredIf;
                 const dependentFieldValue = formData[field];
                 if (dependentFieldValue === requiredValue) {
-                    isRequired = true;
+                    if (!(isEditMode && fieldSchema.type === 'password')) {
+                        isRequired = true;
+                    }
                 }
             }
 
@@ -370,7 +372,9 @@ const SchemaForm = ({
             const fieldSchema = schema[key];
             if (fieldSchema && !isFieldReadonly(fieldSchema) && shouldShowField(fieldSchema)) {
                 if (value === '' && !fieldSchema.required) {
-                    dataToSubmit[key] = undefined;
+                    dataToSubmit[key] = null;
+                } else if (value === undefined && !fieldSchema.required) {
+                    dataToSubmit[key] = null;
                 } else if (fieldSchema.type === 'number' && value !== '') {
                     dataToSubmit[key] = Number(value);
                 } else {

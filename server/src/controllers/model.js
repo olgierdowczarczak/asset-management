@@ -218,14 +218,39 @@ class Model extends Endpoint {
                 if (!item) {
                     return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
                 }
-                Object.assign(item, request.body);
+                Object.entries(request.body).forEach(([key, value]) => {
+                    if (value === undefined || value === null) {
+                        item.set(key, undefined);
+                    } else {
+                        item[key] = value;
+                    }
+                });
+
                 await item.save();
                 item = item.toObject();
             } else {
+                const fieldsToSet = {};
+                const fieldsToUnset = {};
+                Object.entries(request.body).forEach(([key, value]) => {
+                    if (value === undefined || value === null) {
+                        fieldsToUnset[key] = '';
+                    } else {
+                        fieldsToSet[key] = value;
+                    }
+                });
+
+                const updateQuery = {};
+                if (Object.keys(fieldsToSet).length > 0) {
+                    updateQuery.$set = fieldsToSet;
+                }
+                if (Object.keys(fieldsToUnset).length > 0) {
+                    updateQuery.$unset = fieldsToUnset;
+                }
+
                 item = await this._collection
                     .findOneAndUpdate(
                         { id },
-                        { $set: request.body },
+                        updateQuery,
                         { new: true, runValidators: true },
                     )
                     .lean();
