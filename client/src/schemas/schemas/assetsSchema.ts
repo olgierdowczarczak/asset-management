@@ -20,6 +20,15 @@ const assetsSchema: IResourceSchema = {
         showInDetail: true,
         placeholder: 'Enter asset name',
     },
+    cost: {
+        type: 'number',
+        label: 'Cost',
+        min: 0,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter cost',
+    },
     assigneeModel: {
         type: 'enum',
         label: 'Assignee Type',

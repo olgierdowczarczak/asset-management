@@ -4,7 +4,7 @@ const schema = new mongoose.Schema({
     resourceType: {
         type: String,
         required: [true, 'Resource type is required'],
-        enum: ['assets', 'accessories', 'licenses', 'users', 'companies', 'departments', 'locations'],
+        enum: ['assets', 'accessories', 'licenses', 'accessory-instances', 'license-instances', 'users', 'companies', 'departments', 'locations', 'jobtitles', 'seniorities'],
     },
     resourceId: {
         type: Number,

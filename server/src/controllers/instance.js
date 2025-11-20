@@ -18,9 +18,11 @@ class Instance extends Endpoint {
         this._parentCollection = getModelByName(this._parentCollectionName);
 
         this.getInstances = this.getInstances.bind(this);
+        this.getInstanceStats = this.getInstanceStats.bind(this);
         this.checkInInstance = this.checkInInstance.bind(this);
         this.checkOutInstance = this.checkOutInstance.bind(this);
 
+        this._router.route('/instances/stats').get(this.getInstanceStats);
         this._router.route('/:id/instances').get(this.getInstances);
         this._router.route('/:id/instances/:instanceId/checkin').post(this.checkInInstance);
         this._router.route('/:id/instances/:instanceId/checkout').post(this.checkOutInstance);
@@ -32,7 +34,7 @@ class Instance extends Endpoint {
         const itemsArray = isArray ? items : [items];
 
         for (const item of itemsArray) {
-            if (item && item.assignee) {
+            if (item && item.assignee !== null && item.assignee !== undefined) {
                 const modelToUse =
                     item.assigneeModel === 'common' ? item.actualAssigneeModel : item.assigneeModel;
 
@@ -94,6 +96,26 @@ class Instance extends Endpoint {
                     hasNext: pageNum < Math.ceil(total / limitNum),
                     hasPrev: pageNum > 1,
                 },
+            });
+        } catch (error) {
+            const errorMessage = validateError(error) || ConstMessages.internalServerError;
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
+        }
+    }
+
+    async getInstanceStats(request, response) {
+        try {
+            const assignedCount = await this._collection.countDocuments({
+                assignee: { $exists: true, $ne: null },
+            });
+            const unassignedCount = await this._collection.countDocuments({
+                $or: [{ assignee: { $exists: false } }, { assignee: null }],
+            });
+
+            response.status(StatusCodes.OK).send({
+                assigned: assignedCount,
+                unassigned: unassignedCount,
+                total: assignedCount + unassignedCount,
             });
         } catch (error) {
             const errorMessage = validateError(error) || ConstMessages.internalServerError;
@@ -199,7 +221,6 @@ class Instance extends Endpoint {
             const { models } = await import('../lib/models/index.js');
             const { id, instanceId } = request.params;
             const { assigneeModel, actualAssigneeModel, assignee } = request.body;
-
             if (!assignee || !actualAssigneeModel) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)

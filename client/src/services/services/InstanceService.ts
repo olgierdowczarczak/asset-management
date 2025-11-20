@@ -13,6 +13,10 @@ class InstanceService extends Service {
         });
     }
 
+    async getStats() {
+        return this.sendRequest('get', `/instances/stats`);
+    }
+
     async checkInInstance(parentId: number, instanceId: number) {
         return this.sendRequest('post', `/:id/instances/:instanceId/checkin`, {
             params: { id: parentId, instanceId },

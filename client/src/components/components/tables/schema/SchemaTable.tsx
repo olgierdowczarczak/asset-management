@@ -75,7 +75,10 @@ const SchemaTable = <T extends Record<string, any> & { id: number }>({
 
                         case 'enum':
                             return typeof value === 'string'
-                                ? value.charAt(0).toUpperCase() + value.slice(1)
+                                ? value
+                                      .split('_')
+                                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                      .join(' ')
                                 : value;
 
                         case 'number':

@@ -24,6 +24,7 @@ function useRefreshToken(api: AxiosInstance) {
                     return Promise.reject(err);
                 }
             }
+            return Promise.reject(error);
         },
     );
 }

@@ -3,6 +3,7 @@ import { client } from '@/api';
 import Auth from './services/Auth';
 import MainResource from './services/MainResource';
 import InstanceService from './services/InstanceService';
+import HistoryService from './services/HistoryService';
 
 export const AuthService = new Auth(client, config.endpoints.auth.name);
 export const AccessorieService = new MainResource(client, config.endpoints.accessories);
@@ -10,7 +11,10 @@ export const AccessoryInstanceService = new InstanceService(client, config.endpo
 export const AssetService = new MainResource(client, config.endpoints.assets);
 export const CompanyService = new MainResource(client, config.endpoints.companies);
 export const DepartmentService = new MainResource(client, config.endpoints.departments);
+export const HistoryServiceInstance = new HistoryService(client, config.endpoints.history);
+export const JobtitleService = new MainResource(client, config.endpoints.jobtitles);
 export const LicenseService = new MainResource(client, config.endpoints.licenses);
 export const LicenseInstanceService = new InstanceService(client, config.endpoints.licenses);
 export const LocationService = new MainResource(client, config.endpoints.locations);
+export const SeniorityService = new MainResource(client, config.endpoints.seniorities);
 export const UserService = new MainResource(client, config.endpoints.users);

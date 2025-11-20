@@ -47,7 +47,6 @@ class PageHandler<T> {
                 return await fn(...args);
             } catch (error: any) {
                 const errorMessage = validateError(error, 'Unexpected error');
-                console.error(`Error in ${fn.name}:`, errorMessage);
                 throw error;
             }
         };

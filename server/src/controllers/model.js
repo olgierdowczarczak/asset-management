@@ -95,7 +95,7 @@ class Model extends Endpoint {
         const itemsArray = isArray ? items : [items];
 
         for (const item of itemsArray) {
-            if (item && item.assignee) {
+            if (item && item.assignee !== null && item.assignee !== undefined) {
                 const modelToUse =
                     item.assigneeModel === 'common' ? item.actualAssigneeModel : item.assigneeModel;
 
@@ -262,6 +262,25 @@ class Model extends Endpoint {
                 const existingItem = await this._collection.findOne({ id }).lean();
                 if (existingItem) {
                     oldQuantity = existingItem.quantity || 0;
+                }
+
+                const newQuantity = request.body.quantity;
+                if (newQuantity < oldQuantity) {
+                    const InstanceModel =
+                        this._collectionName === CollectionNames.accessories
+                            ? models.AccessoryInstances
+                            : models.LicenseInstances;
+
+                    const assignedCount = await InstanceModel.countDocuments({
+                        parentId: Number(id),
+                        status: 'assigned',
+                    });
+
+                    if (newQuantity < assignedCount) {
+                        return response.status(StatusCodes.BAD_REQUEST).send({
+                            message: `Cannot decrease quantity below ${assignedCount}. There are ${assignedCount} assigned instance(s). Please check them in first.`,
+                        });
+                    }
                 }
             }
 

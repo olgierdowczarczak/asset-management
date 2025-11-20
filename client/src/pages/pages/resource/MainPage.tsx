@@ -36,7 +36,6 @@ function MainPage<T extends { id: number }>({ controller }: { controller: PageCo
                 }
             } catch (error) {
                 if (isMounted) {
-                    console.error('Failed to fetch data:', error);
                 }
             } finally {
                 if (isMounted) {

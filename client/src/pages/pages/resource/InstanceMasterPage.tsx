@@ -11,6 +11,7 @@ import {
     HistoryList,
 } from '@/components';
 import { getDisplayValue, getCollectionPath } from '@/lib/schemaHelpers';
+import { extractErrorMessage } from '@/lib/errorHandler';
 import type { IResourceSchema } from '@/types';
 
 interface InstanceMasterPageProps<T extends { id: number }> {
@@ -63,8 +64,8 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
         try {
             const result = await controller.service.get(Number(id));
             setData(result);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load resource');
+        } catch (err: unknown) {
+            setError(extractErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -80,8 +81,7 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
             const response = await instanceService.getInstances(Number(id), page, pagination.limit);
             setInstances(response.data.items || []);
             setPagination(response.data.pagination);
-        } catch (err: any) {
-            console.error('Failed to load instances:', err.message);
+        } catch (err: unknown) {
         } finally {
             setInstancesLoading(false);
         }
@@ -111,8 +111,7 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
         try {
             await controller.service.delete(Number(id));
             navigate(`/${controller.path}`);
-        } catch (err: any) {
-            console.error('Delete error:', err.message || 'Failed to delete resource');
+        } catch (err: unknown) {
             setDeleting(false);
         }
     };
@@ -128,7 +127,7 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
         setSelectedInstance(null);
     };
 
-    const renderFieldValue = (fieldName: string, value: any, fieldSchema: any) => {
+    const renderFieldValue = (fieldName: string, value: any, fieldSchema: any, rowData?: any) => {
         if (value === undefined || value === null) {
             return <span className="text-gray-500">-</span>;
         }
@@ -162,13 +161,14 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                     const displayValue = getDisplayValue(value, fieldSchema.displayField);
                     return <span className="text-blue-400">{displayValue}</span>;
                 }
-                const collection = data[modelField];
+                const sourceData = rowData || data;
+                const collection = sourceData[modelField];
                 if (!collection) {
                     const displayValue = getDisplayValue(value, fieldSchema.displayField);
                     return <span className="text-blue-400">{displayValue}</span>;
                 }
                 const actualCollection =
-                    collection === 'common' ? data['actualAssigneeModel'] : collection;
+                    collection === 'common' ? sourceData['actualAssigneeModel'] : collection;
                 if (!actualCollection) {
                     return <span className="text-gray-500">-</span>;
                 }
@@ -215,7 +215,12 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
 
                     return (
                         <td key={fieldName} className="px-4 py-3 text-gray-300">
-                            {renderFieldValue(fieldName, instance[fieldName], fieldSchema)}
+                            {renderFieldValue(
+                                fieldName,
+                                instance[fieldName],
+                                fieldSchema,
+                                instance,
+                            )}
                         </td>
                     );
                 })}

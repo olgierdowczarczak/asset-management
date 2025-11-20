@@ -12,9 +12,12 @@ const endpoints = {
     assets: '/assets',
     companies: '/companies',
     departments: '/departments',
+    jobtitles: '/jobtitles',
     licenses: '/licenses',
     locations: '/locations',
+    seniorities: '/seniorities',
     users: '/users',
+    history: '/history',
     resource: {
         getAll: '/',
         create: '/',

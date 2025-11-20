@@ -1,14 +1,6 @@
 import type { IResourceSchema } from '@/types';
 
 const licenseInstancesSchema: IResourceSchema = {
-    id: {
-        type: 'number',
-        label: 'ID',
-        readonly: true,
-        showInTable: true,
-        showInForm: false,
-        showInDetail: true,
-    },
     instanceNumber: {
         type: 'number',
         label: '#',

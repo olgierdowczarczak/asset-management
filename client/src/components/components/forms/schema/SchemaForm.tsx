@@ -135,7 +135,6 @@ const SchemaForm = ({
                         break;
                     }
                     if (isMounted) {
-                        console.error(`Failed to load ${collection}:`, error);
                         setReferenceOptions((prev) => ({
                             ...prev,
                             [collection]: [],
@@ -451,7 +450,10 @@ const SchemaForm = ({
                 const enumOptions =
                     fieldSchema.enumValues?.map((val) => ({
                         value: val,
-                        label: val.charAt(0).toUpperCase() + val.slice(1),
+                        label: val
+                            .split('_')
+                            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' '),
                     })) || [];
 
                 return (

@@ -26,6 +26,11 @@ export const DepartmentsController = new MainResource(
     Services.DepartmentService,
     Schemas.DepartmentsSchema,
 );
+export const JobtitlesController = new MainResource(
+    config.routes.jobtitles,
+    Services.JobtitleService,
+    Schemas.JobtitlesSchema,
+);
 export const LicensesController = new InstanceMasterResource(
     config.routes.licenses,
     Services.LicenseService,
@@ -37,6 +42,11 @@ export const LocationsController = new MainResource(
     config.routes.locations,
     Services.LocationService,
     Schemas.LocationsSchema,
+);
+export const SenioritiesController = new MainResource(
+    config.routes.seniorities,
+    Services.SeniorityService,
+    Schemas.SenioritiesSchema,
 );
 export const UsersController = new MainResource(
     config.routes.users,

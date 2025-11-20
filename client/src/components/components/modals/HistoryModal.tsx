@@ -52,7 +52,6 @@ const HistoryModal = ({
             setTotal(response.data?.pagination?.total || 0);
             setTotalPages(response.data?.pagination?.totalPages || 1);
         } catch (err) {
-            console.error('Failed to load history:', err);
         } finally {
             setLoading(false);
         }

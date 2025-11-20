@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageController } from '@/core';
 import { Card, Button, SchemaForm } from '@/components';
+import { extractErrorMessage } from '@/lib/errorHandler';
 
 function CreatePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const [loading, setLoading] = useState(false);
@@ -14,8 +15,8 @@ function CreatePage<T extends { id: number }>({ controller }: { controller: Page
         try {
             await controller.service.create(data as Partial<T>);
             navigate(`/${controller.path}`);
-        } catch (err: any) {
-            setError(err.message || 'Failed to create resource');
+        } catch (err: unknown) {
+            setError(extractErrorMessage(err));
             setLoading(false);
         }
     };

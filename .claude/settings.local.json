@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s /b C:UsersowczaDesktopasset-managementserver*.ts 2)",
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(find:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(dir:*)",
+      "Bash(npm --prefix server run dev)",
+      "Bash(npm --prefix client run dev)",
+      "Bash(timeout /t 3)",
+      "Bash(ping:*)",
+      "Bash(move \"C:\\Users\\owcza\\Desktop\\asset-management\\client\\src\\lib\\lib\\errorHandler.ts\" \"C:\\Users\\owcza\\Desktop\\asset-management\\client\\src\\lib\\errorHandler.ts\")",
+      "Bash(cmd /c move:*)",
+      "Bash(npm install:*)",
+      "Bash(tasklist:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(timeout /t 2)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

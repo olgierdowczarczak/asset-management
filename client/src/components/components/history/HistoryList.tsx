@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { client } from '@/api';
 import { Card } from '@/components';
+import { extractErrorMessage } from '@/lib/errorHandler';
 
 interface HistoryEntry {
     id: number;
@@ -44,8 +45,8 @@ const HistoryList = ({
             });
             setHistory(response.data?.items || []);
             setTotal(response.data?.pagination?.total || 0);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load history');
+        } catch (err: unknown) {
+            setError(extractErrorMessage(err));
         } finally {
             setLoading(false);
         }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageController } from '@/core';
 import { Card, Button, SchemaForm } from '@/components';
+import { extractErrorMessage } from '@/lib/errorHandler';
 
 function EditPage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -35,9 +36,9 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
                 if (isMounted) {
                     setData(result);
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 if (isMounted) {
-                    setError(err.message || 'Failed to load resource');
+                    setError(extractErrorMessage(err));
                 }
             } finally {
                 if (isMounted) {
@@ -59,8 +60,8 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
         try {
             await controller.service.edit(Number(id), formData as Partial<T>);
             navigate(`/${controller.path}`);
-        } catch (err: any) {
-            setError(err.message || 'Failed to update resource');
+        } catch (err: unknown) {
+            setError(extractErrorMessage(err));
             setSaving(false);
         }
     };

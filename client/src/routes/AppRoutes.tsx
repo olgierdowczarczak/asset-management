@@ -21,6 +21,7 @@ const AppRoutes = () => {
                     <Route path={config.routes.logout} element={<LogoutRoute />} />
                     <Route element={<Layouts.AppLayout />}>
                         <Route path={config.routes.home} element={<Pages.HomePage />} />
+                        <Route path={config.routes.history} element={<Pages.HistoryPage />} />
                         {Object.values(Controllers).flatMap((controller) =>
                             controller.registeredRoutes.map((r) => (
                                 <Route

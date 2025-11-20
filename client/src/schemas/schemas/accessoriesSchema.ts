@@ -20,6 +20,15 @@ const accessoriesSchema: IResourceSchema = {
         showInDetail: true,
         placeholder: 'Enter accessory name',
     },
+    cost: {
+        type: 'number',
+        label: 'Cost',
+        min: 0,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter cost',
+    },
     quantity: {
         type: 'number',
         label: 'Quantity',

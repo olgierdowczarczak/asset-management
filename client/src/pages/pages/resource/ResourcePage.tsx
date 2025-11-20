@@ -12,6 +12,7 @@ import {
     UserHistoryList,
 } from '@/components';
 import { getDisplayValue, getCollectionPath } from '@/lib/schemaHelpers';
+import { extractErrorMessage } from '@/lib/errorHandler';
 
 function ResourcePage<T extends { id: number }>({ controller }: { controller: PageController<T> }) {
     const { id } = useParams<{ id: string }>();
@@ -35,8 +36,8 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
         try {
             const result = await controller.service.get(Number(id));
             setData(result);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load resource');
+        } catch (err: unknown) {
+            setError(extractErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -60,10 +61,14 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
         try {
             await controller.service.delete(Number(id));
             navigate(`/${controller.path}`);
-        } catch (err: any) {
-            console.error('Delete error:', err.message || 'Failed to delete resource');
+        } catch (err: unknown) {
             setDeleting(false);
         }
+    };
+
+    const handleCheckInOutSuccess = async () => {
+        await fetchData();
+        setCheckInOutModalOpen(false);
     };
 
     const renderFieldValue = (fieldName: string, value: any, fieldSchema: any) => {
@@ -123,7 +128,10 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                 return (
                     <span className="px-2 py-1 bg-gray-800 rounded text-sm">
                         {typeof value === 'string'
-                            ? value.charAt(0).toUpperCase() + value.slice(1)
+                            ? value
+                                  .split('_')
+                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ')
                             : value}
                     </span>
                 );
@@ -161,7 +169,7 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
     }
 
     const isMainAdmin = controller.path === 'users' && id === '1';
-    const supportsCheckInOut = ['assets', 'accessories', 'licenses'].includes(controller.path);
+    const supportsCheckInOut = ['assets'].includes(controller.path);
     const hasAssignee = data?.assignee;
 
     return (
@@ -269,29 +277,26 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
             </Modal>
 
             {supportsCheckInOut && (
-                <>
-                    <CheckInOutModal
-                        isOpen={checkInOutModalOpen}
-                        onClose={() => setCheckInOutModalOpen(false)}
-                        onSuccess={() => {
-                            fetchData();
-                        }}
-                        resourceId={Number(id)}
-                        resourceName={data?.name || controller.resourceName}
-                        resourceType={controller.path}
-                        currentAssignee={data?.assignee}
-                        currentAssigneeModel={data?.assigneeModel}
-                        currentActualAssigneeModel={data?.actualAssigneeModel}
-                    />
-                    <HistoryModal
-                        isOpen={historyModalOpen}
-                        onClose={() => setHistoryModalOpen(false)}
-                        resourceType={controller.path}
-                        resourceId={Number(id)}
-                        resourceName={data?.name || controller.resourceName}
-                    />
-                </>
+                <CheckInOutModal
+                    isOpen={checkInOutModalOpen}
+                    onClose={() => setCheckInOutModalOpen(false)}
+                    onSuccess={handleCheckInOutSuccess}
+                    resourceId={Number(id)}
+                    resourceName={data?.name || controller.resourceName}
+                    resourceType={controller.path}
+                    currentAssignee={data?.assignee}
+                    currentAssigneeModel={data?.assigneeModel}
+                    currentActualAssigneeModel={data?.actualAssigneeModel}
+                />
             )}
+
+            <HistoryModal
+                isOpen={historyModalOpen}
+                onClose={() => setHistoryModalOpen(false)}
+                resourceType={controller.path}
+                resourceId={Number(id)}
+                resourceName={data?.name || controller.resourceName}
+            />
 
             <div className="mt-6">
                 <HistoryList resourceType={controller.path} resourceId={Number(id)} />

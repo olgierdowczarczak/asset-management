@@ -55,7 +55,6 @@ const CheckInOutModal = ({
             setUsers(usersRes.data?.items || usersRes.data || []);
             setLocations(locationsRes.data?.items || locationsRes.data || []);
         } catch (error) {
-            console.error('Failed to load options:', error);
         } finally {
             setLoading(false);
         }
@@ -66,7 +65,6 @@ const CheckInOutModal = ({
             await handleCheckIn();
         } else {
             if (!selectedAssignee) {
-                console.error('Please select a user or location');
                 return;
             }
             await handleCheckOut();
@@ -84,12 +82,9 @@ const CheckInOutModal = ({
                 url = `/${resourceType}/${resourceId}/checkin`;
             }
             await client.post(url);
-            onSuccess();
+            await Promise.resolve(onSuccess());
             onClose();
         } catch (error: any) {
-            const errorMsg =
-                error.response?.data?.message || error.response?.data || 'Failed to check in';
-            console.error('Check-in error:', errorMsg);
         } finally {
             setSubmitting(false);
         }
@@ -124,12 +119,9 @@ const CheckInOutModal = ({
             }
 
             await client.post(url, payload);
-            onSuccess();
+            await Promise.resolve(onSuccess());
             onClose();
         } catch (error: any) {
-            const errorMsg =
-                error.response?.data?.message || error.response?.data || 'Failed to check out';
-            console.error('Check-out error:', errorMsg);
         } finally {
             setSubmitting(false);
         }

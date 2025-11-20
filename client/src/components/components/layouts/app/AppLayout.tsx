@@ -18,6 +18,9 @@ function AppLayout() {
         { name: 'Companies', path: config.routes.companies },
         { name: 'Departments', path: config.routes.departments },
         { name: 'Locations', path: config.routes.locations },
+        { name: 'Job Titles', path: config.routes.jobtitles },
+        { name: 'Seniorities', path: config.routes.seniorities },
+        { name: 'History', path: config.routes.history },
     ];
 
     const handleLogout = async () => {

@@ -53,6 +53,14 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number,
         ref: 'departments',
     },
+    jobtitle: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'jobtitles',
+    },
+    seniority: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'seniorities',
+    },
     isRemote: {
         type: Boolean,
     },

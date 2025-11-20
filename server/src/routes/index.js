@@ -10,8 +10,10 @@ export default (app) => {
     app.use(config.routes.companies, authMiddleware, Controllers.companies.router);
     app.use(config.routes.departments, authMiddleware, Controllers.departments.router);
     app.use(config.routes.history, authMiddleware, Controllers.history.router);
+    app.use(config.routes.jobtitles, authMiddleware, Controllers.jobtitles.router);
     app.use(config.routes.licenses, authMiddleware, Controllers.licenses.router);
     app.use(config.routes.licenses, authMiddleware, Controllers.licenseInstances.router);
     app.use(config.routes.locations, authMiddleware, Controllers.locations.router);
+    app.use(config.routes.seniorities, authMiddleware, Controllers.seniorities.router);
     app.use(config.routes.users, authMiddleware, Controllers.users.router);
 };

@@ -56,6 +56,16 @@ const getPopulateFields = (collectionName) => {
                 model: CollectionNames.departments,
                 select: 'id name',
             },
+            {
+                path: 'jobtitle',
+                model: CollectionNames.jobtitles,
+                select: 'id name',
+            },
+            {
+                path: 'seniority',
+                model: CollectionNames.seniorities,
+                select: 'id name',
+            },
         ],
         [CollectionNames.history]: [
             {

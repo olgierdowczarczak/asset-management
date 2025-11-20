@@ -4,9 +4,11 @@ import AssetsSchema from './assetsSchema.js';
 import CompaniesSchema from './companiesSchema.js';
 import DepartmentsSchema from './departmentsSchema.js';
 import HistorySchema from './historySchema.js';
+import JobtitlesSchema from './jobtitlesSchema.js';
 import LicensesSchema from './licensesSchema.js';
 import LicenseInstancesSchema from './licenseInstancesSchema.js';
 import LocationsSchema from './locationsSchema.js';
+import SenioritiesSchema from './senioritiesSchema.js';
 import UsersSchema from './usersSchema.js';
 import CollectionNames from '../constants/collectionNames.js';
 
@@ -17,8 +19,10 @@ export default {
     [CollectionNames.companies]: CompaniesSchema,
     [CollectionNames.departments]: DepartmentsSchema,
     [CollectionNames.history]: HistorySchema,
+    [CollectionNames.jobtitles]: JobtitlesSchema,
     [CollectionNames.licenses]: LicensesSchema,
     [CollectionNames.licenseInstances]: LicenseInstancesSchema,
     [CollectionNames.locations]: LocationsSchema,
+    [CollectionNames.seniorities]: SenioritiesSchema,
     [CollectionNames.users]: UsersSchema
 };

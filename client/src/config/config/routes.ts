@@ -6,8 +6,11 @@ const routes = {
     assets: 'assets',
     companies: 'companies',
     departments: 'departments',
+    history: 'history',
+    jobtitles: 'jobtitles',
     licenses: 'licenses',
     locations: 'locations',
+    seniorities: 'seniorities',
     users: 'users',
 };
 

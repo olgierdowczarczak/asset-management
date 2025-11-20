@@ -1,4 +1,5 @@
 export { default as HomePage } from './pages/home/HomePage';
+export { default as HistoryPage } from './pages/history/HistoryPage';
 export { default as LoginPage } from './pages/login/LoginPage';
 export { default as ResourceCreatePage } from './pages/resource/CreatePage';
 export { default as ResourceEditPage } from './pages/resource/EditPage';
