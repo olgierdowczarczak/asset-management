@@ -77,7 +77,10 @@ function MainPage<T extends { id: number }>({ controller }: { controller: PageCo
     return (
         <div>
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-100">{controller.resourceName}</h1>
+                <h1 className="text-2xl font-bold text-gray-100">
+                    {controller.resourceName.charAt(0).toUpperCase() +
+                        controller.resourceName.slice(1)}
+                </h1>
                 <Button onClick={() => navigate(`/${controller.path}/create`)}>Add New</Button>
             </div>
 

@@ -79,9 +79,13 @@ function EditPage<T extends { id: number }>({ controller }: { controller: PageCo
     return (
         <div className="max-w-2xl mx-auto">
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-100">Edit {controller.resourceName}</h1>
+                <h1 className="text-2xl font-bold text-gray-100">
+                    Edit{' '}
+                    {controller.resourceName.charAt(0).toUpperCase() +
+                        controller.resourceName.slice(1)}
+                </h1>
                 <Button variant="secondary" onClick={() => navigate(`/${controller.path}/${id}`)}>
-                    Back to Details
+                    Back
                 </Button>
             </div>
 

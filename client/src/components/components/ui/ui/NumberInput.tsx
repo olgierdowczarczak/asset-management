@@ -5,12 +5,13 @@ interface NumberInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, '
 }
 
 const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
-    ({ error, className = '', ...props }, ref) => {
+    ({ error, className = '', step = 'any', ...props }, ref) => {
         return (
             <div className="w-full">
                 <input
                     ref={ref}
                     type="number"
+                    step={step}
                     className={`w-full px-3 py-2 bg-gray-900 border ${
                         error
                             ? 'border-red-500 focus:ring-red-500'

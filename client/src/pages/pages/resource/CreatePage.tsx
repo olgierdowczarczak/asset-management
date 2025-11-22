@@ -25,7 +25,9 @@ function CreatePage<T extends { id: number }>({ controller }: { controller: Page
         <div className="max-w-2xl mx-auto">
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-100">
-                    Create {controller.resourceName}
+                    Create{' '}
+                    {controller.resourceName.charAt(0).toUpperCase() +
+                        controller.resourceName.slice(1)}
                 </h1>
                 <Button variant="secondary" onClick={() => navigate(`/${controller.path}`)}>
                     Back to List

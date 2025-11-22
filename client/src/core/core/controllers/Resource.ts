@@ -1,9 +1,10 @@
 import * as Pages from '@/pages';
 import PageHandler from '../PageHandler';
+import type { IResourceSchema } from '@/types';
 
 class Resource<S> extends PageHandler<S> {
-    constructor(resourceName: string, service: S) {
-        super(resourceName, service);
+    constructor(resourceName: string, service: S, schema?: IResourceSchema) {
+        super(resourceName, service, schema);
         this.registerRoute('/', Pages.ResourceMainPage);
         this.registerRoute('/create', Pages.ResourceCreatePage);
         this.registerRoute('/:id', Pages.ResourceResourcePage);

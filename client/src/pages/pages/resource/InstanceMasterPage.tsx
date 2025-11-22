@@ -185,7 +185,10 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                 return (
                     <span className="px-2 py-1 bg-gray-800 rounded text-sm">
                         {typeof value === 'string'
-                            ? value.charAt(0).toUpperCase() + value.slice(1)
+                            ? value
+                                  .split('_')
+                                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                  .join(' ')
                             : value}
                     </span>
                 );
@@ -257,7 +260,8 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
         <div className="max-w-7xl mx-auto">
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-100">
-                    {controller.resourceName} Details
+                    {controller.resourceName.charAt(0).toUpperCase() +
+                        controller.resourceName.slice(1)}
                 </h1>
                 <div className="flex gap-2">
                     <Button

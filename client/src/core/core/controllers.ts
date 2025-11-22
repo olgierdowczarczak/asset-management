@@ -2,6 +2,7 @@ import config from '@/config';
 import * as Services from '@/services';
 import * as Schemas from '@/schemas';
 import MainResource from './controllers/MainResource';
+import Resource from './controllers/Resource';
 import InstanceMasterResource from './controllers/InstanceMasterResource';
 
 export const AccessoriesController = new InstanceMasterResource(
@@ -26,7 +27,7 @@ export const DepartmentsController = new MainResource(
     Services.DepartmentService,
     Schemas.DepartmentsSchema,
 );
-export const JobtitlesController = new MainResource(
+export const JobtitlesController = new Resource(
     config.routes.jobtitles,
     Services.JobtitleService,
     Schemas.JobtitlesSchema,
@@ -43,7 +44,7 @@ export const LocationsController = new MainResource(
     Services.LocationService,
     Schemas.LocationsSchema,
 );
-export const SenioritiesController = new MainResource(
+export const SenioritiesController = new Resource(
     config.routes.seniorities,
     Services.SeniorityService,
     Schemas.SenioritiesSchema,

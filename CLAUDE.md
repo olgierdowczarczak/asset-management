@@ -53,6 +53,7 @@ The frontend uses a sophisticated abstraction layer that eliminates repetitive C
 1. **PageHandler** - Base class providing resource management, route registration, service integration, and schema attachment
 2. **MainResource** extends PageHandler - Registers standard routes (list, create, detail, edit, history, delete)
 3. **Resource** extends PageHandler - Similar but without history route
+4. **InstanceMasterResource** extends PageHandler - Like MainResource but detail view replaced with InstanceMasterPage for managing individual instances
 
 **Dynamic Routing:**
 Routes are generated automatically from controller definitions in `client/src/core/core/controllers.ts`:
@@ -98,9 +99,11 @@ The most powerful pattern in the codebase - UI components are generated from sch
    - Check-in/check-out workflow
    - Automatic history logging
    - Cascade reference cleanup on deletion
+   - Automatic instance creation/deletion when quantity changes (for accessories/licenses)
 
-3. **Auth** extends Endpoint - JWT authentication with refresh tokens
-4. **History** extends Endpoint - Audit trail endpoints
+3. **Instance** extends Endpoint - Instance management for accessories/licenses (see Instance Management System)
+4. **Auth** extends Endpoint - JWT authentication with refresh tokens
+5. **History** extends Endpoint - Audit trail endpoints
 
 All controllers are instantiated generically - you pass a collection name and the base controller handles all operations.
 
@@ -144,6 +147,37 @@ Assets, Accessories, and Licenses support check-in/check-out:
 - Both operations log to history with assignee details
 - Frontend modal (`CheckInOutModal.tsx`) handles UI for both operations
 
+### Instance Management System
+
+Accessories and Licenses support **instance-level management** - instead of checking in/out the entire item, individual instances can be tracked separately.
+
+**Automatic Instance Creation:**
+- Accessories and Licenses have a `quantity` field
+- When quantity is updated, instances are automatically created/deleted in `accessory-instances` or `license-instances` collections
+- Each instance gets: `parentId`, `instanceNumber` (1-based), `status` ('available'/'assigned'), and polymorphic assignee fields
+- Increasing quantity creates new instances with sequential instance numbers
+- Decreasing quantity removes available (unassigned) instances from the end
+- System prevents reducing quantity below number of assigned instances
+
+**Backend Controller (Instance extends Endpoint):**
+- Routes: `/:id/instances` (list), `/:id/instances/:instanceId/checkin`, `/:id/instances/:instanceId/checkout`, `/instances/stats`
+- Handles polymorphic population of instance assignees
+- Validates that instances belong to parent resource
+- Logs check-in/check-out to history with parent context
+
+**Frontend Integration:**
+- `InstanceMasterResource` controller class combines parent resource + instance management
+- `InstanceMasterPage` displays parent details + paginated table of instances with check-in/out buttons
+- `InstanceService` provides API methods: `getInstances`, `checkInInstance`, `checkOutInstance`, `getStats`
+- Instance schemas (`accessoryInstancesSchema`, `licenseInstancesSchema`) define UI for instance tables
+
+**Assigned Count Enrichment:**
+- When fetching Accessories or Licenses, the Model controller automatically adds an `assignedCount` field
+- Shows how many instances are currently assigned (useful for "15 of 50 assigned" displays)
+
+**Use Case:**
+Instead of "Check out Mouse (quantity: 50)", you can "Check out Mouse #23 to John Doe" and track each individual mouse separately.
+
 ### Database Patterns
 
 - **Custom numeric IDs:** Uses `id` field (number) instead of MongoDB's `_id` for user-friendly IDs
@@ -182,6 +216,7 @@ Assets, Accessories, and Licenses use `isDeleted` flag:
 
 ## Adding a New Resource
 
+**Standard Resource:**
 1. Define Mongoose schema in `common/schemas/`
 2. Add collection name constant to `common/constants/collectionNames.js`
 3. Create controller instance in `server/src/controllers/index.js`:
@@ -198,6 +233,22 @@ Assets, Accessories, and Licenses use `isDeleted` flag:
 8. Add route config to `client/src/config/routes.ts`
 
 The framework handles the rest automatically - no need to create custom CRUD endpoints, forms, tables, or pages.
+
+**Instance-Managed Resource (like Accessories/Licenses):**
+Follow steps 1-8 above, then additionally:
+9. Define instance Mongoose schema in `common/schemas/` (e.g., `resourceInstancesSchema.js`)
+10. Add instance collection name to `common/constants/collectionNames.js`
+11. Create Instance controller in `server/src/controllers/index.js`:
+   ```javascript
+   new Instance('resource-name')
+   ```
+12. Register instance routes in `server/src/routes/index.js`
+13. Define instance UI schema in `client/src/schemas/schemas/`
+14. Create InstanceService in `client/src/services/services/`
+15. Use `InstanceMasterResource` instead of `MainResource` in step 7:
+   ```typescript
+   new InstanceMasterResource(route, service, schema, instanceService, instanceSchema)
+   ```
 
 ## Important Implementation Notes
 
@@ -239,15 +290,23 @@ When a field is cleared via the X button, it should call `handleChange(fieldName
 
 ## Resource Types
 
-The system manages 8 resource types:
+The system manages 12 resource types:
+
+**Main Resources:**
 1. **Assets** - Trackable items (check-in/out enabled)
-2. **Accessories** - Trackable items with quantity (check-in/out enabled)
-3. **Licenses** - Software licenses (check-in/out enabled)
+2. **Accessories** - Trackable items with quantity (check-in/out enabled, instance management)
+3. **Licenses** - Software licenses (check-in/out enabled, instance management)
 4. **Users** - System users with roles (admin/user)
 5. **Companies** - Organizations with owner reference
 6. **Departments** - Business units with manager reference
 7. **Locations** - Physical locations with parent/manager/company references
-8. **History** - Audit log (read-only)
+8. **Job Titles** - Simple lookup table for user job titles
+9. **Seniorities** - Simple lookup table for user seniority levels
+
+**System Resources:**
+10. **Accessory Instances** - Individual instances of accessories (auto-managed)
+11. **License Instances** - Individual instances of licenses (auto-managed)
+12. **History** - Audit log (read-only)
 
 ## Code Organization
 

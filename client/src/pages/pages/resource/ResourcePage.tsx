@@ -170,13 +170,15 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
 
     const isMainAdmin = controller.path === 'users' && id === '1';
     const supportsCheckInOut = ['assets'].includes(controller.path);
+    const supportsHistory = !['jobtitles', 'seniorities'].includes(controller.path);
     const hasAssignee = data?.assignee;
 
     return (
         <div className="max-w-4xl mx-auto">
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-100">
-                    {controller.resourceName} Details
+                    {controller.resourceName.charAt(0).toUpperCase() +
+                        controller.resourceName.slice(1)}
                 </h1>
                 <div className="flex gap-2">
                     {supportsCheckInOut && (
@@ -194,13 +196,15 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                             >
                                 Edit
                             </Button>
-                            <Button
-                                variant="secondary"
-                                onClick={() => setHistoryModalOpen(true)}
-                                disabled={loading}
-                            >
-                                History
-                            </Button>
+                            {supportsHistory && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => setHistoryModalOpen(true)}
+                                    disabled={loading}
+                                >
+                                    History
+                                </Button>
+                            )}
                             <Button
                                 variant="secondary"
                                 onClick={handleDeleteClick}
@@ -290,17 +294,21 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                 />
             )}
 
-            <HistoryModal
-                isOpen={historyModalOpen}
-                onClose={() => setHistoryModalOpen(false)}
-                resourceType={controller.path}
-                resourceId={Number(id)}
-                resourceName={data?.name || controller.resourceName}
-            />
+            {supportsHistory && (
+                <>
+                    <HistoryModal
+                        isOpen={historyModalOpen}
+                        onClose={() => setHistoryModalOpen(false)}
+                        resourceType={controller.path}
+                        resourceId={Number(id)}
+                        resourceName={data?.name || controller.resourceName}
+                    />
 
-            <div className="mt-6">
-                <HistoryList resourceType={controller.path} resourceId={Number(id)} />
-            </div>
+                    <div className="mt-6">
+                        <HistoryList resourceType={controller.path} resourceId={Number(id)} />
+                    </div>
+                </>
+            )}
 
             {controller.path === 'users' && (
                 <div className="mt-6">
