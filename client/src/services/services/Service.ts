@@ -2,6 +2,7 @@ import type { AxiosInstance } from 'axios';
 
 type RequestOptions = {
     params?: Record<string, any>;
+    query?: Record<string, any>;
     body?: any;
 };
 
@@ -26,10 +27,13 @@ class Service {
             }
         }
         const url = `${this.route}${finalEndpoint}`;
+
+        const config = options.query ? { params: options.query } : {};
+
         if (method === 'get' || method === 'delete') {
-            return this.client[method](url);
+            return this.client[method](url, config);
         }
-        return this.client[method](url, options.body);
+        return this.client[method](url, options.body, config);
     }
 }
 

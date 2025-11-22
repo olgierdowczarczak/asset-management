@@ -4,13 +4,16 @@ import { models } from '../models/index.js';
  * @param {String} collectionName
  */
 const getModelByName = (collectionName) => {
-    const capitalizeFirstLetter = () => {
+    const toPascalCase = () => {
         if (!collectionName) {
             return '';
         }
-        return collectionName.charAt(0).toUpperCase() + collectionName.slice(1).toLowerCase();
+        return collectionName
+            .split('-')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join('');
     };
-    return models[capitalizeFirstLetter()];
+    return models[toPascalCase()];
 };
 
 export default getModelByName;

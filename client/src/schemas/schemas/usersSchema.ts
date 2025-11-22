@@ -1,0 +1,146 @@
+import type { IResourceSchema, IPopulatedReference } from '@/types';
+
+export type User = {
+    id: number;
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: 'user' | 'admin';
+    location?: number | IPopulatedReference;
+    company?: number | IPopulatedReference;
+    department?: number | IPopulatedReference;
+    jobtitle?: number | IPopulatedReference;
+    seniority?: number | IPopulatedReference;
+    isRemote?: boolean;
+    isRemembered?: boolean;
+    isDeleted?: boolean;
+};
+
+const usersSchema: IResourceSchema = {
+    id: {
+        type: 'number',
+        label: 'ID',
+        readonly: true,
+        showInTable: true,
+        showInForm: false,
+        showInDetail: true,
+    },
+    username: {
+        type: 'string',
+        label: 'Username',
+        required: true,
+        minLength: 2,
+        maxLength: 31,
+        showInTable: false,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter username',
+    },
+    email: {
+        type: 'email',
+        label: 'Email',
+        required: true,
+        maxLength: 127,
+        showInTable: false,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'user@example.com',
+    },
+    firstName: {
+        type: 'string',
+        label: 'First Name',
+        required: true,
+        minLength: 2,
+        maxLength: 31,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter first name',
+    },
+    lastName: {
+        type: 'string',
+        label: 'Last Name',
+        required: true,
+        minLength: 2,
+        maxLength: 31,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter last name',
+    },
+    role: {
+        type: 'enum',
+        label: 'Role',
+        enumValues: ['user', 'admin'] as const,
+        default: 'user',
+        showInTable: false,
+        showInForm: true,
+        showInDetail: true,
+    },
+    password: {
+        type: 'password',
+        label: 'Password',
+        requiredIf: { field: 'role', value: 'admin' },
+        minLength: 8,
+        maxLength: 64,
+        showInTable: false,
+        showInForm: true,
+        showInDetail: false,
+        placeholder: 'Enter password',
+    },
+    location: {
+        type: 'reference',
+        label: 'Location',
+        referencedCollection: 'locations',
+        displayField: 'name',
+        showInTable: false,
+        showInForm: true,
+        showInDetail: true,
+    },
+    company: {
+        type: 'reference',
+        label: 'Company',
+        referencedCollection: 'companies',
+        displayField: 'name',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    department: {
+        type: 'reference',
+        label: 'Department',
+        referencedCollection: 'departments',
+        displayField: 'name',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    jobtitle: {
+        type: 'reference',
+        label: 'Job Title',
+        referencedCollection: 'jobtitles',
+        displayField: 'name',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    seniority: {
+        type: 'reference',
+        label: 'Seniority',
+        referencedCollection: 'seniorities',
+        displayField: 'name',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    isRemote: {
+        type: 'boolean',
+        label: 'Remote Worker',
+        showInTable: false,
+        showInForm: true,
+        showInDetail: true,
+    },
+};
+
+export default usersSchema;

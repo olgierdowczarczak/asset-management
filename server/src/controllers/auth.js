@@ -30,21 +30,23 @@ class Auth extends Endpoint {
             if (!username || !password) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send(ConstMessages.usernameAndPasswordAreRequired);
+                    .send({ message: ConstMessages.usernameAndPasswordAreRequired });
             }
             const user = await Users.findOne({ username });
             if (!user) {
-                return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notFound);
+                return response
+                    .status(StatusCodes.NOT_FOUND)
+                    .send({ message: ConstMessages.notExists });
             }
 
             const isPasswordCorrect = await compareData(password, user.password);
             if (!isPasswordCorrect) {
                 return response
                     .status(StatusCodes.UNAUTHORIZED)
-                    .send(ConstMessages.invalidCredentials);
+                    .send({ message: ConstMessages.invalidCredentials });
             }
 
-            const { _id, id, role } = user;
+            const { _id } = user;
             const access_token = Token.generateAccessToken(_id, isRemembered);
             if (isRemembered) {
                 await Users.findOneAndUpdate({ _id }, { $set: { isRemembered: true } });
@@ -56,11 +58,13 @@ class Auth extends Endpoint {
                 Token.generateRefreshToken(_id),
                 ConstantsValues.thirtyDays,
             );
-            response.status(StatusCodes.OK).json({ user: { id, username, role }, access_token });
+
+            const userResponse = user.toObject();
+            delete userResponse.password;
+            response.status(StatusCodes.OK).json({ user: userResponse, access_token });
         } catch (error) {
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send(validateError(error) || ConstMessages.internalServerError);
+            const errorMessage = validateError(error) || ConstMessages.internalServerError;
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -73,11 +77,10 @@ class Auth extends Endpoint {
             const { _id } = request.user;
             await Users.findOneAndUpdate({ _id }, { $unset: { isRemembered: '' } });
             clearCookie(response, ConstMessages.refreshToken);
-            response.status(StatusCodes.OK).send(ConstMessages.actionSucceed);
+            response.status(StatusCodes.OK).send({ message: ConstMessages.actionSucceed });
         } catch (error) {
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send(validateError(error) || ConstMessages.internalServerError);
+            const errorMessage = validateError(error) || ConstMessages.internalServerError;
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -97,9 +100,8 @@ class Auth extends Endpoint {
             );
             response.status(StatusCodes.OK).json(access_token);
         } catch (error) {
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send(validateError(error) || ConstMessages.internalServerError);
+            const errorMessage = validateError(error) || ConstMessages.internalServerError;
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 
@@ -109,12 +111,14 @@ class Auth extends Endpoint {
      */
     async getMe(request, response) {
         try {
-            const { id, username, role } = request.user;
-            response.status(StatusCodes.OK).json({ id, username, role });
+            const userResponse = request.user.toObject
+                ? request.user.toObject()
+                : { ...request.user };
+            delete userResponse.password;
+            response.status(StatusCodes.OK).json(userResponse);
         } catch (error) {
-            response
-                .status(StatusCodes.BAD_REQUEST)
-                .send(validateError(error) || ConstMessages.internalServerError);
+            const errorMessage = validateError(error) || ConstMessages.internalServerError;
+            response.status(StatusCodes.BAD_REQUEST).send({ message: errorMessage });
         }
     }
 }

@@ -21,9 +21,10 @@ function useRefreshToken(api: AxiosInstance) {
                 } catch (err) {
                     localStorage.removeItem('access_token');
                     window.location.href = config.routes.login;
+                    return Promise.reject(err);
                 }
-                return Promise.reject(error);
             }
+            return Promise.reject(error);
         },
     );
 }

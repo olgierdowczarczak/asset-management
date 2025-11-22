@@ -11,7 +11,6 @@ const schema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
         minlength: [8, 'Password is shorter than the minimum allowed length (8)'],
         maxlength: [64, 'Password is longer than the maximum allowed length (64)'],
     },
@@ -20,7 +19,7 @@ const schema = new mongoose.Schema({
         required: true,
         unique: true,
         match: [/^\S+@\S+\.\S+$/, 'Invalid form'],
-        maxlength: [127, 'Email is longer than the maximum allowed length (31)'],
+        maxlength: [127, 'Email is longer than the maximum allowed length (127)'],
     },
     firstName: {
         type: String,
@@ -33,11 +32,6 @@ const schema = new mongoose.Schema({
         required: [true, 'Lastname is required'],
         minlength: [2, 'Lastname is shorter than the minimum allowed length (2)'],
         maxlength: [31, 'Lastname is longer than the maximum allowed length (31)'],
-    },
-    middleName: {
-        type: String,
-        minlength: [2, 'Middlename is shorter than the minimum allowed length (2)'],
-        maxlength: [31, 'Middlename is longer than the maximum allowed length (31)'],
     },
     role: {
         type: String,
@@ -59,6 +53,14 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number,
         ref: 'departments',
     },
+    jobtitle: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'jobtitles',
+    },
+    seniority: {
+        type: mongoose.Schema.Types.Number,
+        ref: 'seniorities',
+    },
     isRemote: {
         type: Boolean,
     },
@@ -72,7 +74,7 @@ const schema = new mongoose.Schema({
         type: Number,
         unique: [true, 'User already exists'],
         immutable: true,
-    }
+    },
 }, { versionKey: false });
 
 schema.pre('save', async function save(next) {
@@ -86,6 +88,6 @@ schema.pre('save', async function save(next) {
     } catch (err) {
         return next(err);
     }
-})
+});
 
 export default schema;

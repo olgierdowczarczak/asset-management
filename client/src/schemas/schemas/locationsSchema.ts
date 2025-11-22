@@ -1,0 +1,73 @@
+import type { IResourceSchema } from '@/types';
+
+const locationsSchema: IResourceSchema = {
+    id: {
+        type: 'number',
+        label: 'ID',
+        readonly: true,
+        showInTable: true,
+        showInForm: false,
+        showInDetail: true,
+    },
+    name: {
+        type: 'string',
+        label: 'Name',
+        required: true,
+        minLength: 2,
+        maxLength: 31,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter location name',
+    },
+    company: {
+        type: 'reference',
+        label: 'Company',
+        referencedCollection: 'companies',
+        displayField: 'name',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    manager: {
+        type: 'reference',
+        label: 'Manager',
+        referencedCollection: 'users',
+        displayField: 'fullName',
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    parent: {
+        type: 'reference',
+        label: 'Parent Location',
+        referencedCollection: 'locations',
+        displayField: 'name',
+        excludeSelfFromOptions: true,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+    },
+    city: {
+        type: 'string',
+        label: 'City',
+        minLength: 2,
+        maxLength: 63,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter city name',
+    },
+    address: {
+        type: 'string',
+        label: 'Address',
+        minLength: 2,
+        maxLength: 127,
+        showInTable: true,
+        showInForm: true,
+        showInDetail: true,
+        placeholder: 'Enter street address',
+    },
+};
+
+export default locationsSchema;

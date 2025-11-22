@@ -1,5 +1,5 @@
 const environmentNames = {
-    dev: 'dev',
+    development: 'development',
     production: 'production'
 };
 
