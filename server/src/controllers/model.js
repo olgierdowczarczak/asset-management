@@ -4,8 +4,11 @@ import logHistory from 'asset-management-common/helpers/logHistory.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
+import validateId from '../lib/helpers/validateId.js';
 import getModelByName from '../lib/helpers/getModelByName.js';
 import getPopulateFields from '../lib/helpers/getPopulateFields.js';
+import handlePolymorphicPopulate from '../lib/helpers/handlePolymorphicPopulate.js';
+import config from '../config/index.js';
 
 class Model extends Endpoint {
     constructor(endpoint) {
@@ -90,40 +93,12 @@ class Model extends Endpoint {
             return items;
         }
 
-        const { models } = await import('../lib/models/index.js');
-        const isArray = Array.isArray(items);
-        const itemsArray = isArray ? items : [items];
-
-        for (const item of itemsArray) {
-            if (item && item.assignee !== null && item.assignee !== undefined) {
-                const modelToUse =
-                    item.assigneeModel === 'common' ? item.actualAssigneeModel : item.assigneeModel;
-
-                if (!modelToUse) {
-                    continue;
-                }
-
-                const capitalizedName = modelToUse.charAt(0).toUpperCase() + modelToUse.slice(1);
-                const Model = models[capitalizedName];
-
-                if (Model) {
-                    const refDoc = await Model.findOne({ id: item.assignee })
-                        .select('id name username firstName lastName')
-                        .lean();
-
-                    if (refDoc) {
-                        item.assignee = refDoc;
-                    }
-                }
-            }
-        }
-
-        return isArray ? itemsArray : itemsArray[0];
+        return handlePolymorphicPopulate(items);
     }
 
     async getItems(request, response) {
         try {
-            const { page = 1, limit = 10 } = request.query;
+            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
             const filters = request.body || {};
             const collectionsWithSoftDelete = [
                 CollectionNames.assets,
@@ -136,7 +111,7 @@ class Model extends Endpoint {
             }
 
             const pageNum = Math.max(1, parseInt(page));
-            const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+            const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const total = await this._collection.countDocuments(filters);
             let items = await this._collection.find(filters).skip(skip).limit(limitNum).lean();
@@ -199,7 +174,7 @@ class Model extends Endpoint {
 
     async getItem(request, response) {
         try {
-            const { id } = request.params;
+            const id = validateId(request.params.id);
             let item = await this._collection.findOne({ id }).lean();
             if (!item) {
                 return response
@@ -243,8 +218,8 @@ class Model extends Endpoint {
     async updateItem(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id } = request.params;
-            if (this._collectionName === CollectionNames.users && Number(id) === 1) {
+            const id = validateId(request.params.id);
+            if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
                     .status(StatusCodes.FORBIDDEN)
                     .send({ message: 'Cannot edit the main administrator account' });
@@ -514,8 +489,8 @@ class Model extends Endpoint {
     async deleteItem(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id } = request.params;
-            if (this._collectionName === CollectionNames.users && Number(id) === 1) {
+            const id = validateId(request.params.id);
+            if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
                     .status(StatusCodes.FORBIDDEN)
                     .send({ message: 'Cannot delete the main administrator account' });
@@ -614,7 +589,7 @@ class Model extends Endpoint {
     async checkIn(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id } = request.params;
+            const id = validateId(request.params.id);
             const item = await this._collection.findOne({ id });
             if (!item) {
                 return response
@@ -691,7 +666,7 @@ class Model extends Endpoint {
     async checkOut(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id } = request.params;
+            const id = validateId(request.params.id);
             const { assigneeModel, actualAssigneeModel, assignee } = request.body;
             if (!assignee || !actualAssigneeModel) {
                 return response

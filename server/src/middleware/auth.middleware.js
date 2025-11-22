@@ -45,8 +45,7 @@ export default async function (request, response, next) {
         request.user = user;
         next();
     } catch (err) {
-        response
-            .status(StatusCodes.UNAUTHORIZED)
-            .send(validateError(err) || ConstMessages.internalServerError);
+        const errorMessage = validateError(err) || ConstMessages.internalServerError;
+        response.status(StatusCodes.UNAUTHORIZED).send({ message: errorMessage });
     }
 }

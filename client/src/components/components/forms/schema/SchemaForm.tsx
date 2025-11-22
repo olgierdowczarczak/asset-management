@@ -560,7 +560,7 @@ const SchemaForm = ({
                                     handleChange(fieldName, undefined);
                                     handleChange('actualAssigneeModel', undefined);
                                 } else {
-                                    const [type, id] = newValue.split(':');
+                                    const [type, id] = String(newValue).split(':');
                                     handleChange(fieldName, Number(id));
                                     handleChange('actualAssigneeModel', type);
                                 }

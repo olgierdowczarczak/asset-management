@@ -22,6 +22,7 @@ export { default as LicenseInstancesSchema } from './schemas/licenseInstancesSch
 export { default as LocationsSchema } from './schemas/locationsSchema';
 export { default as SenioritiesSchema } from './schemas/senioritiesSchema';
 export { default as UsersSchema } from './schemas/usersSchema';
+export type { User } from './schemas/usersSchema';
 
 export const schemas: Record<string, IResourceSchema> = {
     accessories: AccessoriesSchema,

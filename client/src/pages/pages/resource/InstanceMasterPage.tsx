@@ -369,7 +369,7 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                                         size="sm"
                                         variant="secondary"
                                         onClick={() => fetchInstances(pagination.page - 1)}
-                                        disabled={!pagination.hasPrev || instancesLoading}
+                                        disabled={pagination.page <= 1 || instancesLoading}
                                     >
                                         Previous
                                     </Button>
@@ -377,7 +377,10 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                                         size="sm"
                                         variant="secondary"
                                         onClick={() => fetchInstances(pagination.page + 1)}
-                                        disabled={!pagination.hasNext || instancesLoading}
+                                        disabled={
+                                            pagination.page >= pagination.totalPages ||
+                                            instancesLoading
+                                        }
                                     >
                                         Next
                                     </Button>

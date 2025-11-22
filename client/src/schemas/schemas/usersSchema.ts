@@ -1,4 +1,21 @@
-import type { IResourceSchema } from '@/types';
+import type { IResourceSchema, IPopulatedReference } from '@/types';
+
+export type User = {
+    id: number;
+    username: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: 'user' | 'admin';
+    location?: number | IPopulatedReference;
+    company?: number | IPopulatedReference;
+    department?: number | IPopulatedReference;
+    jobtitle?: number | IPopulatedReference;
+    seniority?: number | IPopulatedReference;
+    isRemote?: boolean;
+    isRemembered?: boolean;
+    isDeleted?: boolean;
+};
 
 const usersSchema: IResourceSchema = {
     id: {

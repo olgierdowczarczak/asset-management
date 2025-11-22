@@ -19,6 +19,7 @@ interface ChartData {
     name: string;
     value: number;
     count: number;
+    [key: string]: string | number;
 }
 
 interface HistoryEntry {

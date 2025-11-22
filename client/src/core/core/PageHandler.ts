@@ -46,7 +46,7 @@ class PageHandler<T> {
             try {
                 return await fn(...args);
             } catch (error: any) {
-                const errorMessage = validateError(error, 'Unexpected error');
+                validateError(error, 'Unexpected error');
                 throw error;
             }
         };

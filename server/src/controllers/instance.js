@@ -3,7 +3,10 @@ import logHistory from 'asset-management-common/helpers/logHistory.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
+import validateId from '../lib/helpers/validateId.js';
 import getModelByName from '../lib/helpers/getModelByName.js';
+import handlePolymorphicPopulate from '../lib/helpers/handlePolymorphicPopulate.js';
+import config from '../config/index.js';
 
 class Instance extends Endpoint {
     constructor(parentEndpoint) {
@@ -29,43 +32,15 @@ class Instance extends Endpoint {
     }
 
     async _handlePolymorphicPopulate(items) {
-        const { models } = await import('../lib/models/index.js');
-        const isArray = Array.isArray(items);
-        const itemsArray = isArray ? items : [items];
-
-        for (const item of itemsArray) {
-            if (item && item.assignee !== null && item.assignee !== undefined) {
-                const modelToUse =
-                    item.assigneeModel === 'common' ? item.actualAssigneeModel : item.assigneeModel;
-
-                if (!modelToUse) {
-                    continue;
-                }
-
-                const capitalizedName = modelToUse.charAt(0).toUpperCase() + modelToUse.slice(1);
-                const Model = models[capitalizedName];
-
-                if (Model) {
-                    const refDoc = await Model.findOne({ id: item.assignee })
-                        .select('id name username firstName lastName')
-                        .lean();
-
-                    if (refDoc) {
-                        item.assignee = refDoc;
-                    }
-                }
-            }
-        }
-
-        return isArray ? itemsArray : itemsArray[0];
+        return handlePolymorphicPopulate(items);
     }
 
     async getInstances(request, response) {
         try {
-            const { id } = request.params;
-            const { page = 1, limit = 10 } = request.query;
+            const id = validateId(request.params.id);
+            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
 
-            const parent = await this._parentCollection.findOne({ id: Number(id) }).lean();
+            const parent = await this._parentCollection.findOne({ id }).lean();
             if (!parent) {
                 return response
                     .status(StatusCodes.NOT_FOUND)
@@ -73,12 +48,12 @@ class Instance extends Endpoint {
             }
 
             const pageNum = Math.max(1, parseInt(page));
-            const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+            const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
 
-            const total = await this._collection.countDocuments({ parentId: Number(id) });
+            const total = await this._collection.countDocuments({ parentId: id });
             let items = await this._collection
-                .find({ parentId: Number(id) })
+                .find({ parentId: id })
                 .sort({ instanceNumber: 1 })
                 .skip(skip)
                 .limit(limitNum)
@@ -126,9 +101,10 @@ class Instance extends Endpoint {
     async checkInInstance(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id, instanceId } = request.params;
+            const id = validateId(request.params.id);
+            const instanceId = validateId(request.params.instanceId);
 
-            const parent = await this._parentCollection.findOne({ id: Number(id) }).lean();
+            const parent = await this._parentCollection.findOne({ id }).lean();
             if (!parent) {
                 return response
                     .status(StatusCodes.NOT_FOUND)
@@ -136,8 +112,8 @@ class Instance extends Endpoint {
             }
 
             const instance = await this._collection.findOne({
-                id: Number(instanceId),
-                parentId: Number(id),
+                id: instanceId,
+                parentId: id,
             });
             if (!instance) {
                 return response
@@ -184,7 +160,7 @@ class Instance extends Endpoint {
 
             let updatedInstance = await this._collection
                 .findOneAndUpdate(
-                    { id: Number(instanceId) },
+                    { id: instanceId },
                     {
                         $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
                         $set: { status: 'available' },
@@ -195,11 +171,11 @@ class Instance extends Endpoint {
 
             await logHistory(models.History, {
                 resourceType: this._instanceCollectionName,
-                resourceId: Number(instanceId),
+                resourceId: instanceId,
                 action: 'checkin',
                 metadata: {
                     name: `${parent.name} #${instance.instanceNumber}`,
-                    parentId: Number(id),
+                    parentId: id,
                     parentName: parent.name,
                     previousAssignee,
                     previousAssigneeName,
@@ -219,7 +195,8 @@ class Instance extends Endpoint {
     async checkOutInstance(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { id, instanceId } = request.params;
+            const id = validateId(request.params.id);
+            const instanceId = validateId(request.params.instanceId);
             const { assigneeModel, actualAssigneeModel, assignee } = request.body;
             if (!assignee || !actualAssigneeModel) {
                 return response
@@ -227,7 +204,7 @@ class Instance extends Endpoint {
                     .send({ message: 'assignee and actualAssigneeModel are required' });
             }
 
-            const parent = await this._parentCollection.findOne({ id: Number(id) }).lean();
+            const parent = await this._parentCollection.findOne({ id }).lean();
             if (!parent) {
                 return response
                     .status(StatusCodes.NOT_FOUND)
@@ -235,8 +212,8 @@ class Instance extends Endpoint {
             }
 
             const instance = await this._collection.findOne({
-                id: Number(instanceId),
-                parentId: Number(id),
+                id: instanceId,
+                parentId: id,
             });
             if (!instance) {
                 return response
@@ -271,12 +248,12 @@ class Instance extends Endpoint {
 
             let updatedInstance = await this._collection
                 .findOneAndUpdate(
-                    { id: Number(instanceId) },
+                    { id: instanceId },
                     {
                         $set: {
                             assigneeModel: assigneeModel || actualAssigneeModel,
                             actualAssigneeModel,
-                            assignee: Number(assignee),
+                            assignee: validateId(assignee),
                             assignedAt: new Date(),
                             status: 'assigned',
                         },
@@ -287,13 +264,13 @@ class Instance extends Endpoint {
 
             await logHistory(models.History, {
                 resourceType: this._instanceCollectionName,
-                resourceId: Number(instanceId),
+                resourceId: instanceId,
                 action: 'checkout',
                 metadata: {
                     name: `${parent.name} #${instance.instanceNumber}`,
-                    parentId: Number(id),
+                    parentId: id,
                     parentName: parent.name,
-                    assigneeId: Number(assignee),
+                    assigneeId: validateId(assignee),
                     assigneeName,
                     assigneeModel: assigneeModel || actualAssigneeModel,
                     actualAssigneeModel,

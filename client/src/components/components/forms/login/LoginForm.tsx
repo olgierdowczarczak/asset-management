@@ -23,7 +23,8 @@ function LoginForm() {
             await login(credentials);
             navigate(config.routes.home);
         } catch (err: any) {
-            validateError(err, 'Login failed');
+            const errorMsg = validateError(err, 'Login failed');
+            setError(errorMsg);
         }
     };
 

@@ -71,7 +71,7 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
         setCheckInOutModalOpen(false);
     };
 
-    const renderFieldValue = (fieldName: string, value: any, fieldSchema: any) => {
+    const renderFieldValue = (_fieldName: string, value: any, fieldSchema: any) => {
         if (value === undefined || value === null) {
             return <span className="text-gray-500">-</span>;
         }

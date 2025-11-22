@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, SearchableSelect, Button, Label } from '@/components';
 import { client } from '@/api';
 import { getDisplayValue } from '@/lib/schemaHelpers';
+import { extractErrorMessage } from '@/lib/errorHandler';
 
 interface CheckInOutModalProps {
     isOpen: boolean;
@@ -35,6 +36,7 @@ const CheckInOutModal = ({
     const [locations, setLocations] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const isCheckIn = !!currentAssignee;
     const assigneeType = (currentAssigneeModel as 'users' | 'locations' | 'common') || 'common';
     const isCommon = assigneeType === 'common';
@@ -47,6 +49,7 @@ const CheckInOutModal = ({
 
     const loadOptions = async () => {
         setLoading(true);
+        setError(null);
         try {
             const [usersRes, locationsRes] = await Promise.all([
                 client.get('/users/', { params: { limit: 1000 } }),
@@ -54,7 +57,9 @@ const CheckInOutModal = ({
             ]);
             setUsers(usersRes.data?.items || usersRes.data || []);
             setLocations(locationsRes.data?.items || locationsRes.data || []);
-        } catch (error) {
+        } catch (error: any) {
+            const message = extractErrorMessage(error);
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -73,6 +78,7 @@ const CheckInOutModal = ({
 
     const handleCheckIn = async () => {
         setSubmitting(true);
+        setError(null);
         try {
             let url: string;
             if (instanceMode && parentId) {
@@ -85,6 +91,8 @@ const CheckInOutModal = ({
             await Promise.resolve(onSuccess());
             onClose();
         } catch (error: any) {
+            const message = extractErrorMessage(error);
+            setError(message);
         } finally {
             setSubmitting(false);
         }
@@ -92,6 +100,7 @@ const CheckInOutModal = ({
 
     const handleCheckOut = async () => {
         setSubmitting(true);
+        setError(null);
         try {
             let payload: any = {};
 
@@ -122,6 +131,8 @@ const CheckInOutModal = ({
             await Promise.resolve(onSuccess());
             onClose();
         } catch (error: any) {
+            const message = extractErrorMessage(error);
+            setError(message);
         } finally {
             setSubmitting(false);
         }
@@ -185,6 +196,12 @@ const CheckInOutModal = ({
                             disabled={loading}
                             required
                         />
+                    </div>
+                )}
+
+                {error && (
+                    <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg text-sm text-red-400">
+                        {error}
                     </div>
                 )}
 

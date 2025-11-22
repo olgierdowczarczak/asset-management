@@ -28,7 +28,6 @@ const SearchableSelect = ({
     placeholder = 'Select...',
     disabled = false,
     error,
-    required = false,
     allowClear = false,
     onClear,
 }: SearchableSelectProps) => {

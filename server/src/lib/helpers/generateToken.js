@@ -15,12 +15,15 @@ export const generateToken = (id, expiresIn, key = config.JWT_SECRET) => {
  * @param {boolean} isRemembered
  */
 export const generateAccessToken = (id, isRemembered) => {
-    return generateToken(id, isRemembered ? '30d' : '15m', config.JWT_SECRET);
+    const expiresIn = isRemembered
+        ? config.JWT_ACCESS_EXPIRY_REMEMBERED
+        : config.JWT_ACCESS_EXPIRY_DEFAULT;
+    return generateToken(id, expiresIn, config.JWT_SECRET);
 };
 
 /**
  * @param {any} id
  */
 export const generateRefreshToken = (id) => {
-    return generateToken(id, '7d', config.JWT_REFRESH_SECRET);
+    return generateToken(id, config.JWT_REFRESH_EXPIRY, config.JWT_REFRESH_SECRET);
 };

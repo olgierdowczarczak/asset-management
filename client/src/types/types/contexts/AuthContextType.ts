@@ -1,4 +1,4 @@
-import type { User } from '@/schemas/usersSchema';
+import type { User } from '@/schemas';
 import type ILoginForm from '../forms/LoginForm';
 
 export default interface AuthContextType {

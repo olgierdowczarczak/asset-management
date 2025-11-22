@@ -1,4 +1,4 @@
-import type { User } from '@/schemas/usersSchema';
+import type { User } from '@/schemas';
 
 export default interface ILoginResponse {
     user: User;

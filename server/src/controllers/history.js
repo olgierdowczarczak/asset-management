@@ -2,6 +2,7 @@ import { ConstMessages, CollectionNames } from 'asset-management-common/constant
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
+import config from '../config/index.js';
 
 class History extends Endpoint {
     constructor() {
@@ -19,9 +20,14 @@ class History extends Endpoint {
     async getHistory(request, response) {
         try {
             const { models } = await import('../lib/models/index.js');
-            const { page = 1, limit = 50, resourceType, resourceId } = request.query;
+            const {
+                page = 1,
+                limit = config.PAGINATION_DEFAULT_LIMIT,
+                resourceType,
+                resourceId,
+            } = request.query;
             const pageNum = Math.max(1, parseInt(page));
-            const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+            const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const filters = {};
 
@@ -61,9 +67,9 @@ class History extends Endpoint {
         try {
             const { models } = await import('../lib/models/index.js');
             const { resourceType, resourceId } = request.params;
-            const { page = 1, limit = 50 } = request.query;
+            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
             const pageNum = Math.max(1, parseInt(page));
-            const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+            const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const filters = {
                 resourceType,
@@ -98,9 +104,9 @@ class History extends Endpoint {
         try {
             const { models } = await import('../lib/models/index.js');
             const { userId } = request.params;
-            const { page = 1, limit = 50 } = request.query;
+            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
             const pageNum = Math.max(1, parseInt(page));
-            const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+            const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const filters = {
                 $or: [

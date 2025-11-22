@@ -3,6 +3,10 @@ import * as Controllers from '../controllers/index.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 export default (app) => {
+    app.get('/health', (req, res) => {
+        res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    });
+
     app.use(config.routes.auth.route, Controllers.auth.router);
     app.use(config.routes.accessories, authMiddleware, Controllers.accessories.router);
     app.use(config.routes.accessories, authMiddleware, Controllers.accessoryInstances.router);
