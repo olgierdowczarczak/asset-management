@@ -9,6 +9,7 @@ import getModelByName from '../lib/helpers/getModelByName.js';
 import getPopulateFields from '../lib/helpers/getPopulateFields.js';
 import handlePolymorphicPopulate from '../lib/helpers/handlePolymorphicPopulate.js';
 import config from '../config/index.js';
+import { models } from '../lib/models/index.js';
 
 class Model extends Endpoint {
     constructor(endpoint) {
@@ -40,7 +41,6 @@ class Model extends Endpoint {
     }
 
     async _manualPopulate(items) {
-        const { models } = await import('../lib/models/index.js');
         const isArray = Array.isArray(items);
         const itemsArray = isArray ? items : [items];
         if (itemsArray.length === 0) {
@@ -132,7 +132,6 @@ class Model extends Endpoint {
                 CollectionNames.licenses,
             ];
             if (collectionsWithInstances.includes(this._collectionName)) {
-                const { models } = await import('../lib/models/index.js');
                 const InstanceModel =
                     this._collectionName === CollectionNames.accessories
                         ? models.AccessoryInstances
@@ -193,7 +192,6 @@ class Model extends Endpoint {
                 CollectionNames.licenses,
             ];
             if (collectionsWithInstances.includes(this._collectionName)) {
-                const { models } = await import('../lib/models/index.js');
                 const InstanceModel =
                     this._collectionName === CollectionNames.accessories
                         ? models.AccessoryInstances
@@ -217,7 +215,6 @@ class Model extends Endpoint {
 
     async updateItem(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
@@ -362,7 +359,6 @@ class Model extends Endpoint {
     }
 
     async _clearReferences(collectionName, id) {
-        const { models } = await import('../lib/models/index.js');
         const idNum = Number(id);
 
         switch (collectionName) {
@@ -488,7 +484,6 @@ class Model extends Endpoint {
 
     async deleteItem(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
@@ -530,7 +525,6 @@ class Model extends Endpoint {
     }
 
     async _createInstances(parentId, quantity, collectionName) {
-        const { models } = await import('../lib/models/index.js');
         const InstanceModel =
             collectionName === CollectionNames.accessories
                 ? models.AccessoryInstances
@@ -550,7 +544,6 @@ class Model extends Endpoint {
 
     async createItem(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const lastId = await getLastDocument(this._collection);
             const newItem = new this._collection(request.body);
             newItem.id = lastId;
@@ -588,7 +581,6 @@ class Model extends Endpoint {
 
     async checkIn(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             const item = await this._collection.findOne({ id });
             if (!item) {
@@ -665,7 +657,6 @@ class Model extends Endpoint {
 
     async checkOut(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             const { assigneeModel, actualAssigneeModel, assignee } = request.body;
             if (!assignee || !actualAssigneeModel) {

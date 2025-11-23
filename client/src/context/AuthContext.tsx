@@ -23,6 +23,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         let isMounted = true;
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            setLoading(false);
+            return;
+        }
 
         AuthService.getMe()
             .then((dbUser) => {

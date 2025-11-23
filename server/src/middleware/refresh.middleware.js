@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Users } from '../lib/models/index.js';
 import validateError from '../lib/helpers/validateError.js';
 import config from '../config/index.js';
+import clearCookie from '../lib/helpers/clearCookie.js';
 
 /**
  * @param {Request} request
@@ -41,6 +42,7 @@ export default async function (request, response, next) {
         next();
     } catch (err) {
         const errorMessage = validateError(err) || ConstMessages.internalServerError;
+        clearCookie(response, ConstMessages.refreshToken);
         response.status(StatusCodes.UNAUTHORIZED).send({ message: errorMessage });
     }
 }

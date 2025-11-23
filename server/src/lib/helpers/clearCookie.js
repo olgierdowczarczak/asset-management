@@ -6,10 +6,11 @@ import config from '../../config/index.js';
  * @param {String} name
  */
 const clearCookie = (response, name) => {
+    const isLocalhost = config.ALLOWED_ADDRESS && config.ALLOWED_ADDRESS.includes('localhost');
     response.clearCookie(name, {
         httpOnly: true,
-        secure: config.ENVIRONMENT === EnvironmentNames.production,
-        sameSite: 'strict',
+        secure: config.ENVIRONMENT === EnvironmentNames.production && !isLocalhost,
+        sameSite: isLocalhost ? 'lax' : 'strict',
     });
 };
 

@@ -1,13 +1,13 @@
+import { models } from '../models/index.js';
+
 /**
  * Handles population of polymorphic references (assignee field that can point to users or locations)
  * @param {Object|Array} items - Items to populate
  * @returns {Promise<Object|Array>} - Populated items
  */
 export default async function handlePolymorphicPopulate(items) {
-    const { models } = await import('../models/index.js');
     const isArray = Array.isArray(items);
     const itemsArray = isArray ? items : [items];
-
     for (const item of itemsArray) {
         if (item && item.assignee !== null && item.assignee !== undefined) {
             const modelToUse =
