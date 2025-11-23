@@ -8,10 +8,11 @@ import config from '../../config/index.js';
  * @param {Number} maxAge
  */
 const generateCookie = (response, name, value, maxAge) => {
+    const isLocalhost = config.ALLOWED_ADDRESS && config.ALLOWED_ADDRESS.includes('localhost');
     response.cookie(name, value, {
         httpOnly: true,
-        secure: config.ENVIRONMENT === EnvironmentNames.production,
-        sameSite: 'strict',
+        secure: config.ENVIRONMENT === EnvironmentNames.production && !isLocalhost,
+        sameSite: isLocalhost ? 'lax' : 'strict',
         maxAge,
         path: '/',
     });

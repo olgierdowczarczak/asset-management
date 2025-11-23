@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
 import config from '../config/index.js';
+import { models } from '../lib/models/index.js';
 
 class History extends Endpoint {
     constructor() {
@@ -19,7 +20,6 @@ class History extends Endpoint {
 
     async getHistory(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const {
                 page = 1,
                 limit = config.PAGINATION_DEFAULT_LIMIT,
@@ -65,7 +65,6 @@ class History extends Endpoint {
 
     async getResourceHistory(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const { resourceType, resourceId } = request.params;
             const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
             const pageNum = Math.max(1, parseInt(page));
@@ -102,7 +101,6 @@ class History extends Endpoint {
 
     async getUserHistory(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const { userId } = request.params;
             const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
             const pageNum = Math.max(1, parseInt(page));

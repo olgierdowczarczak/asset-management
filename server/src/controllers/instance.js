@@ -7,6 +7,7 @@ import validateId from '../lib/helpers/validateId.js';
 import getModelByName from '../lib/helpers/getModelByName.js';
 import handlePolymorphicPopulate from '../lib/helpers/handlePolymorphicPopulate.js';
 import config from '../config/index.js';
+import { models } from '../lib/models/index.js';
 
 class Instance extends Endpoint {
     constructor(parentEndpoint) {
@@ -100,10 +101,8 @@ class Instance extends Endpoint {
 
     async checkInInstance(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             const instanceId = validateId(request.params.instanceId);
-
             const parent = await this._parentCollection.findOne({ id }).lean();
             if (!parent) {
                 return response
@@ -194,7 +193,6 @@ class Instance extends Endpoint {
 
     async checkOutInstance(request, response) {
         try {
-            const { models } = await import('../lib/models/index.js');
             const id = validateId(request.params.id);
             const instanceId = validateId(request.params.instanceId);
             const { assigneeModel, actualAssigneeModel, assignee } = request.body;
