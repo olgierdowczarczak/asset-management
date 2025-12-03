@@ -143,6 +143,12 @@ function ResourcePage<T extends { id: number }>({ controller }: { controller: Pa
                     </a>
                 );
 
+            case 'number':
+                if (fieldSchema.decimalPlaces !== undefined) {
+                    return <span>{value.toFixed(fieldSchema.decimalPlaces)}</span>;
+                }
+                return <span>{value.toString()}</span>;
+
             default:
                 return <span>{value.toString()}</span>;
         }

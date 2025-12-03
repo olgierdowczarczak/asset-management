@@ -1,4 +1,8 @@
-import { ConstMessages, ConstantsValues } from 'asset-management-common/constants/index.js';
+import {
+    ConstMessages,
+    ConstantsValues,
+    ErrorTypeConstants,
+} from 'asset-management-common/constants/index.js';
 import config from '../../config/index.js';
 
 /**
@@ -6,13 +10,13 @@ import config from '../../config/index.js';
  */
 const handleErrorMessage = (error) => {
     switch (error.name) {
-        case 'MongoServerError': {
+        case ErrorTypeConstants.mongoServerError: {
             if (error.code === ConstantsValues.duplicatedField) {
                 return ConstMessages.duplicatedField;
             }
             return error.message || '';
         }
-        case 'ValidationError': {
+        case ErrorTypeConstants.validationError: {
             const errors = Object.values(error.errors).map((e) => e.message);
             return errors[0];
         }

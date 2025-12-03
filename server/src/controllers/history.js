@@ -1,4 +1,13 @@
-import { ConstMessages, CollectionNames } from 'asset-management-common/constants/index.js';
+import {
+    ConstMessages,
+    CollectionNames,
+    QueryParamConstants,
+    RouteParamConstants,
+    FieldNames,
+    SortConstants,
+    MongoOperators,
+    HistoryActions,
+} from 'asset-management-common/constants/index.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
 import validateError from '../lib/helpers/validateError.js';
@@ -14,17 +23,29 @@ class History extends Endpoint {
         this.getUserHistory = this.getUserHistory.bind(this);
 
         this._router.route('/').get(this.getHistory);
-        this._router.route('/resource/:resourceType/:resourceId').get(this.getResourceHistory);
-        this._router.route('/user/:userId').get(this.getUserHistory);
+        this._router
+            .route(
+                `${RouteParamConstants.resource}${RouteParamConstants.resourceType}${RouteParamConstants.resourceId}`,
+            )
+            .get(this.getResourceHistory);
+        this._router
+            .route(`${RouteParamConstants.user}${RouteParamConstants.userId}`)
+            .get(this.getUserHistory);
     }
 
     async getHistory(request, response) {
         try {
             const {
-                page = 1,
-                limit = config.PAGINATION_DEFAULT_LIMIT,
-                resourceType,
-                resourceId,
+                [QueryParamConstants.page]: page = 1,
+                [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,
+                [QueryParamConstants.resourceType]: resourceType,
+                [QueryParamConstants.resourceId]: resourceId,
+                dateFrom,
+                dateTo,
+                performedBy,
+                assigneeId,
+                searchTerm,
+                action,
             } = request.query;
             const pageNum = Math.max(1, parseInt(page));
             const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
@@ -32,15 +53,48 @@ class History extends Endpoint {
             const filters = {};
 
             if (resourceType) {
-                filters.resourceType = resourceType;
+                filters[QueryParamConstants.resourceType] = resourceType;
             }
             if (resourceId) {
-                filters.resourceId = Number(resourceId);
+                filters[QueryParamConstants.resourceId] = Number(resourceId);
+            }
+
+            if (dateFrom || dateTo) {
+                filters[FieldNames.timestamp] = {};
+                if (dateFrom) {
+                    filters[FieldNames.timestamp][MongoOperators.gte] = new Date(dateFrom);
+                }
+                if (dateTo) {
+                    const endDate = new Date(dateTo);
+                    endDate.setHours(23, 59, 59, 999);
+                    filters[FieldNames.timestamp][MongoOperators.lte] = endDate;
+                }
+            }
+
+            if (performedBy) {
+                filters[FieldNames.performedBy] = Number(performedBy);
+            }
+
+            if (action) {
+                filters.action = action;
+            }
+
+            if (assigneeId) {
+                filters['metadata.assigneeId'] = Number(assigneeId);
+            }
+
+            if (searchTerm) {
+                const searchRegex = new RegExp(searchTerm, 'i');
+                filters[MongoOperators.or] = [
+                    { 'metadata.name': searchRegex },
+                    { 'metadata.assigneeName': searchRegex },
+                    { 'metadata.previousAssigneeName': searchRegex },
+                ];
             }
 
             const total = await models.History.countDocuments(filters);
             const items = await models.History.find(filters)
-                .sort({ timestamp: -1 })
+                .sort({ [FieldNames.timestamp]: SortConstants.descending })
                 .skip(skip)
                 .limit(limitNum)
                 .lean();
@@ -65,18 +119,24 @@ class History extends Endpoint {
 
     async getResourceHistory(request, response) {
         try {
-            const { resourceType, resourceId } = request.params;
-            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
+            const {
+                [QueryParamConstants.resourceType]: resourceType,
+                [QueryParamConstants.resourceId]: resourceId,
+            } = request.params;
+            const {
+                [QueryParamConstants.page]: page = 1,
+                [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,
+            } = request.query;
             const pageNum = Math.max(1, parseInt(page));
             const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const filters = {
-                resourceType,
-                resourceId: Number(resourceId),
+                [QueryParamConstants.resourceType]: resourceType,
+                [QueryParamConstants.resourceId]: Number(resourceId),
             };
             const total = await models.History.countDocuments(filters);
             const items = await models.History.find(filters)
-                .sort({ timestamp: -1 })
+                .sort({ [FieldNames.timestamp]: SortConstants.descending })
                 .skip(skip)
                 .limit(limitNum)
                 .lean();
@@ -101,17 +161,28 @@ class History extends Endpoint {
 
     async getUserHistory(request, response) {
         try {
-            const { userId } = request.params;
-            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
+            const { [QueryParamConstants.userId]: userId } = request.params;
+            const {
+                [QueryParamConstants.page]: page = 1,
+                [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,
+            } = request.query;
             const pageNum = Math.max(1, parseInt(page));
             const limitNum = Math.min(config.PAGINATION_MAX_LIMIT, Math.max(1, parseInt(limit)));
             const skip = (pageNum - 1) * limitNum;
             const filters = {
-                $or: [
-                    { performedBy: Number(userId) },
+                [MongoOperators.or]: [
+                    { [FieldNames.performedBy]: Number(userId) },
                     {
-                        resourceType: { $in: ['assets', 'accessories', 'licenses'] },
-                        action: { $in: ['checkin', 'checkout'] },
+                        [QueryParamConstants.resourceType]: {
+                            [MongoOperators.in]: [
+                                CollectionNames.assets,
+                                CollectionNames.accessories,
+                                CollectionNames.licenses,
+                            ],
+                        },
+                        action: {
+                            [MongoOperators.in]: [HistoryActions.checkin, HistoryActions.checkout],
+                        },
                         'metadata.assigneeId': Number(userId),
                     },
                 ],
@@ -119,7 +190,7 @@ class History extends Endpoint {
 
             const total = await models.History.countDocuments(filters);
             const items = await models.History.find(filters)
-                .sort({ timestamp: -1 })
+                .sort({ [FieldNames.timestamp]: SortConstants.descending })
                 .skip(skip)
                 .limit(limitNum)
                 .lean();

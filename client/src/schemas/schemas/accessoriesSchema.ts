@@ -28,6 +28,7 @@ const accessoriesSchema: IResourceSchema = {
         showInForm: true,
         showInDetail: true,
         placeholder: 'Enter cost',
+        decimalPlaces: 2,
     },
     quantity: {
         type: 'number',

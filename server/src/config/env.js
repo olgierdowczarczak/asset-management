@@ -3,7 +3,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
-const JWT_SALT = process.env.JWT_SALT;
+const JWT_SALT = parseInt(process.env.JWT_SALT) || 10;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 const JWT_ACCESS_EXPIRY_REMEMBERED = process.env.JWT_ACCESS_EXPIRY_REMEMBERED || '30d';
@@ -16,6 +16,26 @@ const ENVIRONMENT = process.env.ENVIRONMENT;
 const PAGINATION_DEFAULT_LIMIT = parseInt(process.env.PAGINATION_DEFAULT_LIMIT) || 10;
 const PAGINATION_MAX_LIMIT = parseInt(process.env.PAGINATION_MAX_LIMIT) || 100;
 const ADMIN_USER_ID = parseInt(process.env.ADMIN_USER_ID) || 1;
+
+if (!MONGO_URI) {
+    throw new Error('MONGO_URI environment variable is required');
+}
+
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
+
+if (!JWT_REFRESH_SECRET) {
+    throw new Error('JWT_REFRESH_SECRET environment variable is required');
+}
+
+if (!ADMIN_EMAIL) {
+    throw new Error('ADMIN_EMAIL environment variable is required');
+}
+
+if (!ADMIN_PASSWORD) {
+    throw new Error('ADMIN_PASSWORD environment variable is required');
+}
 
 const env = {
     PORT,

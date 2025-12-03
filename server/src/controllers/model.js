@@ -1,4 +1,14 @@
-import { ConstMessages, CollectionNames } from 'asset-management-common/constants/index.js';
+import {
+    ConstMessages,
+    CollectionNames,
+    StatusValues,
+    ModelNames,
+    HistoryActions,
+    FieldNames,
+    MongoOperators,
+    QueryParamConstants,
+    RouteParamConstants,
+} from 'asset-management-common/constants/index.js';
 import getLastDocument from 'asset-management-common/helpers/getLastDocument.js';
 import logHistory from 'asset-management-common/helpers/logHistory.js';
 import { StatusCodes } from 'http-status-codes';
@@ -26,7 +36,7 @@ class Model extends Endpoint {
 
         this._router.route('/').get(this.getItems).post(this.createItem);
         this._router
-            .route('/:id')
+            .route(RouteParamConstants.id)
             .get(this.getItem)
             .put(this.updateItem)
             .patch(this.updateItem)
@@ -35,8 +45,12 @@ class Model extends Endpoint {
         const supportsCheckInOut = [CollectionNames.assets];
 
         if (supportsCheckInOut.includes(endpoint)) {
-            this._router.route('/:id/checkin').post(this.checkIn);
-            this._router.route('/:id/checkout').post(this.checkOut);
+            this._router
+                .route(`${RouteParamConstants.id}${RouteParamConstants.checkin}`)
+                .post(this.checkIn);
+            this._router
+                .route(`${RouteParamConstants.id}${RouteParamConstants.checkout}`)
+                .post(this.checkOut);
         }
     }
 
@@ -98,7 +112,10 @@ class Model extends Endpoint {
 
     async getItems(request, response) {
         try {
-            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
+            const {
+                [QueryParamConstants.page]: page = 1,
+                [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,
+            } = request.query;
             const filters = request.body || {};
             const collectionsWithSoftDelete = [
                 CollectionNames.assets,
@@ -107,7 +124,7 @@ class Model extends Endpoint {
             ];
 
             if (collectionsWithSoftDelete.includes(this._collectionName)) {
-                filters.isDeleted = { $ne: true };
+                filters[FieldNames.isDeleted] = { [MongoOperators.ne]: true };
             }
 
             const pageNum = Math.max(1, parseInt(page));
@@ -120,8 +137,8 @@ class Model extends Endpoint {
 
             if (this._collectionName === CollectionNames.users) {
                 items = items.map((item) => {
-                    if (item.password) {
-                        delete item.password;
+                    if (item[FieldNames.password]) {
+                        delete item[FieldNames.password];
                     }
                     return item;
                 });
@@ -142,7 +159,7 @@ class Model extends Endpoint {
                         items.map(async (item) => {
                             const assignedCount = await InstanceModel.countDocuments({
                                 parentId: item.id,
-                                status: 'assigned',
+                                status: StatusValues.assigned,
                             });
                             return {
                                 ...item,
@@ -183,8 +200,8 @@ class Model extends Endpoint {
             item = await this._manualPopulate(item);
             item = await this._handlePolymorphicPopulate(item);
 
-            if (this._collectionName === CollectionNames.users && item.password) {
-                delete item.password;
+            if (this._collectionName === CollectionNames.users && item[FieldNames.password]) {
+                delete item[FieldNames.password];
             }
 
             const collectionsWithInstances = [
@@ -200,7 +217,7 @@ class Model extends Endpoint {
                 if (InstanceModel) {
                     const assignedCount = await InstanceModel.countDocuments({
                         parentId: item.id,
-                        status: 'assigned',
+                        status: StatusValues.assigned,
                     });
                     item.assignedCount = assignedCount;
                 }
@@ -219,7 +236,7 @@ class Model extends Endpoint {
             if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
                     .status(StatusCodes.FORBIDDEN)
-                    .send({ message: 'Cannot edit the main administrator account' });
+                    .send({ message: ConstMessages.cannotEditAdmin });
             }
 
             const collectionsWithInstances = [
@@ -245,19 +262,22 @@ class Model extends Endpoint {
 
                     const assignedCount = await InstanceModel.countDocuments({
                         parentId: Number(id),
-                        status: 'assigned',
+                        status: StatusValues.assigned,
                     });
 
                     if (newQuantity < assignedCount) {
                         return response.status(StatusCodes.BAD_REQUEST).send({
-                            message: `Cannot decrease quantity below ${assignedCount}. There are ${assignedCount} assigned instance(s). Please check them in first.`,
+                            message: ConstMessages.cannotDecreaseQuantity(assignedCount),
                         });
                     }
                 }
             }
 
             let item;
-            if (this._collectionName === CollectionNames.users && request.body.password) {
+            if (
+                this._collectionName === CollectionNames.users &&
+                request.body[FieldNames.password]
+            ) {
                 item = await this._collection.findOne({ id });
                 if (!item) {
                     return response.status(StatusCodes.NOT_FOUND).send(ConstMessages.notExists);
@@ -285,10 +305,10 @@ class Model extends Endpoint {
 
                 const updateQuery = {};
                 if (Object.keys(fieldsToSet).length > 0) {
-                    updateQuery.$set = fieldsToSet;
+                    updateQuery[MongoOperators.set] = fieldsToSet;
                 }
                 if (Object.keys(fieldsToUnset).length > 0) {
-                    updateQuery.$unset = fieldsToUnset;
+                    updateQuery[MongoOperators.unset] = fieldsToUnset;
                 }
 
                 item = await this._collection
@@ -317,7 +337,7 @@ class Model extends Endpoint {
                             id: lastInstanceId,
                             parentId: Number(id),
                             instanceNumber: oldQuantity + i,
-                            status: 'available',
+                            status: StatusValues.available,
                         });
                         await instance.save();
                     }
@@ -325,7 +345,7 @@ class Model extends Endpoint {
                     const instancesToRemove = oldQuantity - newQuantity;
                     const availableInstances = await InstanceModel.find({
                         parentId: Number(id),
-                        status: 'available',
+                        status: StatusValues.available,
                     })
                         .sort({ instanceNumber: -1 })
                         .limit(instancesToRemove)
@@ -340,15 +360,15 @@ class Model extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._collectionName,
                 resourceId: Number(id),
-                action: 'updated',
+                action: HistoryActions.updated,
                 metadata: { name: item.name || item.username },
             });
 
             item = await this._manualPopulate(item);
             item = await this._handlePolymorphicPopulate(item);
 
-            if (this._collectionName === CollectionNames.users && item.password) {
-                delete item.password;
+            if (this._collectionName === CollectionNames.users && item[FieldNames.password]) {
+                delete item[FieldNames.password];
             }
 
             response.status(StatusCodes.OK).send(item);
@@ -363,56 +383,85 @@ class Model extends Endpoint {
 
         switch (collectionName) {
             case CollectionNames.users:
-                await models.Companies.updateMany({ owner: idNum }, { $unset: { owner: '' } });
+                await models.Companies.updateMany(
+                    { owner: idNum },
+                    { [MongoOperators.unset]: { owner: '' } },
+                );
                 await models.Departments.updateMany(
                     { manager: idNum },
-                    { $unset: { manager: '' } },
+                    { [MongoOperators.unset]: { manager: '' } },
                 );
                 await models.Locations.updateMany({ manager: idNum }, { $unset: { manager: '' } });
                 await models.Assets.updateMany(
-                    { assigneeModel: 'users', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
+                    { assigneeModel: ModelNames.users, assignee: idNum },
+                    {
+                        [MongoOperators.unset]: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                        },
+                    },
                 );
                 await models.Assets.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                    {
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.users,
+                        assignee: idNum,
+                    },
+                    { [MongoOperators.unset]: { assignee: '', actualAssigneeModel: '' } },
                 );
                 await models.AccessoryInstances.updateMany(
-                    { assigneeModel: 'users', assignee: idNum },
+                    { assigneeModel: ModelNames.users, assignee: idNum },
                     {
-                        $unset: {
+                        [MongoOperators.unset]: {
                             assigneeModel: '',
                             assignee: '',
                             actualAssigneeModel: '',
                             assignedAt: '',
                         },
-                        $set: { status: 'available' },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.AccessoryInstances.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
                     {
-                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
-                        $set: { status: 'available' },
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.users,
+                        assignee: idNum,
+                    },
+                    {
+                        [MongoOperators.unset]: {
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.LicenseInstances.updateMany(
-                    { assigneeModel: 'users', assignee: idNum },
+                    { assigneeModel: ModelNames.users, assignee: idNum },
                     {
-                        $unset: {
+                        [MongoOperators.unset]: {
                             assigneeModel: '',
                             assignee: '',
                             actualAssigneeModel: '',
                             assignedAt: '',
                         },
-                        $set: { status: 'available' },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.LicenseInstances.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'users', assignee: idNum },
                     {
-                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
-                        $set: { status: 'available' },
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.users,
+                        assignee: idNum,
+                    },
+                    {
+                        [MongoOperators.unset]: {
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 break;
@@ -421,62 +470,94 @@ class Model extends Endpoint {
                 await models.Users.updateMany({ location: idNum }, { $unset: { location: '' } });
                 await models.Locations.updateMany({ parent: idNum }, { $unset: { parent: '' } });
                 await models.Assets.updateMany(
-                    { assigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assigneeModel: '', assignee: '', actualAssigneeModel: '' } },
+                    { assigneeModel: ModelNames.locations, assignee: idNum },
+                    {
+                        [MongoOperators.unset]: {
+                            assigneeModel: '',
+                            assignee: '',
+                            actualAssigneeModel: '',
+                        },
+                    },
                 );
                 await models.Assets.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                    {
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.locations,
+                        assignee: idNum,
+                    },
+                    { [MongoOperators.unset]: { assignee: '', actualAssigneeModel: '' } },
                 );
                 await models.AccessoryInstances.updateMany(
-                    { assigneeModel: 'locations', assignee: idNum },
+                    { assigneeModel: ModelNames.locations, assignee: idNum },
                     {
-                        $unset: {
+                        [MongoOperators.unset]: {
                             assigneeModel: '',
                             assignee: '',
                             actualAssigneeModel: '',
                             assignedAt: '',
                         },
-                        $set: { status: 'available' },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.AccessoryInstances.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
                     {
-                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
-                        $set: { status: 'available' },
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.locations,
+                        assignee: idNum,
+                    },
+                    {
+                        [MongoOperators.unset]: {
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.LicenseInstances.updateMany(
-                    { assigneeModel: 'locations', assignee: idNum },
+                    { assigneeModel: ModelNames.locations, assignee: idNum },
                     {
-                        $unset: {
+                        [MongoOperators.unset]: {
                             assigneeModel: '',
                             assignee: '',
                             actualAssigneeModel: '',
                             assignedAt: '',
                         },
-                        $set: { status: 'available' },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 await models.LicenseInstances.updateMany(
-                    { assigneeModel: 'common', actualAssigneeModel: 'locations', assignee: idNum },
                     {
-                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
-                        $set: { status: 'available' },
+                        assigneeModel: ModelNames.common,
+                        actualAssigneeModel: ModelNames.locations,
+                        assignee: idNum,
+                    },
+                    {
+                        [MongoOperators.unset]: {
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                 );
                 break;
 
             case CollectionNames.companies:
-                await models.Users.updateMany({ company: idNum }, { $unset: { company: '' } });
-                await models.Locations.updateMany({ company: idNum }, { $unset: { company: '' } });
+                await models.Users.updateMany(
+                    { company: idNum },
+                    { [MongoOperators.unset]: { company: '' } },
+                );
+                await models.Locations.updateMany(
+                    { company: idNum },
+                    { [MongoOperators.unset]: { company: '' } },
+                );
                 break;
 
             case CollectionNames.departments:
                 await models.Users.updateMany(
                     { department: idNum },
-                    { $unset: { department: '' } },
+                    { [MongoOperators.unset]: { department: '' } },
                 );
                 break;
         }
@@ -488,7 +569,7 @@ class Model extends Endpoint {
             if (this._collectionName === CollectionNames.users && id === config.ADMIN_USER_ID) {
                 return response
                     .status(StatusCodes.FORBIDDEN)
-                    .send({ message: 'Cannot delete the main administrator account' });
+                    .send({ message: ConstMessages.cannotDeleteAdmin });
             }
 
             const item = await this._collection.findOne({ id });
@@ -536,7 +617,7 @@ class Model extends Endpoint {
                 id: lastInstanceId,
                 parentId,
                 instanceNumber: i,
-                status: 'available',
+                status: StatusValues.available,
             });
             await instance.save();
         }
@@ -552,7 +633,7 @@ class Model extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._collectionName,
                 resourceId: lastId,
-                action: 'created',
+                action: HistoryActions.created,
                 metadata: { name: newItem.name },
             });
 
@@ -568,8 +649,8 @@ class Model extends Endpoint {
             item = await this._manualPopulate(item);
             item = await this._handlePolymorphicPopulate(item);
 
-            if (this._collectionName === CollectionNames.users && item.password) {
-                delete item.password;
+            if (this._collectionName === CollectionNames.users && item[FieldNames.password]) {
+                delete item[FieldNames.password];
             }
 
             response.status(StatusCodes.CREATED).send(item);
@@ -592,7 +673,7 @@ class Model extends Endpoint {
             if (!item.assignee) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: 'Resource is not checked out' });
+                    .send({ message: ConstMessages.resourceNotCheckedOut });
             }
 
             const previousAssignee = item.assignee;
@@ -601,7 +682,7 @@ class Model extends Endpoint {
             let previousAssigneeName = '';
             if (previousAssignee) {
                 const actualModel =
-                    previousAssigneeModel === 'common'
+                    previousAssigneeModel === ModelNames.common
                         ? previousActualAssigneeModel
                         : previousAssigneeModel;
                 if (actualModel) {
@@ -613,7 +694,7 @@ class Model extends Endpoint {
                             id: previousAssignee,
                         }).lean();
                         if (assigneeDoc) {
-                            if (actualModel === 'users') {
+                            if (actualModel === ModelNames.users) {
                                 previousAssigneeName = [assigneeDoc.firstName, assigneeDoc.lastName]
                                     .filter(Boolean)
                                     .join(' ');
@@ -628,7 +709,7 @@ class Model extends Endpoint {
             let updatedItem = await this._collection
                 .findOneAndUpdate(
                     { id },
-                    { $unset: { assignee: '', actualAssigneeModel: '' } },
+                    { [MongoOperators.unset]: { assignee: '', actualAssigneeModel: '' } },
                     { new: true, runValidators: true },
                 )
                 .lean();
@@ -636,7 +717,7 @@ class Model extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._collectionName,
                 resourceId: Number(id),
-                action: 'checkin',
+                action: HistoryActions.checkin,
                 metadata: {
                     name: item.name,
                     previousAssignee,
@@ -662,7 +743,7 @@ class Model extends Endpoint {
             if (!assignee || !actualAssigneeModel) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: 'assignee and actualAssigneeModel are required' });
+                    .send({ message: ConstMessages.assigneeRequired });
             }
 
             const item = await this._collection.findOne({ id });
@@ -678,18 +759,18 @@ class Model extends Endpoint {
             if (!AssigneeModel) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: `Invalid assignee model: ${actualAssigneeModel}` });
+                    .send({ message: ConstMessages.invalidAssigneeModel(actualAssigneeModel) });
             }
 
             const assigneeExists = await AssigneeModel.findOne({ id: Number(assignee) }).lean();
             if (!assigneeExists) {
                 return response.status(StatusCodes.NOT_FOUND).send({
-                    message: `Assignee with id ${assignee} not found in ${actualAssigneeModel}`,
+                    message: ConstMessages.assigneeNotFound(assignee, actualAssigneeModel),
                 });
             }
 
             let assigneeName = '';
-            if (actualAssigneeModel === 'users') {
+            if (actualAssigneeModel === ModelNames.users) {
                 assigneeName = [assigneeExists.firstName, assigneeExists.lastName]
                     .filter(Boolean)
                     .join(' ');
@@ -701,7 +782,7 @@ class Model extends Endpoint {
                 .findOneAndUpdate(
                     { id },
                     {
-                        $set: {
+                        [MongoOperators.set]: {
                             assigneeModel: assigneeModel || actualAssigneeModel,
                             actualAssigneeModel,
                             assignee: Number(assignee),
@@ -714,7 +795,7 @@ class Model extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._collectionName,
                 resourceId: Number(id),
-                action: 'checkout',
+                action: HistoryActions.checkout,
                 metadata: {
                     name: item.name,
                     assigneeId: Number(assignee),

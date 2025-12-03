@@ -200,6 +200,12 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                     </a>
                 );
 
+            case 'number':
+                if (fieldSchema.decimalPlaces !== undefined) {
+                    return <span>{value.toFixed(fieldSchema.decimalPlaces)}</span>;
+                }
+                return <span>{value.toString()}</span>;
+
             default:
                 if (fieldName === 'assignedAt' && value) {
                     return <span>{new Date(value).toLocaleString()}</span>;

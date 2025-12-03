@@ -13,7 +13,28 @@ const constMessages = {
     refreshToken: 'refresh_token',
     accessToken: 'access_token',
     tokenMissing: 'Token missing',
-    usernameAndPasswordAreRequired: 'Username and password are required'
+    usernameAndPasswordAreRequired: 'Username and password are required',
+    cannotEditAdmin: 'Cannot edit the main administrator account',
+    cannotDeleteAdmin: 'Cannot delete the main administrator account',
+    resourceNotCheckedOut: 'Resource is not checked out',
+    instanceNotCheckedOut: 'Instance is not checked out',
+    instanceNotFound: 'Instance not found',
+    assigneeRequired: 'assignee and actualAssigneeModel are required',
+    unexpectedError: 'An unexpected error occurred',
+    tooManyLoginAttempts: 'Too many login attempts from this IP, please try again after 15 minutes',
+    tooManyRequests: 'Too many requests from this IP, please try again later',
+    mongoUriRequired: 'MONGO_URI environment variable is required',
+    jwtSecretRequired: 'JWT_SECRET environment variable is required',
+    jwtRefreshSecretRequired: 'JWT_REFRESH_SECRET environment variable is required',
+    adminEmailRequired: 'ADMIN_EMAIL environment variable is required',
+    adminPasswordRequired: 'ADMIN_PASSWORD environment variable is required',
+    loadingHistory: 'Loading history...',
+    noHistoryFound: 'No history entries found',
+    userPrefix: 'User: ',
+    locationPrefix: 'Location: ',
+    cannotDecreaseQuantity: (count) => `Cannot decrease quantity below ${count}. There are ${count} assigned instance(s). Please check them in first.`,
+    invalidAssigneeModel: (model) => `Invalid assignee model: ${model}`,
+    assigneeNotFound: (id, model) => `Assignee with id ${id} not found in ${model}`
 };
 
 export default constMessages;

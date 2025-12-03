@@ -1,29 +1,29 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
 import type { IAuthContextType, IUser, ILoginForm } from '@/types';
 import { AuthService } from '@/services';
-import * as React from 'react';
+import { StorageConstants } from '@/constants';
 
 const AuthContext = createContext<IAuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<IUser | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     const login = async (credentials: ILoginForm) => {
         const response = await AuthService.loginRequest(credentials);
         setUser(response.user);
-        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem(StorageConstants.accessToken, response.access_token);
     };
 
     const logout = async () => {
         await AuthService.logoutRequest();
         setUser(null);
-        localStorage.removeItem('access_token');
+        localStorage.removeItem(StorageConstants.accessToken);
     };
 
     useEffect(() => {
         let isMounted = true;
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem(StorageConstants.accessToken);
         if (!token) {
             setLoading(false);
             return;
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .catch(() => {
                 if (isMounted) {
                     setUser(null);
-                    localStorage.removeItem('access_token');
+                    localStorage.removeItem(StorageConstants.accessToken);
                 }
             })
             .finally(() => {
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuthContext = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error('useAuthContext should be use in AuthProvider');
+        throw new Error('useAuthContext should be used within AuthProvider');
     }
     return context;
 };
