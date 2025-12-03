@@ -13,7 +13,12 @@ export const loginLimiter = rateLimit({
 export const apiLimiter = rateLimit({
     windowMs: RateLimitConstants.windowMs,
     max: RateLimitConstants.apiMaxRequests,
-    message: 'Too many requests from this IP, please try again later',
+    message: { message: 'Too many requests from this IP, please try again later' },
     standardHeaders: RateLimitConstants.standardHeaders,
     legacyHeaders: RateLimitConstants.legacyHeaders,
+    handler: (req, res) => {
+        res.status(429).json({
+            message: 'Too many requests from this IP, please try again later'
+        });
+    }
 });
