@@ -28,6 +28,7 @@ const licensesSchema: IResourceSchema = {
         showInForm: true,
         showInDetail: true,
         placeholder: 'Enter cost',
+        decimalPlaces: 2,
     },
     costType: {
         type: 'enum',

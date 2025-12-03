@@ -61,7 +61,7 @@ class Instance extends Endpoint {
 
     async getInstances(request, response) {
         try {
-            const id = validateId(request.params[QueryParamConstants.id]);
+            const id = validateId(request.params.id);
             const {
                 [QueryParamConstants.page]: page = 1,
                 [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,

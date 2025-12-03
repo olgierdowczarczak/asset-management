@@ -86,6 +86,9 @@ const SchemaTable = <T extends Record<string, any> & { id: number }>({
                                 const assignedCount = (row as any).assignedCount || 0;
                                 return `${assignedCount}/${value}`;
                             }
+                            if (fieldSchema.decimalPlaces !== undefined) {
+                                return value.toFixed(fieldSchema.decimalPlaces);
+                            }
                             return value.toString();
 
                         default:

@@ -11,6 +11,8 @@ const schema = new mongoose.Schema({
     cost: {
         type: Number,
         min: [0, 'Cost must be a positive number'],
+        get: v => v ? parseFloat(v.toFixed(2)) : v,
+        set: v => v ? parseFloat(v) : v,
     },
     isDeleted: {
         type: Boolean,
@@ -33,6 +35,6 @@ const schema = new mongoose.Schema({
         unique: [true, 'Asset already exists'],
         immutable: true,
     }
-}, { versionKey: false });
+}, { versionKey: false, toJSON: { getters: true }, toObject: { getters: true } });
 
 export default schema;

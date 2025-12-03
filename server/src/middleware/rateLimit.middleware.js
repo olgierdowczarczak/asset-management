@@ -18,7 +18,7 @@ export const apiLimiter = rateLimit({
     legacyHeaders: RateLimitConstants.legacyHeaders,
     handler: (req, res) => {
         res.status(429).json({
-            message: 'Too many requests from this IP, please try again later'
+            message: 'Too many requests from this IP, please try again later',
         });
-    }
+    },
 });
