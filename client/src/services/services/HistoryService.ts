@@ -5,6 +5,12 @@ interface HistoryParams {
     limit?: number;
     resourceType?: string;
     resourceId?: number;
+    dateFrom?: string;
+    dateTo?: string;
+    performedBy?: number;
+    assigneeId?: number;
+    searchTerm?: string;
+    action?: string;
 }
 
 class HistoryService {
@@ -17,7 +23,18 @@ class HistoryService {
     }
 
     async getAll(params: HistoryParams = {}) {
-        const { page = 1, limit = 50, resourceType, resourceId } = params;
+        const {
+            page = 1,
+            limit = 50,
+            resourceType,
+            resourceId,
+            dateFrom,
+            dateTo,
+            performedBy,
+            assigneeId,
+            searchTerm,
+            action,
+        } = params;
         const queryParams: any = { page, limit };
 
         if (resourceType) {
@@ -25,6 +42,24 @@ class HistoryService {
         }
         if (resourceId) {
             queryParams.resourceId = resourceId;
+        }
+        if (dateFrom) {
+            queryParams.dateFrom = dateFrom;
+        }
+        if (dateTo) {
+            queryParams.dateTo = dateTo;
+        }
+        if (performedBy) {
+            queryParams.performedBy = performedBy;
+        }
+        if (assigneeId) {
+            queryParams.assigneeId = assigneeId;
+        }
+        if (searchTerm) {
+            queryParams.searchTerm = searchTerm;
+        }
+        if (action) {
+            queryParams.action = action;
         }
 
         const response = await this.client.get(this.endpoint, { params: queryParams });

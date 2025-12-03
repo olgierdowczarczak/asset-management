@@ -1,4 +1,5 @@
 import { models } from '../models/index.js';
+import { FieldNames, ModelNames } from 'asset-management-common/constants/index.js';
 
 /**
  * Handles population of polymorphic references (assignee field that can point to users or locations)
@@ -9,9 +10,11 @@ export default async function handlePolymorphicPopulate(items) {
     const isArray = Array.isArray(items);
     const itemsArray = isArray ? items : [items];
     for (const item of itemsArray) {
-        if (item && item.assignee !== null && item.assignee !== undefined) {
+        if (item && item[FieldNames.assignee] !== null && item[FieldNames.assignee] !== undefined) {
             const modelToUse =
-                item.assigneeModel === 'common' ? item.actualAssigneeModel : item.assigneeModel;
+                item[FieldNames.assigneeModel] === ModelNames.common
+                    ? item[FieldNames.actualAssigneeModel]
+                    : item[FieldNames.assigneeModel];
 
             if (!modelToUse) {
                 continue;
@@ -21,12 +24,14 @@ export default async function handlePolymorphicPopulate(items) {
             const Model = models[capitalizedName];
 
             if (Model) {
-                const refDoc = await Model.findOne({ id: item.assignee })
-                    .select('id name username firstName lastName')
+                const refDoc = await Model.findOne({ [FieldNames.id]: item[FieldNames.assignee] })
+                    .select(
+                        `${FieldNames.id} ${FieldNames.name} ${FieldNames.username} ${FieldNames.firstName} ${FieldNames.lastName}`,
+                    )
                     .lean();
 
                 if (refDoc) {
-                    item.assignee = refDoc;
+                    item[FieldNames.assignee] = refDoc;
                 }
             }
         }

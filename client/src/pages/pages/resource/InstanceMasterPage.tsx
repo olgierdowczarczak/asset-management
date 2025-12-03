@@ -35,6 +35,9 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
     const [checkInOutModalOpen, setCheckInOutModalOpen] = useState(false);
     const [selectedInstance, setSelectedInstance] = useState<any>(null);
+    const [deleteInstanceModalOpen, setDeleteInstanceModalOpen] = useState(false);
+    const [instanceToDelete, setInstanceToDelete] = useState<any>(null);
+    const [deletingInstance, setDeletingInstance] = useState(false);
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 10,
@@ -264,6 +267,12 @@ function InstanceMasterPage<T extends { id: number }>({ controller }: InstanceMa
                         controller.resourceName.slice(1)}
                 </h1>
                 <div className="flex gap-2">
+                    <Button
+                        onClick={() => navigate(`/${controller.path}/${id}/instances/create`)}
+                        disabled={deleting}
+                    >
+                        Add Instance
+                    </Button>
                     <Button
                         onClick={() => navigate(`/${controller.path}/${id}/edit`)}
                         disabled={deleting}

@@ -1,0 +1,32 @@
+const FieldNames = {
+    id: 'id',
+    name: 'name',
+    username: 'username',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    fullName: 'fullName',
+    password: 'password',
+    email: 'email',
+    role: 'role',
+    assignee: 'assignee',
+    assigneeModel: 'assigneeModel',
+    actualAssigneeModel: 'actualAssigneeModel',
+    status: 'status',
+    isDeleted: 'isDeleted',
+    isRemembered: 'isRemembered',
+    instanceNumber: 'instanceNumber',
+    parentId: 'parentId',
+    quantity: 'quantity',
+    owner: 'owner',
+    manager: 'manager',
+    parent: 'parent',
+    company: 'company',
+    location: 'location',
+    department: 'department',
+    jobtitle: 'jobtitle',
+    seniority: 'seniority',
+    performedBy: 'performedBy',
+    timestamp: 'timestamp'
+};
+
+export default FieldNames;

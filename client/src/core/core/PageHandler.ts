@@ -15,8 +15,8 @@ class PageHandler<T> {
     readonly schema?: IResourceSchema;
 
     constructor(resourceName: string, service: T, schema?: IResourceSchema) {
-        this.resourceName = resourceName;
-        this.path = resourceName.toLowerCase();
+        this.resourceName = resourceName.replace(/^\//, '');
+        this.path = resourceName.toLowerCase().replace(/^\//, '');
         this.service = service;
         this.schema = schema;
         this.wrapMethods();

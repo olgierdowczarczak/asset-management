@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { HistoryServiceInstance } from '@/services';
+import { HistoryServiceInstance, UserService, LocationService } from '@/services';
 import { Card, Button } from '@/components';
 import { extractErrorMessage } from '@/lib/errorHandler';
 
@@ -20,6 +20,17 @@ interface HistoryTableProps {
     showSearch?: boolean;
 }
 
+interface User {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
+interface Location {
+    id: number;
+    name: string;
+}
+
 const HistoryTable = ({
     limit = 50,
     showPagination = true,
@@ -32,11 +43,34 @@ const HistoryTable = ({
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [searchResourceType, setSearchResourceType] = useState('');
-    const [searchResourceId, setSearchResourceId] = useState('');
+    const [searchDateFrom, setSearchDateFrom] = useState('');
+    const [searchDateTo, setSearchDateTo] = useState('');
+    const [searchAssigneeId, setSearchAssigneeId] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchAction, setSearchAction] = useState('');
+    const [users, setUsers] = useState<User[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
 
     useEffect(() => {
         loadHistory();
     }, [currentPage, limit]);
+
+    useEffect(() => {
+        loadUsersAndLocations();
+    }, []);
+
+    const loadUsersAndLocations = async () => {
+        try {
+            const [usersResponse, locationsResponse] = await Promise.all([
+                UserService.getAll(1, 1000),
+                LocationService.getAll(1, 1000),
+            ]);
+            setUsers(usersResponse?.items || []);
+            setLocations(locationsResponse?.items || []);
+        } catch (err: unknown) {
+            console.error('Failed to load users and locations:', err);
+        }
+    };
 
     const loadHistory = async () => {
         setLoading(true);
@@ -47,8 +81,20 @@ const HistoryTable = ({
             if (searchResourceType) {
                 params.resourceType = searchResourceType;
             }
-            if (searchResourceId) {
-                params.resourceId = parseInt(searchResourceId);
+            if (searchDateFrom) {
+                params.dateFrom = searchDateFrom;
+            }
+            if (searchDateTo) {
+                params.dateTo = searchDateTo;
+            }
+            if (searchAssigneeId) {
+                params.assigneeId = Number(searchAssigneeId);
+            }
+            if (searchTerm) {
+                params.searchTerm = searchTerm;
+            }
+            if (searchAction) {
+                params.action = searchAction;
             }
 
             const response = await HistoryServiceInstance.getAll(params);
@@ -69,7 +115,11 @@ const HistoryTable = ({
 
     const handleClearSearch = () => {
         setSearchResourceType('');
-        setSearchResourceId('');
+        setSearchDateFrom('');
+        setSearchDateTo('');
+        setSearchAssigneeId('');
+        setSearchTerm('');
+        setSearchAction('');
         setCurrentPage(1);
         setTimeout(() => loadHistory(), 0);
     };
@@ -180,7 +230,7 @@ const HistoryTable = ({
             {showSearch && (
                 <Card className="p-6">
                     <h3 className="text-lg font-semibold text-gray-100 mb-4">Search History</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Resource Type
@@ -204,17 +254,82 @@ const HistoryTable = ({
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Resource ID
+                                Action
+                            </label>
+                            <select
+                                value={searchAction}
+                                onChange={(e) => setSearchAction(e.target.value)}
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">All Actions</option>
+                                <option value="created">Created</option>
+                                <option value="updated">Updated</option>
+                                <option value="checkin">Checked In</option>
+                                <option value="checkout">Checked Out</option>
+                                <option value="deleted">Deleted</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Assigned To (User/Location)
+                            </label>
+                            <select
+                                value={searchAssigneeId}
+                                onChange={(e) => setSearchAssigneeId(e.target.value)}
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">All</option>
+                                <optgroup label="Users">
+                                    {users.map((user) => (
+                                        <option key={`user-${user.id}`} value={user.id}>
+                                            {user.firstName} {user.lastName}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label="Locations">
+                                    {locations.map((location) => (
+                                        <option key={`location-${location.id}`} value={location.id}>
+                                            {location.name}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Date From
                             </label>
                             <input
-                                type="number"
-                                value={searchResourceId}
-                                onChange={(e) => setSearchResourceId(e.target.value)}
-                                placeholder="Enter ID"
+                                type="date"
+                                value={searchDateFrom}
+                                onChange={(e) => setSearchDateFrom(e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                        <div className="flex items-end gap-2">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Date To
+                            </label>
+                            <input
+                                type="date"
+                                value={searchDateTo}
+                                onChange={(e) => setSearchDateTo(e.target.value)}
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Search Term (in names)
+                            </label>
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search in resource names, assignee names..."
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="lg:col-span-3 flex gap-2">
                             <Button onClick={handleSearch} className="flex-1">
                                 Search
                             </Button>

@@ -1,4 +1,4 @@
-import { EnvironmentNames } from 'asset-management-common/constants/index.js';
+import { EnvironmentNames, CookieConstants } from 'asset-management-common/constants/index.js';
 import config from '../../config/index.js';
 
 /**
@@ -10,7 +10,7 @@ const clearCookie = (response, name) => {
     response.clearCookie(name, {
         httpOnly: true,
         secure: config.ENVIRONMENT === EnvironmentNames.production && !isLocalhost,
-        sameSite: isLocalhost ? 'lax' : 'strict',
+        sameSite: isLocalhost ? CookieConstants.sameSiteLax : CookieConstants.sameSiteStrict,
     });
 };
 
