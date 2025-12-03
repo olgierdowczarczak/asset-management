@@ -1,4 +1,4 @@
-import { CollectionNames } from 'asset-management-common/constants/index.js';
+import { CollectionNames, FieldNames } from 'asset-management-common/constants/index.js';
 
 /**
  * @param {String} collectionName
@@ -11,67 +11,67 @@ const getPopulateFields = (collectionName) => {
         [CollectionNames.assets]: [],
         [CollectionNames.companies]: [
             {
-                path: 'owner',
+                path: FieldNames.owner,
                 model: CollectionNames.users,
-                select: 'id username firstName lastName email',
+                select: `${FieldNames.id} ${FieldNames.username} ${FieldNames.firstName} ${FieldNames.lastName} ${FieldNames.email}`,
             },
         ],
         [CollectionNames.departments]: [
             {
-                path: 'manager',
+                path: FieldNames.manager,
                 model: CollectionNames.users,
-                select: 'id username firstName lastName email',
+                select: `${FieldNames.id} ${FieldNames.username} ${FieldNames.firstName} ${FieldNames.lastName} ${FieldNames.email}`,
             },
         ],
         [CollectionNames.locations]: [
             {
-                path: 'parent',
+                path: FieldNames.parent,
                 model: CollectionNames.locations,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
             {
-                path: 'manager',
+                path: FieldNames.manager,
                 model: CollectionNames.users,
-                select: 'id username firstName lastName email',
+                select: `${FieldNames.id} ${FieldNames.username} ${FieldNames.firstName} ${FieldNames.lastName} ${FieldNames.email}`,
             },
             {
-                path: 'company',
+                path: FieldNames.company,
                 model: CollectionNames.companies,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
         ],
         [CollectionNames.users]: [
             {
-                path: 'location',
+                path: FieldNames.location,
                 model: CollectionNames.locations,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
             {
-                path: 'company',
+                path: FieldNames.company,
                 model: CollectionNames.companies,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
             {
-                path: 'department',
+                path: FieldNames.department,
                 model: CollectionNames.departments,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
             {
-                path: 'jobtitle',
+                path: FieldNames.jobtitle,
                 model: CollectionNames.jobtitles,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
             {
-                path: 'seniority',
+                path: FieldNames.seniority,
                 model: CollectionNames.seniorities,
-                select: 'id name',
+                select: `${FieldNames.id} ${FieldNames.name}`,
             },
         ],
         [CollectionNames.history]: [
             {
-                path: 'performedBy',
+                path: FieldNames.performedBy,
                 model: CollectionNames.users,
-                select: 'id username firstName lastName email',
+                select: `${FieldNames.id} ${FieldNames.username} ${FieldNames.firstName} ${FieldNames.lastName} ${FieldNames.email}`,
             },
         ],
     };

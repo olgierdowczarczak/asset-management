@@ -6,6 +6,7 @@ import config from '../config/index.js';
 import { Users } from '../lib/models/index.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 import refreshMiddleware from '../middleware/refresh.middleware.js';
+import { loginLimiter } from '../middleware/rateLimit.middleware.js';
 import generateCookie from '../lib/helpers/generateCookie.js';
 import clearCookie from '../lib/helpers/clearCookie.js';
 import * as Token from '../lib/helpers/generateToken.js';
@@ -14,7 +15,7 @@ import validateError from '../lib/helpers/validateError.js';
 class Auth extends Endpoint {
     constructor() {
         super();
-        this._router.post(config.routes.auth.endpoints.login, this.login);
+        this._router.post(config.routes.auth.endpoints.login, loginLimiter, this.login);
         this._router.post(config.routes.auth.endpoints.logout, authMiddleware, this.logout);
         this._router.post(config.routes.auth.endpoints.refresh, refreshMiddleware, this.refresh);
         this._router.get(config.routes.auth.endpoints.me, authMiddleware, this.getMe);

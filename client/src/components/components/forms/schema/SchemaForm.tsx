@@ -70,7 +70,15 @@ const SchemaForm = ({
 
             const initialValue = initialDataRef.current[fieldName];
             if (initialValue !== undefined) {
-                initialFormData[fieldName] = extractId(initialValue) ?? initialValue;
+                let value = extractId(initialValue) ?? initialValue;
+                if (
+                    fieldSchema.type === 'number' &&
+                    fieldSchema.decimalPlaces !== undefined &&
+                    typeof value === 'number'
+                ) {
+                    value = value.toFixed(fieldSchema.decimalPlaces);
+                }
+                initialFormData[fieldName] = value;
             } else if (fieldSchema.default !== undefined) {
                 initialFormData[fieldName] = fieldSchema.default;
             }
@@ -433,6 +441,7 @@ const SchemaForm = ({
                         min={fieldSchema.min}
                         max={fieldSchema.max}
                         required={fieldSchema.required}
+                        step={fieldSchema.decimalPlaces !== undefined ? '0.01' : '1'}
                     />
                 );
 

@@ -215,9 +215,9 @@ function HomePage() {
 
         switch (entry.action) {
             case 'created':
-                return entry.metadata.name ? `"${entry.metadata.name}"` : '';
+                return entry.metadata.name ? `${entry.metadata.name}` : '';
             case 'updated':
-                return entry.metadata.name ? `"${entry.metadata.name}"` : '';
+                return entry.metadata.name ? `${entry.metadata.name}` : '';
             case 'checkout':
                 if (entry.metadata.assigneeName) {
                     const model =
@@ -239,7 +239,7 @@ function HomePage() {
                 }
                 return '';
             case 'deleted':
-                return entry.metadata.name ? `"${entry.metadata.name}"` : '';
+                return entry.metadata.name ? `${entry.metadata.name}` : '';
             default:
                 return '';
         }

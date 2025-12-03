@@ -31,4 +31,5 @@ export default interface FieldSchema {
     showInEdit?: boolean;
     showInDetail?: boolean;
     placeholder?: string;
+    decimalPlaces?: number;
 }

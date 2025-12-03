@@ -28,6 +28,7 @@ const assetsSchema: IResourceSchema = {
         showInForm: true,
         showInDetail: true,
         placeholder: 'Enter cost',
+        decimalPlaces: 2,
     },
     assigneeModel: {
         type: 'enum',

@@ -1,4 +1,4 @@
-import { EnvironmentNames } from 'asset-management-common/constants/index.js';
+import { EnvironmentNames, CookieConstants } from 'asset-management-common/constants/index.js';
 import config from '../../config/index.js';
 
 /**
@@ -12,9 +12,9 @@ const generateCookie = (response, name, value, maxAge) => {
     response.cookie(name, value, {
         httpOnly: true,
         secure: config.ENVIRONMENT === EnvironmentNames.production && !isLocalhost,
-        sameSite: isLocalhost ? 'lax' : 'strict',
+        sameSite: isLocalhost ? CookieConstants.sameSiteLax : CookieConstants.sameSiteStrict,
         maxAge,
-        path: '/',
+        path: CookieConstants.pathRoot,
     });
 };
 

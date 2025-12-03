@@ -23,15 +23,15 @@ const schema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: [true, 'Firstname is required'],
-        minlength: [2, 'Firstname is shorter than the minimum allowed length (2)'],
-        maxlength: [31, 'Firstname is longer than the maximum allowed length (31)'],
+        required: [true, 'First name is required'],
+        minlength: [2, 'First name is shorter than the minimum allowed length (2)'],
+        maxlength: [31, 'First name is longer than the maximum allowed length (31)'],
     },
     lastName: {
         type: String,
-        required: [true, 'Lastname is required'],
-        minlength: [2, 'Lastname is shorter than the minimum allowed length (2)'],
-        maxlength: [31, 'Lastname is longer than the maximum allowed length (31)'],
+        required: [true, 'Last name is required'],
+        minlength: [2, 'Last name is shorter than the minimum allowed length (2)'],
+        maxlength: [31, 'Last name is longer than the maximum allowed length (31)'],
     },
     role: {
         type: String,

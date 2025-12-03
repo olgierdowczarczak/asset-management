@@ -1,4 +1,15 @@
-import { ConstMessages, CollectionNames } from 'asset-management-common/constants/index.js';
+import {
+    ConstMessages,
+    CollectionNames,
+    StatusValues,
+    ModelNames,
+    HistoryActions,
+    MongoOperators,
+    QueryParamConstants,
+    RouteParamConstants,
+    SortConstants,
+    FieldNames,
+} from 'asset-management-common/constants/index.js';
 import logHistory from 'asset-management-common/helpers/logHistory.js';
 import { StatusCodes } from 'http-status-codes';
 import Endpoint from './endpoint.js';
@@ -26,10 +37,22 @@ class Instance extends Endpoint {
         this.checkInInstance = this.checkInInstance.bind(this);
         this.checkOutInstance = this.checkOutInstance.bind(this);
 
-        this._router.route('/instances/stats').get(this.getInstanceStats);
-        this._router.route('/:id/instances').get(this.getInstances);
-        this._router.route('/:id/instances/:instanceId/checkin').post(this.checkInInstance);
-        this._router.route('/:id/instances/:instanceId/checkout').post(this.checkOutInstance);
+        this._router
+            .route(`${RouteParamConstants.instances}${RouteParamConstants.stats}`)
+            .get(this.getInstanceStats);
+        this._router
+            .route(`${RouteParamConstants.id}${RouteParamConstants.instances}`)
+            .get(this.getInstances);
+        this._router
+            .route(
+                `${RouteParamConstants.id}${RouteParamConstants.instances}${RouteParamConstants.instanceId}${RouteParamConstants.checkin}`,
+            )
+            .post(this.checkInInstance);
+        this._router
+            .route(
+                `${RouteParamConstants.id}${RouteParamConstants.instances}${RouteParamConstants.instanceId}${RouteParamConstants.checkout}`,
+            )
+            .post(this.checkOutInstance);
     }
 
     async _handlePolymorphicPopulate(items) {
@@ -39,7 +62,10 @@ class Instance extends Endpoint {
     async getInstances(request, response) {
         try {
             const id = validateId(request.params.id);
-            const { page = 1, limit = config.PAGINATION_DEFAULT_LIMIT } = request.query;
+            const {
+                [QueryParamConstants.page]: page = 1,
+                [QueryParamConstants.limit]: limit = config.PAGINATION_DEFAULT_LIMIT,
+            } = request.query;
 
             const parent = await this._parentCollection.findOne({ id }).lean();
             if (!parent) {
@@ -54,8 +80,8 @@ class Instance extends Endpoint {
 
             const total = await this._collection.countDocuments({ parentId: id });
             let items = await this._collection
-                .find({ parentId: id })
-                .sort({ instanceNumber: 1 })
+                .find({ [FieldNames.parentId]: id })
+                .sort({ [FieldNames.instanceNumber]: SortConstants.ascending })
                 .skip(skip)
                 .limit(limitNum)
                 .lean();
@@ -82,10 +108,13 @@ class Instance extends Endpoint {
     async getInstanceStats(request, response) {
         try {
             const assignedCount = await this._collection.countDocuments({
-                assignee: { $exists: true, $ne: null },
+                [FieldNames.assignee]: { [MongoOperators.exists]: true, [MongoOperators.ne]: null },
             });
             const unassignedCount = await this._collection.countDocuments({
-                $or: [{ assignee: { $exists: false } }, { assignee: null }],
+                [MongoOperators.or]: [
+                    { [FieldNames.assignee]: { [MongoOperators.exists]: false } },
+                    { [FieldNames.assignee]: null },
+                ],
             });
 
             response.status(StatusCodes.OK).send({
@@ -117,13 +146,13 @@ class Instance extends Endpoint {
             if (!instance) {
                 return response
                     .status(StatusCodes.NOT_FOUND)
-                    .send({ message: 'Instance not found' });
+                    .send({ message: ConstMessages.instanceNotFound });
             }
 
             if (!instance.assignee) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: 'Instance is not checked out' });
+                    .send({ message: ConstMessages.instanceNotCheckedOut });
             }
 
             const previousAssignee = instance.assignee;
@@ -133,7 +162,7 @@ class Instance extends Endpoint {
 
             if (previousAssignee) {
                 const actualModel =
-                    previousAssigneeModel === 'common'
+                    previousAssigneeModel === ModelNames.common
                         ? previousActualAssigneeModel
                         : previousAssigneeModel;
                 if (actualModel) {
@@ -145,7 +174,7 @@ class Instance extends Endpoint {
                             id: previousAssignee,
                         }).lean();
                         if (assigneeDoc) {
-                            if (actualModel === 'users') {
+                            if (actualModel === ModelNames.users) {
                                 previousAssigneeName = [assigneeDoc.firstName, assigneeDoc.lastName]
                                     .filter(Boolean)
                                     .join(' ');
@@ -161,8 +190,12 @@ class Instance extends Endpoint {
                 .findOneAndUpdate(
                     { id: instanceId },
                     {
-                        $unset: { assignee: '', actualAssigneeModel: '', assignedAt: '' },
-                        $set: { status: 'available' },
+                        [MongoOperators.unset]: {
+                            assignee: '',
+                            actualAssigneeModel: '',
+                            assignedAt: '',
+                        },
+                        [MongoOperators.set]: { status: StatusValues.available },
                     },
                     { new: true, runValidators: true },
                 )
@@ -171,7 +204,7 @@ class Instance extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._instanceCollectionName,
                 resourceId: instanceId,
-                action: 'checkin',
+                action: HistoryActions.checkin,
                 metadata: {
                     name: `${parent.name} #${instance.instanceNumber}`,
                     parentId: id,
@@ -199,7 +232,7 @@ class Instance extends Endpoint {
             if (!assignee || !actualAssigneeModel) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: 'assignee and actualAssigneeModel are required' });
+                    .send({ message: ConstMessages.assigneeRequired });
             }
 
             const parent = await this._parentCollection.findOne({ id }).lean();
@@ -216,7 +249,7 @@ class Instance extends Endpoint {
             if (!instance) {
                 return response
                     .status(StatusCodes.NOT_FOUND)
-                    .send({ message: 'Instance not found' });
+                    .send({ message: ConstMessages.instanceNotFound });
             }
 
             const capitalizedModel =
@@ -225,18 +258,18 @@ class Instance extends Endpoint {
             if (!AssigneeModel) {
                 return response
                     .status(StatusCodes.BAD_REQUEST)
-                    .send({ message: `Invalid assignee model: ${actualAssigneeModel}` });
+                    .send({ message: ConstMessages.invalidAssigneeModel(actualAssigneeModel) });
             }
 
             const assigneeExists = await AssigneeModel.findOne({ id: Number(assignee) }).lean();
             if (!assigneeExists) {
                 return response.status(StatusCodes.NOT_FOUND).send({
-                    message: `Assignee with id ${assignee} not found in ${actualAssigneeModel}`,
+                    message: ConstMessages.assigneeNotFound(assignee, actualAssigneeModel),
                 });
             }
 
             let assigneeName = '';
-            if (actualAssigneeModel === 'users') {
+            if (actualAssigneeModel === ModelNames.users) {
                 assigneeName = [assigneeExists.firstName, assigneeExists.lastName]
                     .filter(Boolean)
                     .join(' ');
@@ -248,12 +281,12 @@ class Instance extends Endpoint {
                 .findOneAndUpdate(
                     { id: instanceId },
                     {
-                        $set: {
+                        [MongoOperators.set]: {
                             assigneeModel: assigneeModel || actualAssigneeModel,
                             actualAssigneeModel,
                             assignee: validateId(assignee),
                             assignedAt: new Date(),
-                            status: 'assigned',
+                            status: StatusValues.assigned,
                         },
                     },
                     { new: true, runValidators: true },
@@ -263,7 +296,7 @@ class Instance extends Endpoint {
             await logHistory(models.History, {
                 resourceType: this._instanceCollectionName,
                 resourceId: instanceId,
-                action: 'checkout',
+                action: HistoryActions.checkout,
                 metadata: {
                     name: `${parent.name} #${instance.instanceNumber}`,
                     parentId: id,
