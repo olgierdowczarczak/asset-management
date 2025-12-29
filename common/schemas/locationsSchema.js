@@ -40,6 +40,10 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number,
         ref: 'companies',
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
     id: {
         type: Number,
         unique: [true, 'Location already exists'],

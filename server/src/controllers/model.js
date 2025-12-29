@@ -121,6 +121,10 @@ class Model extends Endpoint {
                 CollectionNames.assets,
                 CollectionNames.accessories,
                 CollectionNames.licenses,
+                CollectionNames.users,
+                CollectionNames.locations,
+                CollectionNames.companies,
+                CollectionNames.departments,
             ];
 
             if (collectionsWithSoftDelete.includes(this._collectionName)) {
@@ -580,10 +584,6 @@ class Model extends Endpoint {
             }
 
             await this._clearReferences(this._collectionName, id);
-            await models.History.deleteMany({
-                resourceType: this._collectionName,
-                resourceId: Number(id),
-            });
 
             const collectionsWithInstances = [
                 CollectionNames.accessories,
@@ -597,7 +597,18 @@ class Model extends Endpoint {
                 await InstanceModel.deleteMany({ parentId: Number(id) });
             }
 
-            await this._collection.deleteOne({ id });
+            await this._collection.updateOne(
+                { id },
+                { [MongoOperators.set]: { [FieldNames.isDeleted]: true } }
+            );
+
+            await logHistory(models.History, {
+                resourceType: this._collectionName,
+                resourceId: Number(id),
+                action: HistoryActions.deleted,
+                metadata: { name: item.name || item.username },
+            });
+
             response.status(StatusCodes.ACCEPTED).send({ message: ConstMessages.actionSucceed });
         } catch (err) {
             const errorMessage = validateError(err) || ConstMessages.internalServerError;

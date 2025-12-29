@@ -69,6 +69,7 @@ const schema = new mongoose.Schema({
     },
     isDeleted: {
         type: Boolean,
+        default: false,
     },
     id: {
         type: Number,

@@ -12,6 +12,10 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number,
         ref: 'users',
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
     id: {
         type: Number,
         unique: [true, 'Company already exists'],
