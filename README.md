@@ -243,7 +243,11 @@ Accessories and licenses use a parent-instance pattern:
 All create, update, delete, check-in, and check-out actions are logged to the History collection with complete metadata for audit trails.
 
 ### Soft Delete
-Assets, accessories, and licenses use an `isDeleted` flag instead of hard deletion, allowing recovery and maintaining historical data integrity.
+All main collections (Assets, Accessories, Licenses, Users, Locations, Companies, Departments) use an `isDeleted` flag instead of hard deletion. This approach:
+- Allows recovery of deleted items
+- Maintains complete historical data integrity and audit trail
+- Prevents foreign key integrity issues
+- Exception: AccessoryInstances and LicenseInstances are physically deleted when parent is removed
 
 ## API Documentation
 
